@@ -27,3 +27,7 @@ Every enquiry is persisted before AI processing and records its source. AI retur
 ## Demo boundaries
 
 The deployment uses a shared synthetic dataset. Reviewers may see each other's demo changes. An operator-only seed/reset path restores it. This architecture is suitable for a demo and requires further security, privacy, operations, and external-system work before production use.
+
+## OpenRouter setup decision — November 2, 2026
+
+Owner selected google/gemma-4-26b-a4b-it:free. No paid fallback; 50/day and 20/min upstream quotas are the demo planning limits. JSON mode plus application-side validation is used because the live free endpoint rejects strict JSON Schema routing. Credentials stay server-only. See [OpenRouter configuration](OPENROUTER.md) for live verification status and failure handling.

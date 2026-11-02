@@ -35,7 +35,7 @@ Deferred: real payments, real messaging, reservation-system/channel-manager inte
 - [x] Scaffold Next.js/TypeScript/Tailwind; configure formatting, types, tests, and CI. **Evidence:** `package.json`, config files, `.github/` workflow; local checks and initial GitHub CI passed.
 - [x] Establish Neon development and demo database environments, migrations, and repeatable synthetic seed data. **Evidence:** both branches migrated and seeded; see docs/DAY_1_EVIDENCE.md.
 - [x] Configure Vercel deployment and environment variables; commit an example env file containing names only. **Evidence:** https://hill-resort-booking.vercel.app returns the database-backed catalogue. GitHub repository link verified; production branch main.
-- [ ] Arrange OpenRouter access securely, select the initial compatible model, and agree a small credit limit before live calls.
+- [x] Configure OpenRouter access and the owner-selected free model google/gemma-4-26b-a4b-it:free; use the approved 50/day and 20/min upstream quotas instead of a paid budget. **Evidence:** local/Vercel configuration and authentication verified; see docs/OPENROUTER.md. Successful inference verification remains pending upstream HTTP 429.
 - [ ] Agree a compact visual direction: fictional coffee-estate identity, restrained palette, typography, licensed photography, and mobile layout.
 - [x] Build the application shell and demonstrate a database-backed room listing. **Evidence:** live public catalogue and passing desktop/mobile checks.
 
