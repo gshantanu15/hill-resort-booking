@@ -2,12 +2,16 @@ import "server-only";
 import { z } from "zod";
 
 export const defaultOpenRouterModel = "google/gemma-4-26b-a4b-it:free";
+export const defaultOpenRouterFallbackModel =
+  "dots-studio/dots-3-note-preview:free";
 
 export class OpenRouterError extends Error {
   constructor(
     public readonly code:
       "configuration" | "rate_limit" | "unavailable" | "invalid_output",
     public readonly retryAfter: string | null = null,
+    public readonly limitSource:
+      "upstream_provider_shared_pool" | "unknown" | null = null,
   ) {
     super(`OpenRouter: ${code}. Keep the enquiry available for manual review.`);
     this.name = "OpenRouterError";
@@ -15,6 +19,7 @@ export class OpenRouterError extends Error {
 }
 
 const envelope = z.object({
+  model: z.string().optional(),
   choices: z
     .array(
       z.object({
@@ -30,10 +35,14 @@ export async function requestStructuredOutput(input: {
   system: string;
   message: string;
   schema: Record<string, unknown>;
-}): Promise<unknown> {
+}): Promise<{ data: unknown; model: string }> {
   const key = process.env.OPENROUTER_API_KEY?.trim();
   const model = process.env.OPENROUTER_MODEL?.trim() || defaultOpenRouterModel;
-  if (!key || !model.endsWith(":free"))
+  const fallback = (
+    process.env.OPENROUTER_FALLBACK_MODEL ?? defaultOpenRouterFallbackModel
+  ).trim();
+  const models = [...new Set([model, fallback].filter(Boolean))];
+  if (!key || models.some((id) => !id.endsWith(":free")))
     throw new OpenRouterError("configuration");
   if (
     !input.message.trim() ||
@@ -54,7 +63,7 @@ export async function requestStructuredOutput(input: {
           "X-OpenRouter-Title": "Hill Resort Booking Demo",
         },
         body: JSON.stringify({
-          model,
+          ...(models.length > 1 ? { models } : { model }),
           messages: [
             {
               role: "system",
@@ -76,17 +85,35 @@ export async function requestStructuredOutput(input: {
         cache: "no-store",
       },
     );
-    if (response.status === 429)
+    if (response.status === 429) {
+      const detail = z
+        .object({
+          error: z.object({
+            metadata: z
+              .object({ limit_source: z.string().optional() })
+              .optional(),
+          }),
+        })
+        .safeParse(await response.json().catch(() => null));
       throw new OpenRouterError(
         "rate_limit",
         response.headers.get("retry-after"),
+        detail.success &&
+          detail.data.error.metadata?.limit_source ===
+            "upstream_provider_shared_pool"
+          ? "upstream_provider_shared_pool"
+          : "unknown",
       );
+    }
     if (!response.ok) throw new OpenRouterError("unavailable");
     const parsed = envelope.safeParse(await response.json());
     if (!parsed.success || parsed.data.choices[0].finish_reason !== "stop")
       throw new OpenRouterError("invalid_output");
     try {
-      return JSON.parse(parsed.data.choices[0].message.content);
+      return {
+        data: JSON.parse(parsed.data.choices[0].message.content),
+        model: parsed.data.model ?? model,
+      };
     } catch {
       throw new OpenRouterError("invalid_output");
     }

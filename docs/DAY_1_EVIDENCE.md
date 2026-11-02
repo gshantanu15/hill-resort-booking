@@ -25,7 +25,7 @@ Repository: https://github.com/gshantanu15/hill-resort-booking
 ## Remaining day-one work
 
 - Vercel GitHub integration is verified: gshantanu15/hill-resort-booking, production branch main. CLI deployment and repository linking both work.
-- OpenRouter local/Vercel configuration is complete with google/gemma-4-26b-a4b-it:free. Authentication passed; nine deterministic tests passed. Live synthetic checks return upstream 429 despite 50 daily requests remaining, so live classification quality remains unverified. No paid completions or fallback. See docs/OPENROUTER.md.
+- OpenRouter fixed and verified: Gemma remains primary; owner approved free Dots fallback for the shared-pool 429. Authentication and wedding, room, offsite, complaint classifications all passed on the actual routed configuration. Responses attributed Dots. Twelve deterministic tests passed. No paid fallback; privacy policy preserved. See docs/OPENROUTER.md.
 - Owner visual review remains pending. Booking and staff login are later increments.
 
 Without DATABASE_URL, the local catalogue explicitly labels sample data. A configured database error is surfaced rather than silently replaced by samples.

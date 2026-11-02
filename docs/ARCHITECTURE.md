@@ -30,4 +30,4 @@ The deployment uses a shared synthetic dataset. Reviewers may see each other's d
 
 ## OpenRouter setup decision — November 2, 2026
 
-Owner selected google/gemma-4-26b-a4b-it:free. No paid fallback; 50/day and 20/min upstream quotas are the demo planning limits. JSON mode plus application-side validation is used because the live free endpoint rejects strict JSON Schema routing. Credentials stay server-only. See [OpenRouter configuration](OPENROUTER.md) for live verification status and failure handling.
+Owner selected google/gemma-4-26b-a4b-it:free. Owner-approved Dots free fallback resolves upstream shared-pool 429s while keeping Gemma primary. No paid fallback; 50/day and 20/min upstream quotas are the demo planning limits. JSON mode plus application-side validation is used because the live free endpoint rejects strict JSON Schema routing. Credentials stay server-only. See [OpenRouter configuration](OPENROUTER.md) for live verification status and failure handling.

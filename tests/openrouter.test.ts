@@ -13,6 +13,7 @@ afterEach(() => {
 function configure() {
   vi.stubEnv("OPENROUTER_API_KEY", "test-placeholder");
   vi.stubEnv("OPENROUTER_MODEL", "google/gemma-4-26b-a4b-it:free");
+  vi.stubEnv("OPENROUTER_FALLBACK_MODEL", "");
 }
 describe("OpenRouter setup transport", () => {
   it("pins the free model, requires structured output, and returns parsed JSON", async () => {
@@ -31,7 +32,8 @@ describe("OpenRouter setup transport", () => {
     );
     vi.stubGlobal("fetch", transport);
     await expect(requestStructuredOutput(input)).resolves.toEqual({
-      category: "wedding",
+      data: { category: "wedding" },
+      model: "google/gemma-4-26b-a4b-it:free",
     });
     const body = JSON.parse(transport.mock.calls[0][1].body);
     expect(body.model).toBe("google/gemma-4-26b-a4b-it:free");
@@ -42,6 +44,46 @@ describe("OpenRouter setup transport", () => {
     });
     expect(body.models).toBeUndefined();
     expect(body.response_format).toEqual({ type: "json_object" });
+  });
+  it("routes Gemma first and only the approved free fallback second, retaining model attribution", async () => {
+    configure();
+    vi.stubEnv(
+      "OPENROUTER_FALLBACK_MODEL",
+      "dots-studio/dots-3-note-preview:free",
+    );
+    const transport = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          model: "dots-studio/dots-3-note-preview:free",
+          choices: [
+            {
+              finish_reason: "stop",
+              message: { content: '{"category":"wedding"}' },
+            },
+          ],
+        }),
+      ),
+    );
+    vi.stubGlobal("fetch", transport);
+    await expect(requestStructuredOutput(input)).resolves.toMatchObject({
+      model: "dots-studio/dots-3-note-preview:free",
+    });
+    const body = JSON.parse(transport.mock.calls[0][1].body);
+    expect(body.models).toEqual([
+      "google/gemma-4-26b-a4b-it:free",
+      "dots-studio/dots-3-note-preview:free",
+    ]);
+    expect(body.provider.max_price).toEqual({ prompt: 0, completion: 0 });
+  });
+  it("rejects a paid fallback before making a request", async () => {
+    configure();
+    vi.stubEnv("OPENROUTER_FALLBACK_MODEL", "paid/model");
+    const transport = vi.fn();
+    vi.stubGlobal("fetch", transport);
+    await expect(requestStructuredOutput(input)).rejects.toMatchObject({
+      code: "configuration",
+    });
+    expect(transport).not.toHaveBeenCalled();
   });
   it("preserves rate-limit retry hints without automatic retries", async () => {
     configure();
@@ -54,6 +96,28 @@ describe("OpenRouter setup transport", () => {
     await expect(requestStructuredOutput(input)).rejects.toMatchObject({
       code: "rate_limit",
       retryAfter: "60",
+    });
+    expect(transport).toHaveBeenCalledTimes(1);
+  });
+  it("identifies shared provider-pool throttling without exposing raw provider messages", async () => {
+    configure();
+    const transport = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          error: {
+            metadata: {
+              limit_source: "upstream_provider_shared_pool",
+              raw: "sensitive upstream detail",
+            },
+          },
+        }),
+        { status: 429 },
+      ),
+    );
+    vi.stubGlobal("fetch", transport);
+    await expect(requestStructuredOutput(input)).rejects.toMatchObject({
+      code: "rate_limit",
+      limitSource: "upstream_provider_shared_pool",
     });
     expect(transport).toHaveBeenCalledTimes(1);
   });

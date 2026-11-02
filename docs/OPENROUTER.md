@@ -1,27 +1,35 @@
 # OpenRouter demo configuration
 
-Owner-approved model: `google/gemma-4-26b-a4b-it:free` (November 2, 2026).
+Verified November 2, 2026 after all four live sample classifications passed.
 
-## Access and cost
+## Model routing
 
-The existing key is reused from ignored `.env.local` and stored as a sensitive Vercel production environment variable. `OPENROUTER_MODEL` is configured in both places. No keys belong in Git, browser bundles, output logs or chat. Requests originate from server-only code. There is no public AI endpoint in the day-one increment.
+- Primary: `google/gemma-4-26b-a4b-it:free` (`OPENROUTER_MODEL`).
+- Owner-approved fallback: `dots-studio/dots-3-note-preview:free` (`OPENROUTER_FALLBACK_MODEL`).
+- Both are configured locally and on Vercel production. An empty fallback variable explicitly disables fallback for isolated diagnostics.
+- OpenRouter receives an ordered models array and handles failover within a single HTTP request. Our client does not run retry loops. Responses retain the actual serving model for verification and later staff-facing attribution.
+- Only IDs ending in `:free` are accepted. Zero-price provider routing applies to both. A paid primary or fallback is rejected before any request. A future paid switch requires updating that guard and agreeing a budget.
 
-No paid credits or recurring budget is required for the selected free variant. The client accepts only model IDs ending in `:free`, supplies no fallback model, and requires zero-price provider routing. Switching to a paid model later requires deliberately updating that guard and agreeing a budget. Synthetic enquiries only; request bodies and completions are not logged by application code. Provider routing sets `data_collection: deny`; this is not a claim of zero retention across every service or a change to account-wide logging settings.
+## Root cause and fix
 
-## Quotas and failure behavior
+Gemma's shared Google AI Studio pool returned HTTP 429 with `limit_source=upstream_provider_shared_pool`. Authentication was valid and the account still had its full daily allowance. This was provider-pool throttling, not an invalid key or exhausted account quota. Another Gemma endpoint also returned pool throttling; some independent free endpoints were blocked by the existing account data policy. Those policies were preserved.
 
-Plan for 50 free requests per UTC day and 20 per minute, shared with other free-model use on the OpenRouter account. The daily window rolls over at 05:30 IST. The account API confirmed a daily ceiling of 50 during setup. These are upstream limits, not guarantees of provider capacity. The client makes no automatic retries or paid fallback; it preserves Retry-After when returned. A 429, provider failure, malformed output or 45-second timeout is a safe failure for the later inbox to leave in manual review.
+Dots accepted the existing JSON, privacy and zero-price constraints. First it passed all four classifications in isolation; then the actual Gemma-first/fallback route passed wedding, room, offsite and complaint examples. Each routed response identified Dots as the serving model. The checklist was only checked off after that end-to-end run succeeded.
 
-Day-four integration must enforce persistent application request limits across Vercel instances before exposing AI actions to reviewers. A process-local counter is not sufficient. The day-one operator check is bounded to four sequential synthetic enquiries and stops on the first failure.
+## Access and quotas
 
-## Structured output
+The API key lives in ignored `.env.local` and Vercel production secrets. No key belongs in Git, browser bundles, logs or chat. Calls are server-only; no public AI endpoint is exposed in this increment. Synthetic enquiries only, with no application logging of prompt/completion contents. Routing retains `data_collection: deny`; this is not a claim of zero retention or a change to account-wide logging settings.
 
-The live free endpoint advertises `response_format`, but native strict JSON Schema routing returned HTTP 404 during setup. Use JSON object mode, describe the expected schema in the prompt, parse the response, and validate against a Zod domain schema before using any fields. The setup check validates the returned category; full extraction, uncertainty handling and drafts remain day-four work. No silent downgrade from failed schema mode happens at runtime.
+Plan for 50 free requests per UTC day and 20 per minute, shared with other account use. The daily reset is 05:30 IST. Free endpoints can still be unavailable before those limits are reached. Fallback cannot bypass OpenRouter account-wide quotas. If both models fail, return a safe error for later manual review. Retry-After is preserved, and the client timeout is 45 seconds for the entire routed request.
 
-## Verification
+Before exposing AI actions in day four, enforce durable request limits across Vercel instances. A local memory counter is insufficient. Native provider fallback handles upstream errors; invalid JSON, truncated output and failed domain validation remain manual-review failures, not reasons for an application retry loop.
 
-Run `npm run ai:check` explicitly to check authentication and attempt four sample classifications (wedding, room, offsite, complaint). This consumes free quota when requests succeed; it is intentionally excluded from automated CI. The script never displays credentials or complete upstream responses. Deterministic mocked tests cover JSON parsing, provider failures, rate-limit handling, missing credentials and rejecting paid configurations.
+## Output and verification
 
-Setup authentication passed. Provider metadata confirmed zero input/output prices. Live inference encountered upstream HTTP 429 while the account still reported all 50 daily requests available; classification quality is not yet verified. Configuration can be complete while this provider-capacity check remains pending. Record a successful operator check before presenting AI classification as working.
+Gemma supports JSON mode without native JSON-schema enforcement. The request includes the expected schema in the system prompt; the transport parses JSON and returns `{ data, model }`. Callers must validate data against their Zod domain schema. The setup command validates categories. Full extraction, uncertainty and reply drafting remain day-four work.
 
-References: [model](https://openrouter.ai/google/gemma-4-26b-a4b-it:free), [limits](https://openrouter.ai/docs/api/reference/limits), [structured outputs](https://openrouter.ai/docs/guides/features/structured-outputs).
+`npm run ai:check` explicitly checks authentication and four synthetic classifications. It is not part of automated CI and stops on the first failure. Automated tests cover free-only routing, fallback order, model attribution, provider/shared-pool throttling, malformed output, missing credentials and paid-model rejection.
+
+The fallback is a preview: OpenRouter lists its removal date as December 31, 2026. Re-evaluate before extending this demo beyond the six-day build.
+
+References: [Gemma](https://openrouter.ai/google/gemma-4-26b-a4b-it:free), [Dots](https://openrouter.ai/dots-studio/dots-3-note-preview:free), [model fallback routing](https://openrouter.ai/docs/guides/routing/model-fallbacks), [limits](https://openrouter.ai/docs/api/reference/limits).
