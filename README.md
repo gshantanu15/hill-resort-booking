@@ -4,7 +4,7 @@ A six-day build of a reviewable resort direct-booking demo. It covers mixed room
 
 ## Current status
 
-Day 1 foundation is in progress. See [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md) for the acceptance checklist, [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) for the public scope, and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the locked decisions.
+Live day-one catalogue: https://hill-resort-booking.vercel.app . Neon development/demo branches are configured. OpenRouter setup, owner visual review and GitHub auto-deployment linking remain pending. See [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md) for the acceptance checklist, [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) for the public scope, and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the locked decisions.
 
 ## Planned stack
 
@@ -12,7 +12,7 @@ Next.js, TypeScript, Tailwind, Neon PostgreSQL, Drizzle, Better Auth, OpenRouter
 
 ## Local setup
 
-The application scaffold and database commands are being added during Day 1. Copy `.env.example` to `.env.local` when it exists; never commit credentials. The original client brief is intentionally excluded from this public repository.
+Run `npm ci`, copy `.env.example` to `.env.local`, then `npm run dev`; never commit credentials. The original client brief is intentionally excluded from this public repository.
 
 ## Demo boundaries
 

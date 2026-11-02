@@ -1,0 +1,5 @@
+private/
+test-results/
+playwright-report/
+coverage/
+.env*

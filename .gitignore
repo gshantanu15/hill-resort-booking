@@ -9,3 +9,6 @@ playwright-report/
 test-results/
 *.tsbuildinfo
 .hallmark/
+.vercel
+.env*
+!.env.example
