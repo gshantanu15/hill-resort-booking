@@ -18,13 +18,13 @@ Repository: https://github.com/gshantanu15/hill-resort-booking
 - Vercel project created; runtime pinned to Node 24; function region Singapore (sin1).
 - Production deployment completed. Public unauthenticated request returned HTTP 200 and confirmed the PostgreSQL catalogue label, Estate room and Estate villa.
 - TypeScript, ESLint, Prettier, Vitest (1 test) and production build passed for the foundation. Desktop/mobile Playwright checks passed again with Neon configured, including image loading and horizontal overflow checks.
-- Initial GitHub CI passed: https://github.com/gshantanu15/hill-resort-booking/actions/runs/41441951386 . Subsequent configuration changes receive their own CI run.
+- Initial GitHub CI passed: https://github.com/gshantanu15/hill-resort-booking/actions/runs/41441951386 . Neon/Vercel configuration CI also passed: https://github.com/gshantanu15/hill-resort-booking/actions/runs/41445748192 .
 - Desktop/mobile screenshots inspected. Hallmark static checks had no failures/reflex findings; illustrative Unsplash provenance warning remains.
 - Dependency audit reported moderate tooling advisories involving Drizzle Kit's transitive esbuild packages. No forced downgrade applied.
 
 ## Remaining day-one work
 
-- Vercel GitHub integration must be authorized for hill-resort-booking before auto-deployment can be linked. CLI deployment works independently.
+- Vercel GitHub integration is verified: gshantanu15/hill-resort-booking, production branch main. CLI deployment and repository linking both work.
 - OpenRouter key, initial model and credit limit remain unconfigured; no live AI calls made.
 - Owner visual review remains pending. Booking and staff login are later increments.
 

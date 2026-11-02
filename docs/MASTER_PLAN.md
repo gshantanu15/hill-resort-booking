@@ -34,7 +34,7 @@ Deferred: real payments, real messaging, reservation-system/channel-manager inte
 - [x] Create the master-plan checklist, sanitized public requirements, and architecture decision record. **Evidence:** `docs/MASTER_PLAN.md`, `docs/REQUIREMENTS.md`, `docs/ARCHITECTURE.md`.
 - [x] Scaffold Next.js/TypeScript/Tailwind; configure formatting, types, tests, and CI. **Evidence:** `package.json`, config files, `.github/` workflow; local checks and initial GitHub CI passed.
 - [x] Establish Neon development and demo database environments, migrations, and repeatable synthetic seed data. **Evidence:** both branches migrated and seeded; see docs/DAY_1_EVIDENCE.md.
-- [x] Configure Vercel deployment and environment variables; commit an example env file containing names only. **Evidence:** https://hill-resort-booking.vercel.app returns the database-backed catalogue. GitHub auto-deployment connection remains pending.
+- [x] Configure Vercel deployment and environment variables; commit an example env file containing names only. **Evidence:** https://hill-resort-booking.vercel.app returns the database-backed catalogue. GitHub repository link verified; production branch main.
 - [ ] Arrange OpenRouter access securely, select the initial compatible model, and agree a small credit limit before live calls.
 - [ ] Agree a compact visual direction: fictional coffee-estate identity, restrained palette, typography, licensed photography, and mobile layout.
 - [x] Build the application shell and demonstrate a database-backed room listing. **Evidence:** live public catalogue and passing desktop/mobile checks.
