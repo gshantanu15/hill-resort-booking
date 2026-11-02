@@ -9,6 +9,7 @@ playwright-report/
 test-results/
 *.tsbuildinfo
 .hallmark/
+public/fonts/sentient-*.woff2
 .vercel
 .env*
 !.env.example

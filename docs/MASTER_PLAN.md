@@ -36,7 +36,7 @@ Deferred: real payments, real messaging, reservation-system/channel-manager inte
 - [x] Establish Neon development and demo database environments, migrations, and repeatable synthetic seed data. **Evidence:** both branches migrated and seeded; see docs/DAY_1_EVIDENCE.md.
 - [x] Configure Vercel deployment and environment variables; commit an example env file containing names only. **Evidence:** https://hill-resort-booking.vercel.app returns the database-backed catalogue. GitHub repository link verified; production branch main.
 - [x] Configure OpenRouter access with Gemma as primary and the owner-approved free Dots fallback; use the approved 50/day and 20/min upstream quotas instead of a paid budget. **Evidence:** authentication and all four live classifications passed through the actual fallback route; see docs/OPENROUTER.md. Both models configured locally and on Vercel.
-- [ ] Agree a compact visual direction: fictional coffee-estate identity, restrained palette, typography, licensed photography, and mobile layout.
+- [x] Agree a compact visual direction: fictional coffee-estate identity, restrained palette, typography, licensed photography, and mobile layout. **Evidence:** owner approval on November 2; root DESIGN.md and shared tokens saved; see docs/DESIGN_REVIEW.md.
 - [x] Build the application shell and demonstrate a database-backed room listing. **Evidence:** live public catalogue and passing desktop/mobile checks.
 
 **Done when:** a fresh checkout has documented setup, CI passes, a deployed URL renders seeded rooms, and no credentials, original brief, or private client material is public.

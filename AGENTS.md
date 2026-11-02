@@ -1,3 +1,7 @@
+## Project design
+
+Read root `DESIGN.md` before developing or restyling guest or staff interfaces. Reuse `src/app/design/tokens.css` and the approved shared styles. Preserve functional data flows and accessibility. Significant design-system changes require an explicit owner decision.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 ## This is NOT the Next.js you know

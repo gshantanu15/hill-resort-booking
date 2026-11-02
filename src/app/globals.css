@@ -1,16 +1,8 @@
-/* Hallmark · theme: Atelier, adapted for estate booking · signature: forest print · v2.0.0 */
-/* Hallmark · pre-emit critique: P4 H4 E4 S3 R4 V4 · weakest: specificity; used estate setting and honest demo copy */
+/* Hallmark · shape: photographic catalogue · genre: editorial · theme: Atelier (deal 1/3) · redesign: full · hero: Poster · nav: quiet bar · footer: colophon · imagery: licensed photographs · signature: mist over wooded hills · axes: light/roman-serif/cool · posture: restrained · draw: 3c22e4 · hero-review: ship, finish-review: subagent, 2 resolved, v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E4 S3 R5 V4 · weakest: specificity, illustrative photography awaits the real coffee estate */
+/* Hallmark · dismissed 77 · four existing sections retained for a concise room catalogue, with no sections added only as filler */
 @import "tailwindcss";
-:root {
-  --paper: #f5f3ed;
-  --ink: #292d28;
-  --muted: #62665e;
-  --rule: #d3d5cb;
-  --accent: #354b3d;
-  --light: #fbfaf6;
-  --font-display: Georgia, serif;
-  --font-body: Arial, sans-serif;
-}
+@import "./design/tokens.css";
 * {
   box-sizing: border-box;
 }
@@ -173,7 +165,7 @@ img {
 .room-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 28px;
+  gap: 32px;
 }
 .room-photo {
   position: relative;
@@ -245,7 +237,7 @@ footer > a:last-child {
   }
   .hero {
     grid-template-columns: minmax(0, 1fr);
-    gap: 28px;
+    gap: 32px;
     padding-top: 24px;
   }
   .hero-photo {
@@ -287,4 +279,370 @@ footer > a:last-child {
 h1,
 h2 {
   text-wrap: balance;
+}
+
+/* Approved photographic estate catalogue. Shared tokens live in design/tokens.css. */
+body {
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+}
+p {
+  text-wrap: pretty;
+}
+header {
+  min-height: 104px;
+  padding: 24px 48px;
+  border: 0;
+}
+.wordmark {
+  font-size: 32px;
+  line-height: 1;
+  letter-spacing: -0.8px;
+}
+.wordmark span {
+  font-family: var(--font-body);
+  font-size: 14px;
+  letter-spacing: 0;
+  margin-left: 8px;
+}
+nav {
+  gap: 40px;
+  font-size: 14px;
+}
+nav a:not(.button) {
+  border-bottom: 1px solid transparent;
+}
+nav a:not(.button):hover {
+  border-bottom-color: var(--ink);
+}
+.button {
+  border-radius: 2px;
+  min-height: 48px;
+  font-size: 14px;
+  padding: 12px 24px;
+  transition:
+    color var(--duration),
+    background-color var(--duration);
+}
+.hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: min(720px, calc(100svh - 128px));
+  padding: 64px;
+  margin: 0 24px;
+  isolation: isolate;
+}
+.hero-photo {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+  z-index: -2;
+}
+.hero-photo img {
+  object-position: 50% 58%;
+  filter: saturate(0.78) contrast(0.96);
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    90deg,
+    var(--scrim-left),
+    var(--scrim-mid) 65%,
+    var(--scrim-clear)
+  );
+}
+.hero-copy {
+  max-width: 720px;
+  color: var(--hero-ink);
+  padding-block: 32px;
+}
+.hero-copy h1 {
+  color: var(--hero-ink);
+  font-size: clamp(52px, 7vw, 96px);
+  font-weight: 300;
+  letter-spacing: -2.8px;
+  line-height: 1.03;
+  margin: 0 0 32px;
+}
+.hero-copy > p:not(.caption) {
+  max-width: 360px;
+  font-size: 18px;
+  line-height: 1.65;
+  margin: 0;
+}
+.hero .button {
+  color: var(--hero-ink);
+  border-color: var(--hero-ink);
+  margin-top: 32px;
+}
+.hero .button:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+.hero .button:focus-visible {
+  outline-color: var(--hero-ink);
+}
+.hero-location {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  font-size: 12px;
+  padding: 8px 16px;
+  color: var(--ink);
+  background: var(--paper);
+}
+.stays {
+  border-top: 0;
+  padding: 120px 64px 0;
+}
+.section-heading {
+  align-items: end;
+  margin-bottom: 48px;
+  gap: 32px;
+}
+h2 {
+  font-weight: 300;
+  letter-spacing: -1.2px;
+  font-size: clamp(40px, 4vw, 56px);
+}
+.section-heading h2 {
+  margin: 0 0 16px;
+}
+.section-heading p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+}
+.section-heading > p {
+  max-width: 264px;
+}
+.room-grid {
+  gap: 32px;
+}
+.room-photo {
+  height: auto;
+  aspect-ratio: 1.15;
+}
+.room-photo img {
+  filter: saturate(0.78) contrast(0.96);
+  object-position: center;
+}
+.room-title {
+  display: block;
+  margin-top: 24px;
+}
+.room-title h3 {
+  margin: 0 0 12px;
+  font-size: 28px;
+  font-weight: 400;
+}
+.room-title span {
+  font-size: 14px;
+}
+.room-description {
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--muted);
+}
+summary {
+  cursor: pointer;
+  width: fit-content;
+  padding-block: 8px;
+}
+summary:hover {
+  color: var(--ink);
+}
+summary:active {
+  opacity: 0.7;
+}
+summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+.room-description p {
+  max-width: 45ch;
+  margin: 8px 0 16px;
+}
+article .price {
+  margin: 16px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+}
+.price span {
+  font-size: 12px;
+}
+.estate {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.6fr);
+  gap: 32px;
+  margin: 144px 64px 0;
+  padding: 64px 0 120px;
+  border-top: 1px solid var(--rule);
+  align-items: center;
+}
+.estate h2 {
+  margin: 0;
+  font-size: clamp(40px, 4.8vw, 64px);
+}
+.estate-copy p {
+  max-width: 45ch;
+  font-size: 16px;
+  color: var(--muted);
+}
+.estate-copy p:first-child {
+  color: var(--ink);
+  margin-top: 0;
+}
+.estate-copy p + p {
+  margin-top: 24px;
+}
+footer {
+  padding: 40px 64px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) auto;
+  gap: 32px;
+  align-items: start;
+}
+footer .wordmark {
+  font-size: 28px;
+}
+footer p {
+  margin: 0;
+  font-size: 12px;
+}
+footer > a:last-of-type {
+  font-size: 12px;
+}
+.demo-notes {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  color: var(--muted);
+  border-top: 1px solid var(--rule);
+  padding-top: 16px;
+}
+.demo-notes p {
+  max-width: 70ch;
+  margin: 16px 0;
+}
+.demo-notes summary {
+  font-size: 12px;
+}
+@media (min-width: 1600px) {
+  .hero {
+    min-height: 760px;
+  }
+}
+@media (max-width: 760px) {
+  header {
+    padding: 24px;
+    min-height: 88px;
+  }
+  .wordmark {
+    font-size: 28px;
+  }
+  .wordmark span {
+    font-size: 12px;
+    margin-left: 4px;
+  }
+  nav {
+    gap: 0;
+  }
+  nav .button {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+  .hero {
+    min-height: 660px;
+    margin: 0 12px;
+    padding: 32px 24px 88px;
+  }
+  .hero-copy {
+    padding: 0;
+  }
+  .hero-copy h1 {
+    font-size: clamp(48px, 12.5vw, 72px);
+    letter-spacing: -1.6px;
+    margin-bottom: 24px;
+  }
+  .hero-copy > p:not(.caption) {
+    font-size: 16px;
+    max-width: 29ch;
+  }
+  .hero::before {
+    background: linear-gradient(90deg, var(--scrim-left), var(--scrim-mid));
+  }
+  .hero-location {
+    bottom: 20px;
+    left: 24px;
+    right: auto;
+    padding: 8px 12px;
+  }
+  .hero-photo img {
+    object-position: 38% center;
+  }
+  .stays {
+    padding: 96px 24px 0;
+  }
+  .section-heading {
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+  .section-heading > p {
+    display: none;
+  }
+  .room-grid {
+    gap: 32px;
+  }
+  .room-photo {
+    height: auto;
+    aspect-ratio: 1.15;
+  }
+  .room-title {
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .room-title h3 {
+    font-size: 26px;
+  }
+  .room-title span {
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  .estate {
+    grid-template-columns: minmax(0, 1fr);
+    margin: 120px 24px 0;
+    padding: 48px 0 96px;
+    gap: 32px;
+  }
+  .estate h2 {
+    font-size: 40px;
+  }
+  footer {
+    padding: 32px 24px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+}
+
+.hero {
+  align-items: end;
+}
+.hero-copy {
+  padding-block: 0;
+}
+
+/* Hallmark · dismissed 77 · the four existing sections cover the room catalogue without filler; owner requests nothing without purpose */
+.collection-note {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 12px;
 }

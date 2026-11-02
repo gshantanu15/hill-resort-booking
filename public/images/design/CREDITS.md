@@ -1,0 +1,12 @@
+# Illustrative design photography
+
+These are licensed reference photographs for the fictional Aavana Estate demo. They do not depict a real Aavana property or establish its amenities. CSS crops and lightly desaturates the images; the original downloaded files are retained here. They are separately licensed from application code.
+
+| Local file                                                            | Original source and author                                                                                                                                                                            | License                                                         |
+| --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| blassenstein-erlauftal-mit-nebel-02-panorama-1920.jpg                 | [Blassenstein Erlauftal mit Nebel 02 Panorama](https://commons.wikimedia.org/wiki/File:Blassenstein_Erlauftal_mit_Nebel_02_Panorama.JPG), Uoaei1                                                      | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) |
+| canopy-bed-of-khan-pool-suite-in-amantaka-luxury-resort-hote-1920.jpg | [Canopy bed, Amantaka](https://commons.wikimedia.org/wiki/File:Canopy_bed_of_Khan_Pool_Suite_in_Amantaka_luxury_Resort_%26_Hotel_in_Luang_Prabang_Laos.jpg), Basile Morin                             | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+| canopy-bed-and-wardrobes-in-khan-pool-suite-at-amantaka-luxu-1920.jpg | [Canopy bed and wardrobes, Amantaka](https://commons.wikimedia.org/wiki/File:Canopy_bed_and_wardrobes_in_Khan_Pool_Suite_at_Amantaka_luxury_Resort_%26_Hotel_in_Luang_Prabang_Laos.jpg), Basile Morin | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+| lobby-lounge-of-amantaka-suite-amantaka-luxury-resort-hotel--1920.jpg | [Lobby lounge, Amantaka Suite](https://commons.wikimedia.org/wiki/File:Lobby_lounge_of_Amantaka_Suite_Amantaka_luxury_Resort_%26_Hotel_Luang_Prabang_Laos.jpg), Basile Morin                          | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+
+The guest page exposes these credits under the footer's photography disclosure. Retain attribution and applicable share-alike terms when redistributing or adapting these images.

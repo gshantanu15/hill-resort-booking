@@ -1,0 +1,17 @@
+/* Hallmark · approved Aavana Estate tokens · theme: Atelier adapted · v2.0.0 */
+/* Source of truth: owner-approved on November 2, 2026. */
+:root {
+  --paper: oklch(97.5% 0.006 92);
+  --ink: oklch(27% 0.022 145);
+  --muted: oklch(48% 0.018 145);
+  --rule: oklch(85% 0.012 110);
+  --accent: oklch(37% 0.035 145);
+  --light: oklch(99% 0.004 92);
+  --font-display: var(--font-estate-display), Georgia, serif;
+  --font-body: var(--font-estate-body), Arial, sans-serif;
+  --hero-ink: oklch(98% 0.006 92);
+  --scrim-left: oklch(17% 0.022 145 / 0.8);
+  --scrim-mid: oklch(17% 0.022 145 / 0.26);
+  --scrim-clear: oklch(17% 0.022 145 / 0);
+  --duration: 180ms;
+}
