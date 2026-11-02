@@ -26,6 +26,17 @@ Repository: https://github.com/gshantanu15/hill-resort-booking
 
 - Vercel GitHub integration is verified: gshantanu15/hill-resort-booking, production branch main. CLI deployment and repository linking both work.
 - OpenRouter fixed and verified: Gemma remains primary; owner approved free Dots fallback for the shared-pool 429. Authentication and wedding, room, offsite, complaint classifications all passed on the actual routed configuration. Responses attributed Dots. Twelve deterministic tests passed. No paid fallback; privacy policy preserved. See docs/OPENROUTER.md.
-- Owner visual review approved November 2, 2026. Shared design philosophy saved in root DESIGN.md; local fonts and photo licenses retained. Production release checks are being completed in this design integration. Booking and staff login remain later increments. End-of-day review is reserved for the next turn.
+- Owner visual review approved November 2, 2026. Shared design philosophy saved in root DESIGN.md; local fonts and photo licenses retained. Production integration verified: CI and Vercel deployment passed, and the live page was visually checked. Booking and staff login remain later increments. End-of-day review is reserved for the next turn.
 
 Without DATABASE_URL, the local catalogue explicitly labels sample data. A configured database error is surfaced rather than silently replaced by samples.
+
+## Approved design production release
+
+- Source commit: 16711f7 (Publish approved resort design and shared design philosophy).
+- GitHub CI: https://github.com/gshantanu15/hill-resort-booking/actions/runs/41478309224 , success.
+- Vercel deployment: hill-resort-booking-n5xjnbz4c-shans-projects-5a3cd5ba.vercel.app , Ready.
+- Public alias: https://hill-resort-booking.vercel.app . Opened and visually checked after deployment.
+- Live checks passed: room navigation, expandable description, PostgreSQL catalogue disclosure, photography credits, four loaded images, locally loaded fonts and no horizontal overflow in the inspected viewport.
+- Local release checks: types, lint, formatting, 12 unit tests, desktop/mobile journeys and production build passed. Cold font retrieval and hashes passed; restricted Sentient binaries are excluded from the repository and fetched at install/build time.
+- No database migration, rate/allotment change, API-key change or new OpenRouter call was required for this design release.
+- All day-one task checkboxes are complete. End-of-day review and formal wrap-up are intentionally reserved for the next turn.
