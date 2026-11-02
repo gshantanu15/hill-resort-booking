@@ -18,3 +18,5 @@ Verified locally on November 2, 2026:
 
 Repository: https://github.com/gshantanu15/hill-resort-booking
 Day one remains incomplete until Neon, Vercel deployment, OpenRouter configuration and owner design review are finished. Later-day functionality is not implemented in this increment.
+
+Desktop/mobile screenshots inspected: room images load, page hierarchy remains readable, and no horizontal overflow was detected. GitHub CI run: https://github.com/gshantanu15/hill-resort-booking/actions/runs/41441805047 (status to be checked separately).
