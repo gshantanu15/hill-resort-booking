@@ -27,6 +27,7 @@ Quiet photographic hospitality: pristine, contemporary and calming. Sell the exp
 ## Controls and accessibility
 
 - One outlined primary control style, 2px corners, 48px minimum height. The hero uses the same style with colours reversed for contrast.
+- Staff-calendar exception approved November 3, 2026: the primary save/apply control uses a filled woodland surface with light text. Secondary controls and the guest footer staff link remain outlined or typographic. Other guest controls are unchanged.
 - Provide keyboard access, instant visible focus, readable contrast and explicit validation. Keep semantic headings, meaningful image alternatives and a skip link.
 - Use native disclosures where appropriate. Do not hide information essential to comparing or confirming a booking.
 - Still by default; brief hover/press feedback only. Respect reduced motion. Content remains visible if scripting fails.
@@ -36,6 +37,7 @@ Quiet photographic hospitality: pristine, contemporary and calming. Sell the exp
 - Carry the same tokens, type, spacing and controls into the three-step guest booking flow.
 - Keep selection, itemized prices, taxes, availability changes and confirmation easy to scan. Do not imply successful bookings or messages before real persistence succeeds.
 - Staff screens are practical workspaces: Hanken for forms and tables, compact but accessible controls, clear states, and no decorative photographic hero. Share the palette without copying the marketing layout.
+- The approved staff calendar uses a seven-night matrix with one room row per type, weekly paging for ranges up to 31 nights, and one selected-night editor. Mobile shows one date and opens its editor on selection. Picker endpoints are inclusive stay nights; the inventory API retains its exclusive end. Keep server data separate from unsaved per-night drafts.
 - Keep implementation notes out of the main guest journey. Demo limitations and photo credits remain easy to find.
 
 ## Material and exports
