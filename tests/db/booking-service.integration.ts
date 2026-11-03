@@ -82,6 +82,53 @@ async function quote(id: string) {
 }
 
 describe("booking service transaction boundaries", () => {
+  it("serializes a staff allotment reduction competing with a last-unit booking", async () => {
+    const f = await fixture();
+    const staff = postgres(url, { max: 1, prepare: false });
+    const bookingClient = postgres(url, { max: 1, prepare: false });
+    try {
+      const q = await quote(f.id);
+      const outcomes = await Promise.allSettled([
+        confirmBooking(
+          drizzle(bookingClient, { schema }),
+          {
+            selection: selection(f.id),
+            contact,
+            submissionId: randomUUID(),
+            quoteToken: q.token,
+            paymentOutcome: "success",
+          },
+          { now: NOW, secret },
+        ),
+        staff.begin(async (tx) => {
+          // The staff API takes this same inventory lock before checking booked stock.
+          const [row] =
+            await tx`SELECT booked FROM nightly_inventory WHERE room_type_id=${f.id} AND stay_date=${dates[0]} FOR UPDATE`;
+          if (Number(row.booked) > 0) throw new Error("STAFF_CONFLICT");
+          await tx`UPDATE nightly_inventory SET allotment=0 WHERE room_type_id=${f.id} AND stay_date=${dates[0]}`;
+        }),
+      ]);
+      expect(
+        outcomes.filter((outcome) => outcome.status === "fulfilled"),
+      ).toHaveLength(1);
+      const rows =
+        await client`SELECT booked,allotment FROM nightly_inventory WHERE room_type_id=${f.id} ORDER BY stay_date`;
+      expect(
+        rows.every((row) => Number(row.booked) <= Number(row.allotment)),
+      ).toBe(true);
+      if (outcomes[0].status === "fulfilled")
+        expect(rows.map((row) => Number(row.booked))).toEqual([1, 1]);
+      else {
+        expect(outcomes[0].reason).toMatchObject({ code: "UNAVAILABLE" });
+        expect(rows.map((row) => Number(row.booked))).toEqual([0, 0]);
+        expect(Number(rows[0].allotment)).toBe(0);
+      }
+    } finally {
+      await staff.end();
+      await bookingClient.end();
+      await cleanup(f.id);
+    }
+  });
   it("confirms the last available unit and leaves a durable snapshot", async () => {
     const f = await fixture();
     try {

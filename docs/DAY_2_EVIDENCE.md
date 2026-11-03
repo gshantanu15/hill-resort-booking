@@ -81,6 +81,15 @@
 - Development migrated through 0006; fill-missing seed rerun inserted zero records; staff provisioned. Shared demo migrated through 0006; inserted one plan plus 540 inventory/540 rate rows and provisioned synthetic staff. The approved price migration only changes matching original baseline values; other configured prices remain untouched.
 - No polished guest checkout screen or real payment/channel integration is claimed. Those screens remain Day 3. Operational reset, audit history and accounting/invoice integration remain later scope.
 
-## Unit 17 — release checks in progress
+## Unit 17 — release preparation
 
-Local verification is complete. Production auth environment configured without exposing the secret; deployment, live smoke results, commit and CI evidence will be appended after verification.
+Local verification completed before release. Production auth environment was configured without exposing the secret; the closing review below records the completed deployment, live smoke, commit and CI results.
+
+## Day 2 closing review — November 3, 2026
+
+- Implementation committed and pushed as `bb23d2a` (including prior local Units 1–4 commits in main history). [GitHub CI passed](https://github.com/gshantanu15/hill-resort-booking/actions/runs/41632145681), including a fresh Linux dependency install, types, lint, format, unit tests and production build.
+- Vercel production deployment is Ready: https://hill-resort-booking-4yri4p50y-shans-projects-5a3cd5ba.vercel.app, promoted to https://hill-resort-booking.vercel.app. Singapore functions, production HTTPS auth cookies and server sessions work.
+- Live smoke passed: database-connected catalogue, protected staff-page login redirect, anonymous staff API 401, authoritative two-night mixed quote of INR 73,000 inclusive, staff login, six calendar rows read, logout, and rejected reuse of the revoked session. Next.js streams the page redirect through HTML; the private API independently returns 401. No production booking or stock mutation was performed.
+- Added an explicit independent-connection race between staff reducing allotment to zero and a last-unit confirmation. Exactly one operation succeeds; counters stay within bounds and losing bookings leave every night unchanged. Final complete database suite: **102 passed**. This augments the earlier 101-check run above.
+- Final local acceptance: 35 unit checks, 102 database checks, six desktop/mobile checks, types, lint, formatting and standard Webpack build pass. Browser screenshots reviewed. Configured local secrets were scanned against the staged diff with no matches; original private files/env files were excluded from Git.
+- Units 1–17 and the original Day 2 acceptance checklist are complete. The shared demo is synthetic, with no live payment/channel/message integrations. No unresolved Day 2 business decision remains. Next: Day 3 guest selection, review, simulated payment and persisted confirmation screens, using the tested APIs and handling updated quotes explicitly.

@@ -4,7 +4,7 @@ A six-day build of a reviewable resort direct-booking demo. It covers mixed room
 
 ## Current status
 
-Live day-one catalogue: https://hill-resort-booking.vercel.app . Neon development/demo branches are configured. GitHub is linked for deployments from main. OpenRouter is verified with Gemma as primary and an owner-approved free Dots fallback. All four live sample classifications passed. The owner-approved design system is saved in [DESIGN.md](DESIGN.md) and guides future screens. See [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md) for the acceptance checklist, [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) for the public scope, and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the locked decisions.
+Live Day 2 demo: https://hill-resort-booking.vercel.app . Neon development/demo branches are configured. GitHub is linked for deployments from main. OpenRouter is verified with Gemma as primary and an owner-approved free Dots fallback. All four live sample classifications passed. The owner-approved design system is saved in [DESIGN.md](DESIGN.md) and guides future screens. See [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md) for the acceptance checklist, [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) for the public scope, and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the locked decisions.
 
 ## Planned stack
 
