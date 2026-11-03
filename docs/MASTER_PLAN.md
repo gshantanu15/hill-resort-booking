@@ -41,9 +41,45 @@ Deferred: real payments, real messaging, reservation-system/channel-manager inte
 
 **Done when:** a fresh checkout has documented setup, CI passes, a deployed URL renders seeded rooms, and no credentials, original brief, or private client material is public.
 
+**Status:** complete. The November 2 closing review passed all exit criteria; see [Day 1 closing evidence](DAY_1_EVIDENCE.md#closing-review--november-2-2026). Reconciled on November 3 from that review; these checks were not rerun during reconciliation.
+
 ## Day 2 — Tuesday, November 3: Inventory, pricing, and staff access
 
 **Goal:** build and test the rules that make displayed availability trustworthy.
+
+### Atomic work units
+
+Owner-approved sequence, November 3. Work on one unit at a time and review its evidence before advancing. The original Day 2 acceptance checklist below remains authoritative; mark its parent items complete only when all corresponding units pass.
+
+Every turn: identify the active unit, discuss any consequential decision or unresolved business rule before dependent implementation, implement only the bounded unit, run relevant checks, and update this checklist with evidence, blockers, and the next action. Planning-only turns report updates in chat until file edits are allowed. Discussion alone does not complete implementation.
+
+For each decision, explain the recommendation, rationale, meaningful alternatives and their tradeoffs, and why they fit this project less well. The owner chooses unresolved business rules and consequential technical choices; record decisions in `docs/ARCHITECTURE.md`. Earlier suggested defaults are not approvals. End each unit with what changed, why, what the checks prove, and a short learning note.
+
+- [x] **Unit 1 — Reconcile Day 1 and establish tracking.** Correct stale closing status and record these atomic units. **Evidence:** Day 1 closing review consolidated in `docs/DAY_1_EVIDENCE.md`; daily evidence rows reconciled. Documentation-only change.
+- [x] **Unit 2 — Inventory storage.** Owner approved explicit nightly records, a transactional booked counter, unavailable missing nights, and minimal fields/defaults/safeguards. **Evidence:** `src/db/schema.ts`, generated migration `0001_nightly_inventory.sql`, and 19 passing PostgreSQL integration tests; isolated branch verified, then development migrated. Rationale/alternatives in `docs/ARCHITECTURE.md`; details in `docs/DAY_2_EVIDENCE.md`. Booking transactions remain Unit 10 work.
+- [ ] **Unit 3 — Rate storage.** Decide rate-plan scope, nightly overrides, and missing-rate behavior. Deliver a reviewed schema/migration and constraint checks.
+- [ ] **Unit 4 — Booking records.** Discuss booking states, contact/guest data, mixed items, and preserved price breakdowns. Deliver a reviewed booking schema/migration supporting multiple room types.
+- [ ] **Unit 5 — Synthetic seed data.** Decide booking horizon, demo allotments, and nightly prices. Verify repeatability and preservation of existing operational data; document seeded values.
+- [ ] **Unit 6 — Stay and occupancy validation.** Decide timezone, valid booking dates, maximum stay, adult/child treatment, extra beds, and guest allocation. Test accepted/rejected dates, quantities, and occupancy.
+- [ ] **Unit 7 — Availability.** Apply agreed rules across every stay night, excluding checkout. Verify missing inventory, blackouts, and insufficient stock.
+- [ ] **Unit 8 — Tax and rounding.** Review official GST guidance and missing business facts; decide inclusive/exclusive presentation and rounding. Record configuration and worked examples; label provisional assumptions.
+- [ ] **Unit 9 — Authoritative quotes.** Decide quote validity/identity and changed-price acceptance. Implement server-calculated nightly charges, quantities, taxes, and totals with deterministic tests.
+- [ ] **Unit 10 — Atomic confirmation.** Discuss transaction boundaries, locking, simulated-payment timing, and whether holds are needed. Prove all-or-nothing mixed bookings and last-unit contention using independent database connections.
+- [ ] **Unit 11 — Duplicate-submission protection.** Decide retry identity, simultaneous retries, and conflicting identifier reuse. Prove one booking/reservation for duplicate requests and rejection of conflicting reuse.
+- [ ] **Unit 12 — Staff sign-in and sessions.** Confirm provisioning/session settings within Better Auth. Test seeded login, disabled public signup, server sessions, and logout; preserve the existing managed authentication schema.
+- [ ] **Unit 13 — Staff authorization.** Review server boundaries and direct requests. Verify protected reads/mutations reject unauthorized access, including after logout.
+- [ ] **Unit 14 — Nightly-rate editor.** Decide edit granularity and validation feedback. Build a protected editor using the approved design; verify saved changes affect quotes.
+- [ ] **Unit 15 — Allotment editor.** Decide edit granularity and concurrent-booking conflicts. Verify allotment cannot fall below booked stock, including during competing writes.
+- [ ] **Unit 16 — Blackout editor.** Decide edit granularity and conflict feedback. Verify new sales stop while existing bookings remain valid.
+- [ ] **Unit 17 — Validate and close Day 2.** Run integrated acceptance checks, types, lint, formatting, unit/database tests, production build, and targeted desktop/mobile browser checks. Record deployment smoke test, commit, evidence, and unfinished scope.
+
+**Testing rule:** each unit includes focused checks. Establish an isolated synthetic database-test setup before write-based integration tests. Catalogue/AI tests are not booking evidence. Final acceptance includes price-change acceptance, failed-payment inventory behavior, mixed rollback, concurrency, duplicate retries, authorization, and administration effects.
+
+**Current status:** Units 1–2 complete; Units 3–17 pending. Inventory storage and constraints are implemented and tested; availability and booking behavior are not implemented yet. Next action: Unit 3 rate-storage discussion (rate-plan scope, nightly overrides, and missing-rate behavior) before implementation. Unresolved business rules will be discussed before dependent implementation. Polished guest checkout and payment UI remain Day 3 work.
+
+**Validation follow-up:** Unit 2 production build passed with Webpack; default Turbopack failed starting its CSS worker. Root cause remains open for investigation before claiming a passing default build at Day 2 close; see `docs/DAY_2_EVIDENCE.md`.
+
+### Original Day 2 acceptance checklist
 
 - [ ] Implement room types, rate plans, nightly rates, inventory, bookings, and booking-item records.
 - [ ] Seed representative room/villa types with documented demo allotments and a bounded booking horizon.
@@ -122,14 +158,14 @@ Deferred: real payments, real messaging, reservation-system/channel-manager inte
 
 ## Daily evidence log
 
-| Day   | Evidence                                                                                                                                   | Status      |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------------ | ----------- |
-| Day 1 | `private/` ignored; docs created; local Git repository initialized. Public repository: https://github.com/gshantanu15/hill-resort-booking. | In progress |
-| Day 2 | —                                                                                                                                          | Pending     |
-| Day 3 | —                                                                                                                                          | Pending     |
-| Day 4 | —                                                                                                                                          | Pending     |
-| Day 5 | —                                                                                                                                          | Pending     |
-| Day 6 | —                                                                                                                                          | Pending     |
+| Day   | Evidence                                                                                                                                                        | Status      |
+| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| Day 1 | Exit criteria passed in the November 2 closing review; see [closing evidence](DAY_1_EVIDENCE.md#closing-review--november-2-2026).                               | Complete    |
+| Day 2 | Units 1–2 complete; reviewed inventory migration, development migrated, 19 database checks passed. See [Day 2 evidence](DAY_2_EVIDENCE.md). Units 3–17 pending. | In progress |
+| Day 3 | —                                                                                                                                                               | Pending     |
+| Day 4 | —                                                                                                                                                               | Pending     |
+| Day 5 | —                                                                                                                                                               | Pending     |
+| Day 6 | —                                                                                                                                                               | Pending     |
 
 ## Completion standard
 

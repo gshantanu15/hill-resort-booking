@@ -8,6 +8,13 @@
       "when": 1793620915769,
       "tag": "0000_romantic_pet_avengers",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793684993696,
+      "tag": "0001_nightly_inventory",
+      "breakpoints": true
     }
   ]
 }

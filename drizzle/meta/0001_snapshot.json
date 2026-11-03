@@ -1,0 +1,162 @@
+{
+  "id": "83fb7f7f-70ae-45fa-adb6-a14741c4358e",
+  "prevId": "5a91f8b7-90a6-4837-bf9b-88fb259938b0",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.nightly_inventory": {
+      "name": "nightly_inventory",
+      "schema": "",
+      "columns": {
+        "room_type_id": {
+          "name": "room_type_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stay_date": {
+          "name": "stay_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "allotment": {
+          "name": "allotment",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "booked": {
+          "name": "booked",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "blackout": {
+          "name": "blackout",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "nightly_inventory_room_type_id_room_types_id_fk": {
+          "name": "nightly_inventory_room_type_id_room_types_id_fk",
+          "tableFrom": "nightly_inventory",
+          "tableTo": "room_types",
+          "columnsFrom": [
+            "room_type_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "nightly_inventory_room_type_id_stay_date_pk": {
+          "name": "nightly_inventory_room_type_id_stay_date_pk",
+          "columns": [
+            "room_type_id",
+            "stay_date"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "inventory_nonnegative_allotment": {
+          "name": "inventory_nonnegative_allotment",
+          "value": "\"nightly_inventory\".\"allotment\" >= 0"
+        },
+        "inventory_nonnegative_booked": {
+          "name": "inventory_nonnegative_booked",
+          "value": "\"nightly_inventory\".\"booked\" >= 0"
+        },
+        "inventory_booked_within_allotment": {
+          "name": "inventory_booked_within_allotment",
+          "value": "\"nightly_inventory\".\"booked\" <= \"nightly_inventory\".\"allotment\""
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.room_types": {
+      "name": "room_types",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "capacity": {
+          "name": "capacity",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "base_rate_paise": {
+          "name": "base_rate_paise",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "image": {
+          "name": "image",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "image_alt": {
+          "name": "image_alt",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "positive_capacity": {
+          "name": "positive_capacity",
+          "value": "\"room_types\".\"capacity\" > 0"
+        },
+        "nonnegative_base_rate": {
+          "name": "nonnegative_base_rate",
+          "value": "\"room_types\".\"base_rate_paise\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
