@@ -5,7 +5,7 @@ export const sampleRooms = [
     description:
       "A quiet room framed by trees, with a reading corner for slow mornings.",
     capacity: 2,
-    baseRatePaise: 850000,
+    baseRatePaise: 900000,
     image: "https://images.unsplash.com/photo-1611892440504-42a792e24d32",
     imageAlt: "Illustrative spacious bedroom with warm lighting",
   },

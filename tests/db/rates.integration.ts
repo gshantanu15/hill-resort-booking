@@ -38,8 +38,8 @@ async function fixture(
       const roomId = `rates-test-${randomUUID()}`;
       const planId = `plan-${randomUUID()}`;
       const room = sampleRooms[0];
-      await tx`INSERT INTO room_types (id, name, description, capacity, base_rate_paise, image, image_alt)
-        VALUES (${roomId}, ${room.name}, ${room.description}, ${room.capacity}, ${room.baseRatePaise}, ${room.image}, ${room.imageAlt})`;
+      await tx`INSERT INTO room_types (id, name, description, capacity, base_rate_paise, image, image_alt, physical_units, website_limit)
+        VALUES (${roomId}, ${room.name}, ${room.description}, ${room.capacity}, ${room.baseRatePaise}, ${room.image}, ${room.imageAlt}, 20, 10)`;
       await tx`INSERT INTO rate_plans (id, name) VALUES (${planId}, 'Standard stay')`;
       await run(tx, roomId, planId);
       throw rollback;
@@ -157,7 +157,7 @@ describe("rate storage database contract", () => {
   it("stores independent nightly amounts without inventory or catalogue side effects", async () => {
     await fixture(async (tx, roomId, planId) => {
       const otherRoomId = `${roomId}-other`;
-      await tx`INSERT INTO room_types SELECT ${otherRoomId}, name, description, capacity, base_rate_paise, image, image_alt
+      await tx`INSERT INTO room_types SELECT ${otherRoomId}, name, description, capacity, base_rate_paise, image, image_alt, physical_units, website_limit
         FROM room_types WHERE id = ${roomId}`;
       const rows =
         await tx`INSERT INTO nightly_rates (room_type_id, rate_plan_id, stay_date, price_paise) VALUES

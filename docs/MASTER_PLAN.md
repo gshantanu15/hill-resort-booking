@@ -49,46 +49,46 @@ Deferred: real payments, real messaging, reservation-system/channel-manager inte
 
 ### Atomic work units
 
-Owner-approved sequence, November 3. Work on one unit at a time and review its evidence before advancing. The original Day 2 acceptance checklist below remains authoritative; mark its parent items complete only when all corresponding units pass.
+Owner-approved sequence, November 3. **Delivery mode updated at the owner's request:** batch related units and parallelize independent implementation. The lead agent makes routine technical decisions and records rationale without an approval loop. Ask only about material business/scope choices not resolved by the brief or explicit requirements. The original Day 2 acceptance checklist below remains authoritative; mark items complete only when behaviour and evidence pass.
 
-Every turn: identify the active unit, discuss any consequential decision or unresolved business rule before dependent implementation, implement only the bounded unit, run relevant checks, and update this checklist with evidence, blockers, and the next action. Planning-only turns report updates in chat until file edits are allowed. Discussion alone does not complete implementation.
+Every turn: identify the active batch, resolve only genuinely missing business rules, implement, verify, and update this checklist with evidence, blockers, and the next action. Continue independent work while business answers are pending. Discussion alone does not complete implementation.
 
-For each decision, explain the recommendation, rationale, meaningful alternatives and their tradeoffs, and why they fit this project less well. The owner chooses unresolved business rules and consequential technical choices; record decisions in `docs/ARCHITECTURE.md`. Earlier suggested defaults are not approvals. End each unit with what changed, why, what the checks prove, and a short learning note.
+Record important implementation choices and brief rationale in `docs/ARCHITECTURE.md`; report them alongside outcomes rather than requesting individual approval. Owner decisions remain required for undefined business rules, scope expansion, and changed prices/policies. Keep daily learning notes concise and tied to verified behaviour.
 
 - [x] **Unit 1 — Reconcile Day 1 and establish tracking.** Correct stale closing status and record these atomic units. **Evidence:** Day 1 closing review consolidated in `docs/DAY_1_EVIDENCE.md`; daily evidence rows reconciled. Documentation-only change.
 - [x] **Unit 2 — Inventory storage.** Owner approved explicit nightly records, a transactional booked counter, unavailable missing nights, and minimal fields/defaults/safeguards. **Evidence:** `src/db/schema.ts`, generated migration `0001_nightly_inventory.sql`, and 19 passing PostgreSQL integration tests; isolated branch verified, then development migrated. Rationale/alternatives in `docs/ARCHITECTURE.md`; details in `docs/DAY_2_EVIDENCE.md`. Booking transactions remain Unit 10 work.
 - [x] **Unit 3 — Rate storage.** Owner approved "Standard stay", explicit positive integer-paise nightly prices, unavailable missing prices, an indicative-only catalogue guide, and minimal fields/safeguards. **Evidence:** rate-plan/nightly-rate schema, generated `0002_nightly_rates.sql`, 23 passing new rate database tests (42 total), development migrated after isolated verification, and passing desktop/mobile catalogue checks. Rationale in `docs/ARCHITECTURE.md`; results in `docs/DAY_2_EVIDENCE.md`. Actual seed data remains Unit 5; tax interpretation Unit 8; quote behavior Unit 9.
 - [x] **Unit 4 — Booking records.** Owner approved the three-table layout, all booking storage choices, and database/service safeguard split. **Evidence:** `src/db/schema.ts`, generated `0003_booking_records.sql`, 36 passing booking-storage database tests (78 total), development migrated after isolated verification, and passing local checks/Webpack build. Decisions in `docs/ARCHITECTURE.md`; results in `docs/DAY_2_EVIDENCE.md`. No booking write API added. Occupancy/tax/confirmation/retry services remain Units 6/8/10/11.
-- [ ] **Unit 5 — Synthetic seed data.** Decide booking horizon, demo allotments, and nightly prices. Verify repeatability and preservation of existing operational data; document seeded values. **In progress:** inspected the current insert-only room seed and synthetic catalogue. Discussing window length and explicit versus rolling start date. No seed-data decision approved or seed implementation changed yet. Allotments, price pattern, blackout examples, and operational-data preservation on reruns remain to discuss.
-- [ ] **Unit 6 — Stay and occupancy validation.** Decide timezone, valid booking dates, maximum stay, adult/child treatment, extra beds, and guest allocation. Test accepted/rejected dates, quantities, and occupancy.
-- [ ] **Unit 7 — Availability.** Apply agreed rules across every stay night, excluding checkout. Verify missing inventory, blackouts, and insufficient stock.
-- [ ] **Unit 8 — Tax and rounding.** Review official GST guidance and missing business facts; decide inclusive/exclusive presentation and rounding. Record configuration and worked examples; label provisional assumptions.
-- [ ] **Unit 9 — Authoritative quotes.** Decide quote validity/identity and changed-price acceptance. Implement server-calculated nightly charges, quantities, taxes, and totals with deterministic tests.
-- [ ] **Unit 10 — Atomic confirmation.** Discuss transaction boundaries, locking, simulated-payment timing, and whether holds are needed. Prove all-or-nothing mixed bookings and last-unit contention using independent database connections.
-- [ ] **Unit 11 — Duplicate-submission protection.** Decide retry identity, simultaneous retries, and conflicting identifier reuse. Prove one booking/reservation for duplicate requests and rejection of conflicting reuse.
-- [ ] **Unit 12 — Staff sign-in and sessions.** Confirm provisioning/session settings within Better Auth. Test seeded login, disabled public signup, server sessions, and logout; preserve the existing managed authentication schema.
-- [ ] **Unit 13 — Staff authorization.** Review server boundaries and direct requests. Verify protected reads/mutations reject unauthorized access, including after logout.
-- [ ] **Unit 14 — Nightly-rate editor.** Decide edit granularity and validation feedback. Build a protected editor using the approved design; verify saved changes affect quotes.
-- [ ] **Unit 15 — Allotment editor.** Decide edit granularity and concurrent-booking conflicts. Verify allotment cannot fall below booked stock, including during competing writes.
-- [ ] **Unit 16 — Blackout editor.** Decide edit granularity and conflict feedback. Verify new sales stop while existing bookings remain valid.
+- [x] **Unit 5 — Synthetic seed data.** Owner approved the 180-night fixed window, 10% Friday/Saturday uplift, stock/channel split, database cap enforcement, no initial blackouts, and fill-missing-only reruns. **Evidence:** `src/db/demo-seed.ts`, transactional `src/db/seed.ts`, CLI seed, migration `0004_channel_stock_limits.sql`, 89 passing database tests and 15 unit tests. Isolated CLI and development each inserted 540 inventory/540 rate rows on first run and zero on rerun. Development migrated/seeded; shared demo unchanged. Setup and evidence updated; cap enforcement extends the earlier Unit 2 model. See `docs/DAY_2_EVIDENCE.md`.
+- [x] **Unit 6 — Stay and occupancy validation.** Decide timezone, valid booking dates, maximum stay, adult/child treatment, extra beds, and guest allocation. Test accepted/rejected dates, quantities, and occupancy.
+- [x] **Unit 7 — Availability.** Apply agreed rules across every stay night, excluding checkout. Verify missing inventory, blackouts, and insufficient stock.
+- [x] **Unit 8 — Tax and rounding.** Review official GST guidance and missing business facts; decide inclusive/exclusive presentation and rounding. Record configuration and worked examples; label provisional assumptions.
+- [x] **Unit 9 — Authoritative quotes.** Decide quote validity/identity and changed-price acceptance. Implement server-calculated nightly charges, quantities, taxes, and totals with deterministic tests.
+- [x] **Unit 10 — Atomic confirmation.** Discuss transaction boundaries, locking, simulated-payment timing, and whether holds are needed. Prove all-or-nothing mixed bookings and last-unit contention using independent database connections.
+- [x] **Unit 11 — Duplicate-submission protection.** Decide retry identity, simultaneous retries, and conflicting identifier reuse. Prove one booking/reservation for duplicate requests and rejection of conflicting reuse.
+- [x] **Unit 12 — Staff sign-in and sessions.** Confirm provisioning/session settings within Better Auth. Test seeded login, disabled public signup, server sessions, and logout; preserve the existing managed authentication schema.
+- [x] **Unit 13 — Staff authorization.** Review server boundaries and direct requests. Verify protected reads/mutations reject unauthorized access, including after logout.
+- [x] **Unit 14 — Nightly-rate editor.** Decide edit granularity and validation feedback. Build a protected editor using the approved design; verify saved changes affect quotes.
+- [x] **Unit 15 — Allotment editor.** Decide edit granularity and concurrent-booking conflicts. Verify allotment cannot fall below booked stock, including during competing writes.
+- [x] **Unit 16 — Blackout editor.** Decide edit granularity and conflict feedback. Verify new sales stop while existing bookings remain valid.
 - [ ] **Unit 17 — Validate and close Day 2.** Run integrated acceptance checks, types, lint, formatting, unit/database tests, production build, and targeted desktop/mobile browser checks. Record deployment smoke test, commit, evidence, and unfinished scope.
 
 **Testing rule:** each unit includes focused checks. Establish an isolated synthetic database-test setup before write-based integration tests. Catalogue/AI tests are not booking evidence. Final acceptance includes price-change acceptance, failed-payment inventory behavior, mixed rollback, concurrency, duplicate retries, authorization, and administration effects.
 
-**Current status:** Units 1–4 complete (Units 1–2 committed as `4383b29`; Units 3–4 as `c3add18`); Unit 5 in decision discussion; Units 6–17 pending. Inventory, rate, and booking storage are implemented and tested; availability, quotes, and booking behavior are not implemented yet. Next action: choose seed-window length and anchoring, then allotments, prices, blackout examples, and rerun policy before implementation. Maximum stay and resort timezone remain Unit 6 decisions unless an earlier seed choice requires them. Polished guest checkout and payment UI remain Day 3 work.
+**Current status:** Units 1–16 implemented and verified. All 35 unit checks, 101 database checks, and six desktop/mobile acceptance checks pass, along with types, lint, formatting and the standard Webpack production build. Development/demo migrations and synthetic staff provisioning are complete. Unit 17 release smoke and evidence closure are in progress. Approved rules, decisions and learning: [booking rules](BOOKING_RULES.md). Guest checkout screens remain Day 3.
 
-**Validation follow-up:** Unit 2 production build passed with Webpack; default Turbopack failed starting its CSS worker. Root cause remains open for investigation before claiming a passing default build at Day 2 close; see `docs/DAY_2_EVIDENCE.md`.
+**Build decision:** Standard builds explicitly select supported Webpack after the local Turbopack CSS-worker startup failure. `npm run build` passes. This is a documented workaround; see architecture/evidence.
 
 ### Original Day 2 acceptance checklist
 
 - [x] Implement room types, rate plans, nightly rates, inventory, bookings, and booking-item records. **Evidence:** Units 2–4, generated migrations through `0003_booking_records.sql`, 78 passing database checks, and development migrations applied. Storage only; booking services remain pending.
-- [ ] Seed representative room/villa types with documented demo allotments and a bounded booking horizon.
-- [ ] Implement date-range availability, quantity validation, occupancy limits, and authoritative price quotes.
-- [ ] Define tax configuration and rounding; verify applicable official GST guidance before claiming tariff accuracy; label provisional demo assumptions.
-- [ ] Implement transactional confirmation with retry protection.
-- [ ] Implement demo login, session checks, logout, and protected staff operations.
-- [ ] Implement a compact admin editor for daily rates, allotment, and blackout dates.
-- [ ] Add business-rule and database concurrency tests.
+- [x] Seed representative room/villa types with documented demo allotments and a bounded booking horizon. **Evidence:** Unit 5, fixed 180-night calendar, 540 inventory/540 rate rows in development, repeat-run/preservation checks and documented setup.
+- [x] Implement date-range availability, quantity validation, occupancy limits, and authoritative price quotes.
+- [x] Define tax configuration and rounding; verify applicable official GST guidance before claiming tariff accuracy; label provisional demo assumptions.
+- [x] Implement transactional confirmation with retry protection.
+- [x] Implement demo login, session checks, logout, and protected staff operations.
+- [x] Implement a compact admin editor for daily rates, allotment, and blackout dates.
+- [x] Add business-rule and database concurrency tests.
 
 **Done when:** competing requests for the last unit cannot both succeed; mixed bookings fail entirely when any item is unavailable; invalid dates, missing rates, excessive occupancy, and insufficient stock explain errors; unauthenticated requests cannot mutate staff data; admin changes affect availability and quotes.
 
@@ -158,14 +158,14 @@ For each decision, explain the recommendation, rationale, meaningful alternative
 
 ## Daily evidence log
 
-| Day   | Evidence                                                                                                                                                                                                     | Status      |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------- |
-| Day 1 | Exit criteria passed in the November 2 closing review; see [closing evidence](DAY_1_EVIDENCE.md#closing-review--november-2-2026).                                                                            | Complete    |
-| Day 2 | Units 1–4 complete; Units 3–4 committed as `c3add18`. Unit 5 seed-window discussion started; no seed change. See [Day 2 evidence](DAY_2_EVIDENCE.md) for the 78 passing database checks. Units 6–17 pending. | In progress |
-| Day 3 | —                                                                                                                                                                                                            | Pending     |
-| Day 4 | —                                                                                                                                                                                                            | Pending     |
-| Day 5 | —                                                                                                                                                                                                            | Pending     |
-| Day 6 | —                                                                                                                                                                                                            | Pending     |
+| Day   | Evidence                                                                                                                                                                                                                                   | Status      |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------- |
+| Day 1 | Exit criteria passed in the November 2 closing review; see [closing evidence](DAY_1_EVIDENCE.md#closing-review--november-2-2026).                                                                                                          | Complete    |
+| Day 2 | Units 1–5 complete; Unit 5 uncommitted. Development migrated/seeded; 89 database tests, 15 unit tests, desktop/mobile checks and Webpack build passed. Shared demo unchanged. See [Day 2 evidence](DAY_2_EVIDENCE.md). Units 6–17 pending. | In progress |
+| Day 3 | —                                                                                                                                                                                                                                          | Pending     |
+| Day 4 | —                                                                                                                                                                                                                                          | Pending     |
+| Day 5 | —                                                                                                                                                                                                                                          | Pending     |
+| Day 6 | —                                                                                                                                                                                                                                          | Pending     |
 
 ## Completion standard
 

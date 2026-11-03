@@ -43,9 +43,9 @@ async function fixture(
       const roomId = `booking-test-${randomUUID()}`;
       const otherRoomId = `${roomId}-other`;
       const planId = `booking-plan-${randomUUID()}`;
-      await tx`INSERT INTO room_types (id, name, description, capacity, base_rate_paise, image, image_alt)
-        VALUES (${roomId}, ${room.name}, ${room.description}, ${room.capacity}, ${room.baseRatePaise}, ${room.image}, ${room.imageAlt}),
-          (${otherRoomId}, ${other.name}, ${other.description}, ${other.capacity}, ${other.baseRatePaise}, ${other.image}, ${other.imageAlt})`;
+      await tx`INSERT INTO room_types (id, name, description, capacity, base_rate_paise, image, image_alt, physical_units, website_limit)
+        VALUES (${roomId}, ${room.name}, ${room.description}, ${room.capacity}, ${room.baseRatePaise}, ${room.image}, ${room.imageAlt}, 20, 10),
+          (${otherRoomId}, ${other.name}, ${other.description}, ${other.capacity}, ${other.baseRatePaise}, ${other.image}, ${other.imageAlt}, 20, 10)`;
       await tx`INSERT INTO rate_plans (id, name) VALUES (${planId}, 'Standard stay')`;
       await run(tx, roomId, otherRoomId, planId);
       throw rollback;

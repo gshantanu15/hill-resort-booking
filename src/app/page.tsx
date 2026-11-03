@@ -138,6 +138,7 @@ export default async function Home() {
         <a href="https://github.com/gshantanu15/hill-resort-booking">
           Project source
         </a>
+        <Link href="/staff/login">Staff sign in</Link>
         <details className="demo-notes">
           <summary>About this demo & photographs</summary>
           <p>

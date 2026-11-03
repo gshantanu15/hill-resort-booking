@@ -64,7 +64,7 @@ Owner approved missing-record behavior: a room type is unavailable for a request
 
 Rationale: unknown authorized stock must not silently open sales. Automatic creation from defaults could reduce calendar maintenance but would require an approved default stock source and date-opening rules that this demo has not selected.
 
-Owner approved the minimal five-field design: required room type, calendar stay date, explicit integer allotment, integer booked count defaulting to zero, and explicit blackout boolean. Available stock is calculated, not stored. The room-type/date pair is the primary key; the room type must exist. Counts are nonnegative and booked cannot exceed allotment. Room-type deletion is restricted while inventory references it; fields cannot be null.
+Owner approved the initial five-field design: required room type, calendar stay date, explicit integer allotment, integer booked count defaulting to zero, and explicit blackout boolean. Available stock is calculated, not stored. The room-type/date pair is the primary key; the room type must exist. Counts are nonnegative and booked cannot exceed allotment. Room-type deletion is restricted while inventory references it; fields cannot be null. Unit 5 extends this row with a validated website-ceiling copy to enforce the subsequently approved channel-stock policy.
 
 Rationale: these constraints enforce local inventory validity at the database boundary. A separate inventory ID and stored available count add no required capability. Cascading room-type deletion could erase operational inventory unintentionally. Calendar-date storage avoids introducing a time-of-day into a stay night; resort timezone rules remain Unit 6 work.
 
@@ -93,6 +93,42 @@ Owner approved strictly positive nightly prices; zero/negative prices are invali
 Rationale: the minimal fields represent the selected offer and nightly prices without package rules or additional counters. Keeping rates separate from inventory allows independent configuration. Required values, positive amounts, unique keys, and restricted deletion protect stored data; a stored total would become stale when its inputs changed.
 
 Implemented in `src/db/schema.ts` and generated migration `0002_nightly_rates.sql`; verified on the isolated test branch before development migration. The catalogue now explicitly labels its guide price. "Standard stay" and actual nightly prices will be seeded in Unit 5, not by this schema migration. Tax configuration and inclusive/exclusive interpretation remain Unit 8 decisions; this unit approves no tax assumption. Missing-price quote/booking rejection remains later service work, not behavior proved by these tables alone. See `docs/DAY_2_EVIDENCE.md`.
+
+## Seed-data decisions — November 3, 2026
+
+Owner selected an explicit 180-night seed window starting November 3, 2026: stay nights November 3 through May 1, 2027 inclusive, with latest checkout May 2 subject to later stay validation. This is configured calendar coverage, not a maximum stay length. For the existing three room types and one plan, a complete empty-window seed creates 540 inventory rows and 540 nightly-rate rows, plus the approved "Standard stay" plan.
+
+Rationale: the owner chose broader review coverage than the suggested 90 nights. An explicit start makes the same inputs target the same dates and permits deliberate extension. A rolling start could keep new seed dates current, but changes the target window over time and requires a resort-timezone decision; it was not selected.
+
+Owner approved the existing catalogue figures as initial Sunday–Thursday configured nightly amounts, with Friday/Saturday stay nights 10% higher (replacing the unapproved 20% proposal). Estate: INR 8,500 / 9,350; Garden: INR 10,500 / 11,550; villa: INR 18,500 / 20,350. These become explicit nightly seed values, never runtime catalogue-price fallback. The varying prices demonstrate nightly pricing without implying market rates or selecting tax treatment.
+
+Owner requires physical stock to match the local brief, rather than inventing property totals from small demo-allotment examples. The owner approved a category split and separate website/outside-channel allocations, with a 25% website share per type; client-specific quantities are retained in ignored `private/day2-business-decisions.md`. The category split and channel ratio are owner-selected demo assumptions, not a breakdown verified by the brief. Outside-channel stock is a protected allowance, not a live reservation-system integration or a count of outside bookings. Historical sales percentages are not an allocation formula.
+
+Owner approved database-enforced channel limits: room types store physical units and website ceiling, with a positive physical count and `0 <= website ceiling <= physical units`. Outside reserve is their difference. Nightly inventory has a required ceiling copy; a composite foreign key requires it to match the room type, and row checks enforce `0 <= booked <= allotment <= ceiling`. Parent ceiling changes cascade to nightly copies, rejecting changes that would invalidate existing allotments. Normal staff operations edit nightly allotment/blackout only, not physical/channel ceilings. Guest capacity per unit remains distinct from number of units.
+
+Rationale: a validated repeated ceiling lets PostgreSQL enforce each nightly bound directly, including writes outside the normal application path. Server-only checks use fewer schema fields but require every writer to remember the bound. Privileged operator changes remain distinct from ordinary staff editing; this is not live channel allocation management.
+
+Owner selected no seeded blackouts. Newly inserted nights have `booked = 0` and `blackout = false`; existing values are preserved. The proposed November 20–21 villa blackout was not selected.
+
+Owner approved fill-missing-only seeding in one transaction. Insert missing rooms/plan/calendar rows, preserve existing metadata/rates/allotments/blackouts/counters/bookings, and fail on a room-set or physical/channel-cap mismatch. Room types are locked while their configuration is validated. No pruning, reset, or automatic reallocation is performed. Reapplying defaults on every run would discard staff edits and was not selected; full operator reset remains Day 5 work.
+
+Implemented in `src/db/demo-seed.ts`, `src/db/seed.ts`, the CLI seed, and tracked migration `0004_channel_stock_limits.sql`. The migration backfills the known types before requiring the new fields; unknown types or unsafe existing allotments fail rather than being guessed/clamped. Isolated verification preceded development migration/seeding. Shared demo unchanged. See `docs/DAY_2_EVIDENCE.md`. Tax interpretation remains Unit 8, and maximum stay/resort timezone remain Unit 6.
+
+## Day 2 service decisions — November 3, 2026
+
+The owner requested accelerated implementation: routine technical choices are made by the lead and documented; unresolved business rules still require owner input. [Booking rules](BOOKING_RULES.md) records the approved occupancy/date/tax policies, sources, worked example, and learning notes. It supersedes the earlier provisional Estate prices: INR 9,000/9,900 tax-inclusive is now approved. Migration `0006` updates only matching original Estate baseline values within the fixed window; other edited prices remain intact.
+
+Read-only availability/quotes use repeatable-read transactions for internally consistent snapshots. Confirmation locks inventory in room-type/date order, then corresponding rate rows, and rechecks everything inside one transaction. Staff follows the same inventory-before-rate ordering. This gives explicit concurrency behavior rather than relying on an earlier availability response; database bounds remain the final safeguard. No distributed lock service or temporary holds are needed for the approved simulated-payment boundary.
+
+Quotes use a purpose-separated HMAC token derived from the server auth secret, with a 15-minute expiry and a fingerprint of the complete priced selection. This prevents accepting caller-invented amounts without adding a persistent quote table or abandoned-checkout states. Changed/expired quotes return a fresh breakdown with HTTP 409 for renewed acceptance. Stock is never held by the quote.
+
+Submission UUIDs acquire a transaction-scoped PostgreSQL advisory lock before checking the unique stored submission ID. Identical concurrent retries return the existing result; different normalized contact/selection/quote contents conflict. Uniqueness alone could reject a successful retry instead of returning its result. SHA-256 fingerprints preserve retry meaning; a separate public identifier adds no value to the chosen random UUID reference.
+
+Better Auth uses separate `app_*` tables, preserving managed `neon_auth`. Provision the shared synthetic staff account through an operator script; no public signup. Sessions last eight hours with server lookup and no cookie session cache. Each staff page/API checks role, so login alone grants no staff privilege. Shared-demo profile/password mutation endpoints are disabled. HTTPS uses secure cookies; localhost HTTP is supported for isolated browser tests. Secrets never enter browser modules.
+
+One compact calendar editor handles a maximum 31-night range with per-row atomic price/allotment/blackout saves. It reuses approved tokens and accessible controls. Explicit edits avoid accidental bulk changes; bulk editing, reset tooling, and audit history remain later scope. Allotment cannot undercut bookings or exceed the website cap, including concurrent writes. Blackouts preserve confirmed snapshots.
+
+`npm run build` explicitly selects supported Webpack. Windows Turbopack's CSS worker failed to start in this environment; repeated attempts did not add useful evidence. The stable build keeps local/CI verification reproducible without changing application behavior or dependencies. This is a bundler workaround, not a claim that the Turbopack defect was repaired.
 
 ## Enquiry model and invariants
 

@@ -8,9 +8,11 @@ import {
   primaryKey,
   text,
   timestamp,
+  unique,
   uuid,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
+export * from "./auth-schema";
 export const roomTypes = pgTable(
   "room_types",
   {
@@ -18,12 +20,21 @@ export const roomTypes = pgTable(
     name: text("name").notNull(),
     description: text("description").notNull(),
     capacity: integer("capacity").notNull(),
+    physicalUnits: integer("physical_units").notNull(),
+    websiteLimit: integer("website_limit").notNull(),
     baseRatePaise: integer("base_rate_paise").notNull(),
     image: text("image").notNull(),
     imageAlt: text("image_alt").notNull(),
   },
   (t) => [
     check("positive_capacity", sql`${t.capacity} > 0`),
+    check("positive_physical_units", sql`${t.physicalUnits} > 0`),
+    check("nonnegative_website_limit", sql`${t.websiteLimit} >= 0`),
+    check(
+      "website_limit_within_physical_units",
+      sql`${t.websiteLimit} <= ${t.physicalUnits}`,
+    ),
+    unique("room_type_website_limit_unique").on(t.id, t.websiteLimit),
     check("nonnegative_base_rate", sql`${t.baseRatePaise} >= 0`),
   ],
 );
@@ -31,16 +42,27 @@ export const roomTypes = pgTable(
 export const nightlyInventory = pgTable(
   "nightly_inventory",
   {
-    roomTypeId: text("room_type_id")
-      .notNull()
-      .references(() => roomTypes.id, { onDelete: "restrict" }),
+    roomTypeId: text("room_type_id").notNull(),
     stayDate: date("stay_date", { mode: "string" }).notNull(),
+    websiteLimit: integer("website_limit").notNull(),
     allotment: integer("allotment").notNull(),
     booked: integer("booked").notNull().default(0),
     blackout: boolean("blackout").notNull(),
   },
   (t) => [
     primaryKey({ columns: [t.roomTypeId, t.stayDate] }),
+    foreignKey({
+      name: "inventory_room_website_limit_fk",
+      columns: [t.roomTypeId, t.websiteLimit],
+      foreignColumns: [roomTypes.id, roomTypes.websiteLimit],
+    })
+      .onDelete("restrict")
+      .onUpdate("cascade"),
+    check("inventory_nonnegative_website_limit", sql`${t.websiteLimit} >= 0`),
+    check(
+      "inventory_allotment_within_website_limit",
+      sql`${t.allotment} <= ${t.websiteLimit}`,
+    ),
     check("inventory_nonnegative_allotment", sql`${t.allotment} >= 0`),
     check("inventory_nonnegative_booked", sql`${t.booked} >= 0`),
     check(

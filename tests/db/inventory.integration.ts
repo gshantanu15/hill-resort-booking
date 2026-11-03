@@ -35,8 +35,8 @@ async function fixture(
     await client.begin(async (tx) => {
       const roomId = `inventory-test-${randomUUID()}`;
       const room = sampleRooms[0];
-      await tx`INSERT INTO room_types (id, name, description, capacity, base_rate_paise, image, image_alt)
-        VALUES (${roomId}, ${room.name}, ${room.description}, ${room.capacity}, ${room.baseRatePaise}, ${room.image}, ${room.imageAlt})`;
+      await tx`INSERT INTO room_types (id, name, description, capacity, base_rate_paise, image, image_alt, physical_units, website_limit)
+        VALUES (${roomId}, ${room.name}, ${room.description}, ${room.capacity}, ${room.baseRatePaise}, ${room.image}, ${room.imageAlt}, 20, 10)`;
       await run(tx, roomId);
       throw rollback;
     });
@@ -46,15 +46,66 @@ async function fixture(
 }
 
 describe("nightly inventory database contract", () => {
+  it.each([
+    ["website limit above physical units", 21, 22],
+    ["negative website limit", 20, -1],
+    ["zero physical units", 0, 0],
+  ])("rejects %s", async (_label, physical, website) => {
+    await expect(
+      fixture(async (tx, roomId) => {
+        await tx`UPDATE room_types SET physical_units = ${physical}, website_limit = ${website} WHERE id = ${roomId}`;
+      }),
+    ).rejects.toMatchObject({ code: "23514" });
+  });
+
+  it("rejects a forged nightly website limit", async () => {
+    await expect(
+      fixture(async (tx, roomId) => {
+        await tx`INSERT INTO nightly_inventory (room_type_id, stay_date, website_limit, allotment, blackout)
+          VALUES (${roomId}, '2026-11-10', 9, 5, false)`;
+      }),
+    ).rejects.toMatchObject({ code: "23503" });
+  });
+
+  it("rejects nightly allotment above the website limit", async () => {
+    await expect(
+      fixture(async (tx, roomId) => {
+        await tx`INSERT INTO nightly_inventory (room_type_id, stay_date, website_limit, allotment, blackout)
+          VALUES (${roomId}, '2026-11-10', 10, 11, false)`;
+      }),
+    ).rejects.toMatchObject({ code: "23514" });
+  });
+
+  it("cascades a parent website-limit change to nightly inventory", async () => {
+    await fixture(async (tx, roomId) => {
+      await tx`INSERT INTO nightly_inventory (room_type_id, stay_date, website_limit, allotment, blackout)
+        VALUES (${roomId}, '2026-11-10', 10, 5, false)`;
+      await tx`UPDATE room_types SET website_limit = 8 WHERE id = ${roomId}`;
+      const [row] =
+        await tx`SELECT website_limit FROM nightly_inventory WHERE room_type_id = ${roomId}`;
+      expect(row.website_limit).toBe(8);
+    });
+  });
+
+  it("rejects lowering the parent cap below existing allotment atomically", async () => {
+    await expect(
+      fixture(async (tx, roomId) => {
+        await tx`INSERT INTO nightly_inventory (room_type_id, stay_date, website_limit, allotment, blackout)
+          VALUES (${roomId}, '2026-11-10', 10, 8, false)`;
+        await tx`UPDATE room_types SET website_limit = 7 WHERE id = ${roomId}`;
+      }),
+    ).rejects.toMatchObject({ code: "23514" });
+  });
+
   it("defaults booked to zero and permits independent room-type/night records", async () => {
     await fixture(async (tx, roomId) => {
       const otherRoomId = `${roomId}-other`;
-      await tx`INSERT INTO room_types SELECT ${otherRoomId}, name, description, capacity, base_rate_paise, image, image_alt FROM room_types WHERE id = ${roomId}`;
+      await tx`INSERT INTO room_types SELECT ${otherRoomId}, name, description, capacity, base_rate_paise, image, image_alt, physical_units, website_limit FROM room_types WHERE id = ${roomId}`;
       const rows =
-        await tx`INSERT INTO nightly_inventory (room_type_id, stay_date, allotment, blackout) VALUES
-        (${roomId}, '2026-11-10', 5, false),
-        (${roomId}, '2026-11-11', 0, false),
-        (${otherRoomId}, '2026-11-10', 2, false)
+        await tx`INSERT INTO nightly_inventory (room_type_id, stay_date, website_limit, allotment, blackout) VALUES
+        (${roomId}, '2026-11-10', 10, 5, false),
+        (${roomId}, '2026-11-11', 10, 0, false),
+        (${otherRoomId}, '2026-11-10', 10, 2, false)
         RETURNING booked, stay_date::text`;
       expect(rows).toHaveLength(3);
       expect(rows.map((row) => row.booked)).toEqual([0, 0, 0]);
@@ -65,49 +116,64 @@ describe("nightly inventory database contract", () => {
   const invalidRows: [string, string, (number | boolean | null)[], string][] = [
     [
       "negative allotment",
-      "allotment, booked, blackout",
-      [-1, 0, false],
+      "website_limit, allotment, booked, blackout",
+      [10, -1, 0, false],
       "23514",
     ],
     [
       "negative booked count",
-      "allotment, booked, blackout",
-      [5, -1, false],
+      "website_limit, allotment, booked, blackout",
+      [10, 5, -1, false],
       "23514",
     ],
     [
       "booked above allotment",
-      "allotment, booked, blackout",
-      [1, 2, false],
+      "website_limit, allotment, booked, blackout",
+      [10, 1, 2, false],
       "23514",
     ],
     [
       "fractional allotment parameter",
-      "allotment, booked, blackout",
-      [1.5, 0, false],
+      "website_limit, allotment, booked, blackout",
+      [10, 1.5, 0, false],
       "22P02",
     ],
     [
       "fractional booked parameter",
-      "allotment, booked, blackout",
-      [5, 1.5, false],
+      "website_limit, allotment, booked, blackout",
+      [10, 5, 1.5, false],
       "22P02",
     ],
-    ["missing allotment", "booked, blackout", [0, false], "23502"],
-    ["missing blackout", "allotment, booked", [5, 0], "23502"],
+    [
+      "missing allotment",
+      "website_limit, booked, blackout",
+      [10, 0, false],
+      "23502",
+    ],
+    [
+      "missing blackout",
+      "website_limit, allotment, booked",
+      [10, 5, 0],
+      "23502",
+    ],
     [
       "null allotment",
-      "allotment, booked, blackout",
-      [null, 0, false],
+      "website_limit, allotment, booked, blackout",
+      [10, null, 0, false],
       "23502",
     ],
     [
       "null booked count",
-      "allotment, booked, blackout",
-      [5, null, false],
+      "website_limit, allotment, booked, blackout",
+      [10, 5, null, false],
       "23502",
     ],
-    ["null blackout", "allotment, booked, blackout", [5, 0, null], "23502"],
+    [
+      "null blackout",
+      "website_limit, allotment, booked, blackout",
+      [10, 5, 0, null],
+      "23502",
+    ],
   ];
   it.each(invalidRows)("rejects %s", async (_label, columns, values, code) => {
     await expect(
@@ -129,8 +195,8 @@ describe("nightly inventory database contract", () => {
   ])("rejects %s", async (_label, room, day, code) => {
     await expect(
       fixture(async (tx, roomId) => {
-        await tx`INSERT INTO nightly_inventory (room_type_id, stay_date, allotment, blackout)
-        VALUES (${room === "fixture" ? roomId : room}, ${day}, 5, false)`;
+        await tx`INSERT INTO nightly_inventory (room_type_id, stay_date, website_limit, allotment, blackout)
+        VALUES (${room === "fixture" ? roomId : room}, ${day}, 10, 5, false)`;
       }),
     ).rejects.toMatchObject({ code });
   });
@@ -154,8 +220,8 @@ describe("nightly inventory database contract", () => {
   ])("rejects %s", async (_label, statement, code) => {
     await expect(
       fixture(async (tx, roomId) => {
-        await tx`INSERT INTO nightly_inventory (room_type_id, stay_date, allotment, booked, blackout)
-        VALUES (${roomId}, '2026-11-10', 2, 2, false)`;
+        await tx`INSERT INTO nightly_inventory (room_type_id, stay_date, website_limit, allotment, booked, blackout)
+        VALUES (${roomId}, '2026-11-10', 10, 2, 2, false)`;
         await tx.unsafe(statement, [roomId]);
       }),
     ).rejects.toMatchObject({ code });
@@ -163,8 +229,8 @@ describe("nightly inventory database contract", () => {
 
   it("allows blackout on fully booked stock without changing booked quantities", async () => {
     await fixture(async (tx, roomId) => {
-      await tx`INSERT INTO nightly_inventory (room_type_id, stay_date, allotment, booked, blackout)
-        VALUES (${roomId}, '2026-11-10', 2, 2, false)`;
+      await tx`INSERT INTO nightly_inventory (room_type_id, stay_date, website_limit, allotment, booked, blackout)
+        VALUES (${roomId}, '2026-11-10', 10, 2, 2, false)`;
       const [row] = await tx`UPDATE nightly_inventory SET blackout = true
         WHERE room_type_id = ${roomId} RETURNING allotment, booked, blackout`;
       expect(row).toMatchObject({ allotment: 2, booked: 2, blackout: true });

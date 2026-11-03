@@ -18,4 +18,6 @@ Run `npm ci`, copy `.env.example` to `.env.local`, then `npm run dev`; never com
 
 Payments, email/WhatsApp, and reservation-system connections are simulated. The database contains synthetic data. The demo is not a production launch or a substitute for privacy, security, tax, payment, or operational review.
 
-See [local setup and deployment](docs/SETUP.md) for exact commands and connection requirements. The day-one catalogue is implemented; booking, authentication, and AI features remain scheduled work.
+See [local setup and deployment](docs/SETUP.md) for exact commands and connection requirements. The day-one catalogue and Day 2 foundations are implemented; guest booking and AI features remain scheduled work.
+
+Day 2 adds bounded nightly inventory/rates, server quotes, atomic mixed-booking confirmation/retries, and the staff calendar at `/staff/login`. See [booking rules and learning](docs/BOOKING_RULES.md). The synthetic shared login is `staff@aavana.example` / `EstateDemo!2026`; provision it with `npm run db:seed-staff` after migrations and the general seed. The guest selection/review/payment screens remain Day 3 work.

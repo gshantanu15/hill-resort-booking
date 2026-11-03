@@ -29,6 +29,27 @@
       "when": 1793689138483,
       "tag": "0003_booking_records",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793704115323,
+      "tag": "0004_channel_stock_limits",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793705841315,
+      "tag": "0005_staff_auth",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793706029397,
+      "tag": "0006_estate_inclusive_prices",
+      "breakpoints": true
     }
   ]
 }
