@@ -10,6 +10,12 @@ test("room catalogue is readable and navigable", async ({ page }, testInfo) => {
   ).toBeVisible();
   await expect(page.locator("article")).toHaveCount(3);
   await expect(
+    page.getByRole("link", { name: "Staff sign in", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Staff sign in", exact: true }),
+  ).toHaveAttribute("href", "/staff/login");
+  await expect(
     page.getByText("indicative / night · exact price depends on dates", {
       exact: true,
     }),

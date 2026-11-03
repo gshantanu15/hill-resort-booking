@@ -4,3 +4,4 @@ package-lock.json
 private
 drizzle/meta
 next-env.d.ts
+output/

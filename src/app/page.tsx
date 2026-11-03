@@ -130,15 +130,29 @@ export default async function Home() {
           </div>
         </section>
       </main>
-      <footer>
-        <Link className="wordmark" href="/">
-          Aavana Estate
-        </Link>
-        <p>Booking demo in development. No real reservations or payments.</p>
-        <a href="https://github.com/gshantanu15/hill-resort-booking">
-          Project source
-        </a>
-        <Link href="/staff/login">Staff sign in</Link>
+      <footer className="site-footer">
+        <div className="site-footer-main">
+          <div className="site-footer-brand">
+            <Link className="wordmark" href="/">
+              Aavana Estate
+            </Link>
+            <p>
+              Booking demo in development. No real reservations or payments.
+            </p>
+          </div>
+          <nav className="site-footer-links" aria-label="Footer navigation">
+            <a href="https://github.com/gshantanu15/hill-resort-booking">
+              Project source
+            </a>
+            <Link className="site-footer-staff-link" href="/staff/login">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <rect x="5" y="10" width="14" height="11" rx="2" />
+                <path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3" />
+              </svg>
+              Staff sign in
+            </Link>
+          </nav>
+        </div>
         <details className="demo-notes">
           <summary>About this demo & photographs</summary>
           <p>

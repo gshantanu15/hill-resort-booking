@@ -66,12 +66,14 @@ test("staff calendar and booking API contracts", async ({
     await page.getByLabel("Password").fill(DEMO_STAFF_PASSWORD);
     await page.getByRole("button", { name: "Sign in" }).click();
     await expect(
-      page.getByRole("heading", { name: "Calendar editor" }),
+      page.getByRole("heading", { name: "Rates & availability" }),
     ).toBeVisible();
-    await page.getByLabel("From").fill(start);
-    await page.getByLabel("Through (exclusive)").fill(end);
-    await page.getByRole("button", { name: "Load calendar" }).click();
-    await expect(page.locator(".staff-table tbody tr")).not.toHaveCount(0);
+    await page.getByRole("button", { name: "Choose stay nights" }).click();
+    await page.getByText("Enter dates instead", { exact: true }).click();
+    await page.getByLabel("First stay night").fill(start);
+    await page.getByLabel("Last stay night").fill("2026-11-11");
+    await page.getByRole("button", { name: "Show nights" }).click();
+    await expect(page.locator(".staff-rate-table tbody tr")).not.toHaveCount(0);
     const before = await page.request.get(
       `/api/staff/inventory?start=${start}&end=${end}`,
     );
