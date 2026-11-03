@@ -101,7 +101,7 @@ export default async function Home() {
                     currency: "INR",
                     maximumFractionDigits: 0,
                   }).format(room.baseRatePaise / 100)}{" "}
-                  <span>/ night, before taxes</span>
+                  <span>indicative / night · exact price depends on dates</span>
                 </p>
               </article>
             ))}

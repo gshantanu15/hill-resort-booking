@@ -15,6 +15,20 @@
       "when": 1793684993696,
       "tag": "0001_nightly_inventory",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793686798671,
+      "tag": "0002_nightly_rates",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793689138483,
+      "tag": "0003_booking_records",
+      "breakpoints": true
     }
   ]
 }

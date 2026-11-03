@@ -9,6 +9,11 @@ test("room catalogue is readable and navigable", async ({ page }, testInfo) => {
     page.getByRole("heading", { name: "Estate villa", exact: true }),
   ).toBeVisible();
   await expect(page.locator("article")).toHaveCount(3);
+  await expect(
+    page.getByText("indicative / night · exact price depends on dates", {
+      exact: true,
+    }),
+  ).toHaveCount(3);
   for (const image of await page.locator("img").all()) {
     await image.scrollIntoViewIfNeeded();
     await expect(image).toHaveJSProperty("complete", true);
