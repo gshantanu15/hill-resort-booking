@@ -57,7 +57,7 @@ For each decision, explain the recommendation, rationale, meaningful alternative
 
 - [x] **Unit 1 — Reconcile Day 1 and establish tracking.** Correct stale closing status and record these atomic units. **Evidence:** Day 1 closing review consolidated in `docs/DAY_1_EVIDENCE.md`; daily evidence rows reconciled. Documentation-only change.
 - [x] **Unit 2 — Inventory storage.** Owner approved explicit nightly records, a transactional booked counter, unavailable missing nights, and minimal fields/defaults/safeguards. **Evidence:** `src/db/schema.ts`, generated migration `0001_nightly_inventory.sql`, and 19 passing PostgreSQL integration tests; isolated branch verified, then development migrated. Rationale/alternatives in `docs/ARCHITECTURE.md`; details in `docs/DAY_2_EVIDENCE.md`. Booking transactions remain Unit 10 work.
-- [ ] **Unit 3 — Rate storage.** Decide rate-plan scope, nightly overrides, and missing-rate behavior. Deliver a reviewed schema/migration and constraint checks.
+- [ ] **Unit 3 — Rate storage.** Decide rate-plan scope, nightly overrides, and missing-rate behavior. Deliver a reviewed schema/migration and constraint checks. **In progress:** existing catalogue price/read path and requirements reviewed. Discussing one named demo rate plan versus multiple selectable offers. No rate decision approved or rate schema changed yet; nightly pricing, missing-rate behavior, and the existing catalogue price's role remain open.
 - [ ] **Unit 4 — Booking records.** Discuss booking states, contact/guest data, mixed items, and preserved price breakdowns. Deliver a reviewed booking schema/migration supporting multiple room types.
 - [ ] **Unit 5 — Synthetic seed data.** Decide booking horizon, demo allotments, and nightly prices. Verify repeatability and preservation of existing operational data; document seeded values.
 - [ ] **Unit 6 — Stay and occupancy validation.** Decide timezone, valid booking dates, maximum stay, adult/child treatment, extra beds, and guest allocation. Test accepted/rejected dates, quantities, and occupancy.
@@ -75,7 +75,7 @@ For each decision, explain the recommendation, rationale, meaningful alternative
 
 **Testing rule:** each unit includes focused checks. Establish an isolated synthetic database-test setup before write-based integration tests. Catalogue/AI tests are not booking evidence. Final acceptance includes price-change acceptance, failed-payment inventory behavior, mixed rollback, concurrency, duplicate retries, authorization, and administration effects.
 
-**Current status:** Units 1–2 complete; Units 3–17 pending. Inventory storage and constraints are implemented and tested; availability and booking behavior are not implemented yet. Next action: Unit 3 rate-storage discussion (rate-plan scope, nightly overrides, and missing-rate behavior) before implementation. Unresolved business rules will be discussed before dependent implementation. Polished guest checkout and payment UI remain Day 3 work.
+**Current status:** Units 1–2 complete in commit `4383b29`; Unit 3 in decision discussion; Units 4–17 pending. Inventory storage and constraints are implemented and tested; availability and booking behavior are not implemented yet. Next action: owner choice of rate-plan scope, then nightly pricing, missing-rate behavior, and the catalogue price's role before rate-schema implementation. Unresolved business rules will be discussed before dependent implementation. Polished guest checkout and payment UI remain Day 3 work.
 
 **Validation follow-up:** Unit 2 production build passed with Webpack; default Turbopack failed starting its CSS worker. Root cause remains open for investigation before claiming a passing default build at Day 2 close; see `docs/DAY_2_EVIDENCE.md`.
 
@@ -158,14 +158,14 @@ For each decision, explain the recommendation, rationale, meaningful alternative
 
 ## Daily evidence log
 
-| Day   | Evidence                                                                                                                                                        | Status      |
-| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| Day 1 | Exit criteria passed in the November 2 closing review; see [closing evidence](DAY_1_EVIDENCE.md#closing-review--november-2-2026).                               | Complete    |
-| Day 2 | Units 1–2 complete; reviewed inventory migration, development migrated, 19 database checks passed. See [Day 2 evidence](DAY_2_EVIDENCE.md). Units 3–17 pending. | In progress |
-| Day 3 | —                                                                                                                                                               | Pending     |
-| Day 4 | —                                                                                                                                                               | Pending     |
-| Day 5 | —                                                                                                                                                               | Pending     |
-| Day 6 | —                                                                                                                                                               | Pending     |
+| Day   | Evidence                                                                                                                                                               | Status      |
+| ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| Day 1 | Exit criteria passed in the November 2 closing review; see [closing evidence](DAY_1_EVIDENCE.md#closing-review--november-2-2026).                                      | Complete    |
+| Day 2 | Units 1–2 committed as `4383b29`; Unit 3 rate-plan scope under discussion, no rate decision approved yet. See [Day 2 evidence](DAY_2_EVIDENCE.md). Units 4–17 pending. | In progress |
+| Day 3 | —                                                                                                                                                                      | Pending     |
+| Day 4 | —                                                                                                                                                                      | Pending     |
+| Day 5 | —                                                                                                                                                                      | Pending     |
+| Day 6 | —                                                                                                                                                                      | Pending     |
 
 ## Completion standard
 
