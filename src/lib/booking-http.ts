@@ -32,7 +32,7 @@ export function quoteSecret() {
     throw new Error("Booking secret not configured");
   return secret;
 }
-export async function bookingBody(request: Request) {
+export async function bookingBody(request: Request, maxBytes = 16384) {
   const origin = request.headers.get("origin");
   if (origin && origin !== new URL(request.url).origin)
     throw new BookingError(
@@ -56,7 +56,7 @@ export async function bookingBody(request: Request) {
     const { done, value } = await reader.read();
     if (done) break;
     length += value.byteLength;
-    if (length > 16384) {
+    if (length > maxBytes) {
       await reader.cancel();
       throw new BookingError(
         "REQUEST_TOO_LARGE",

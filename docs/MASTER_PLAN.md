@@ -115,16 +115,16 @@ Record important implementation choices and brief rationale in `docs/ARCHITECTUR
 
 **Review workflow (owner-approved November 5):** implement one milestone at a time, run focused checks, present a local URL and manual checklist, and wait for owner approval before continuing. Commit each milestone after approval. Deploy only after final local approval. Sequence: (1) guest date-picker fix, (2) persisted public intake, (3) staff inbox/simulated channels, (4) manual routing/drafts, (5) model research and configuration approval, (6) AI integration, (7) final validation/release. Model research is deferred until milestone 5. Team owners are Reservations, Sales and GM; uncertain enquiries stay Unsorted with GM attention. AI starts staff-triggered, with a reusable service for later automatic processing.
 
-**Current milestone:** 1 approved/committed as `b4a2b5e`; 2 approved/committed as `bf56f12`, including the refined guest-facing copy. Milestone 3 adds the protected inbox, filters/details and simulated email/WhatsApp intake at `/staff/enquiries`; owner-approved, including the integrated Hallmark workbench redesign. Validation: 52 unit, 11 focused isolated database and eight desktop/mobile enquiry browser checks passed, with affected staff checks repeated after layout refinements. No new migration, production deployment or AI-model research. See [Day 4 evidence](DAY_4_EVIDENCE.md). Milestones 4–7 have not started.
+**Current milestone:** 1 approved/committed as `b4a2b5e`; 2 approved/committed as `bf56f12`, including the refined guest-facing copy. Milestone 3 adds the protected inbox, filters/details and simulated email/WhatsApp intake at `/staff/enquiries`; owner-approved, including the integrated Hallmark workbench redesign. Validation: 52 unit, 11 focused isolated database and eight desktop/mobile enquiry browser checks passed, with affected staff checks repeated after layout refinements. No new migration, production deployment or AI-model research. See [Day 4 evidence](DAY_4_EVIDENCE.md). Milestone 3 is committed as e9e84fa. Milestone 4 manual routing, unsent drafts and navigation refinements are owner-approved and complete. Milestone 5 model research starts next; paid trials and integration require their separate budget/configuration decisions. Milestones 6–7 have not started.
 
 - [x] Build a public enquiry form and persist submissions. **Evidence:** owner-approved milestone 2, commit `bf56f12`; migration 0008, persistence/retry tests and refined guest-facing copy.
 - [x] Add staff-only simulated email and WhatsApp intake with visible source labels. **Evidence:** approved milestone 3; protected intake and exact-retry browser/database checks.
 - [x] Build protected inbox filters and enquiry detail. **Evidence:** approved milestone 3 workbench, desktop/mobile journeys and isolated database projections/pagination.
-- [ ] Add owner assignment and editable unsent drafts (milestone 4).
+- [x] Complete owner-approved milestone 4: manual category correction, team assignment/overrides and editable saved unsent drafts.
 - [ ] Integrate OpenRouter classification, extraction, and reply drafting using validated structured output.
 - [ ] Add manual-review handling for ambiguity, malformed responses, timeouts, and provider failures.
 - [ ] Preserve uncertain dates rather than inventing missing years or details.
-- [ ] Add GM-attention flags for complaints and one-action routing correction.
+- [x] Add owner-approved Complaint/Unsorted GM-attention safeguards and compact routing correction (milestone 4).
 - [ ] Keep model-generated text separate from authoritative price insertion.
 - [ ] Add request limits, input-size limits, and bounded AI execution.
 - [ ] Evaluate the three supplied enquiries plus complaint, ambiguous, malformed, and adversarial examples.
@@ -165,14 +165,14 @@ Record important implementation choices and brief rationale in `docs/ARCHITECTUR
 
 ## Daily evidence log
 
-| Day   | Evidence                                                                                                                                                                                                                                                    | Status      |
-| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| Day 1 | Exit criteria passed in the November 2 closing review; see [closing evidence](DAY_1_EVIDENCE.md#closing-review--november-2-2026).                                                                                                                           | Complete    |
-| Day 2 | Units 1–17 complete: 35 unit, 102 database, six desktop/mobile checks; types/lint/format/build and deployed smoke passed. Implementation `bb23d2a`, successful GitHub CI, demo migrated/seeded. See [Day 2 evidence](DAY_2_EVIDENCE.md).                    | Complete    |
-| Day 3 | Guest redesign and polish deployed; 46 unit, 105 database and 24 desktop/mobile checks pass. Migration 0007 applied to both environments; live smoke preserved existing data. See [release evidence](GUEST_POLISH_RELEASE.md).                              | Complete    |
-| Day 4 | Date picker and public intake approved/committed. Staff inbox, simulated intake and redesigned workbench approved and complete; 52 unit, 11 focused database and eight desktop/mobile enquiry browser checks pass. See [Day 4 evidence](DAY_4_EVIDENCE.md). | In progress |
-| Day 5 | —                                                                                                                                                                                                                                                           | Pending     |
-| Day 6 | —                                                                                                                                                                                                                                                           | Pending     |
+| Day   | Evidence                                                                                                                                                                                                                                                           | Status      |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------- |
+| Day 1 | Exit criteria passed in the November 2 closing review; see [closing evidence](DAY_1_EVIDENCE.md#closing-review--november-2-2026).                                                                                                                                  | Complete    |
+| Day 2 | Units 1–17 complete: 35 unit, 102 database, six desktop/mobile checks; types/lint/format/build and deployed smoke passed. Implementation `bb23d2a`, successful GitHub CI, demo migrated/seeded. See [Day 2 evidence](DAY_2_EVIDENCE.md).                           | Complete    |
+| Day 3 | Guest redesign and polish deployed; 46 unit, 105 database and 24 desktop/mobile checks pass. Migration 0007 applied to both environments; live smoke preserved existing data. See [release evidence](GUEST_POLISH_RELEASE.md).                                     | Complete    |
+| Day 4 | Date picker and public intake approved/committed. Staff inbox, simulated intake and redesigned workbench approved/committed. Milestone 4 manual routing, unsent drafts and shared navigation owner-approved and complete. See [Day 4 evidence](DAY_4_EVIDENCE.md). | In progress |
+| Day 5 | —                                                                                                                                                                                                                                                                  | Pending     |
+| Day 6 | —                                                                                                                                                                                                                                                                  | Pending     |
 
 ## Completion standard
 

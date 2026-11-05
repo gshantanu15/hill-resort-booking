@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import StaffNavigation from "../staff-navigation";
 import Link from "next/link";
 import { Button } from "react-aria-components/Button";
 import { Tabs, TabList, Tab, TabPanel } from "react-aria-components/Tabs";
@@ -9,6 +10,7 @@ import { Popover } from "react-aria-components/Popover";
 import { Modal, ModalOverlay } from "react-aria-components/Modal";
 import EnquiryIcon from "./enquiry-icon";
 import EnquiryChoice from "./enquiry-choice";
+import { EnquiryRoutingEditor, EnquiryDraftEditor } from "./enquiry-editors";
 import { simulatedEnquiryInputSchema } from "@/lib/enquiry-validation";
 
 type Row = {
@@ -166,6 +168,31 @@ export default function EnquiryInbox() {
   const pending = useRef<SimPayload | null>(null);
   const [pendingPayload, setPendingPayload] = useState<SimPayload | null>(null);
   const [intakeOpen, setIntakeOpen] = useState(false);
+  const edits = useRef({
+    routing: false,
+    draft: false,
+    routingBusy: false,
+    draftBusy: false,
+  });
+  const canLeave = useCallback(() => {
+    if (edits.current.routingBusy || edits.current.draftBusy) {
+      window.alert("Wait for the enquiry save to finish before leaving.");
+      return false;
+    }
+    if (
+      (edits.current.routing || edits.current.draft) &&
+      !window.confirm("Discard unsaved enquiry changes?")
+    )
+      return false;
+    return true;
+  }, []);
+  useEffect(() => {
+    const warn = (event: BeforeUnloadEvent) => {
+      if (Object.values(edits.current).some(Boolean)) event.preventDefault();
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, []);
   useEffect(() => {
     const timer = window.setTimeout(() => {
       try {
@@ -195,6 +222,13 @@ export default function EnquiryInbox() {
   }, []);
   const open = useCallback(
     async (id: string, manual = true) => {
+      if (manual && !canLeave()) return;
+      edits.current = {
+        routing: false,
+        draft: false,
+        routingBusy: false,
+        draftBusy: false,
+      };
       setSelected(id);
       setTab("message");
       setCopied(false);
@@ -229,9 +263,15 @@ export default function EnquiryInbox() {
         if (!controller.signal.aborted) setDetailLoading(false);
       }
     },
-    [router],
+    [router, canLeave],
   );
   const load = useCallback(async () => {
+    edits.current = {
+      routing: false,
+      draft: false,
+      routingBusy: false,
+      draftBusy: false,
+    };
     listRequest.current?.abort();
     detailRequest.current?.abort();
     const controller = new AbortController();
@@ -293,6 +333,7 @@ export default function EnquiryInbox() {
     return () => window.clearTimeout(timer);
   }, [detail]);
   const signOut = async () => {
+    if (!canLeave()) return;
     try {
       const response = await fetch("/api/auth/sign-out", {
         method: "POST",
@@ -402,6 +443,7 @@ export default function EnquiryInbox() {
     }
   };
   const resetFilters = () => {
+    if (!canLeave()) return;
     setSource("");
     setCategory("");
     setOwner("");
@@ -418,35 +460,11 @@ export default function EnquiryInbox() {
       <a className="ei-skip-link" href="#enquiry-main">
         Skip to enquiries
       </a>
-      <header className="ei-topbar">
-        <div className="ei-shell ei-topbar-inner">
-          <Link className="ei-wordmark" href="/">
-            Aavana <span>Estate</span>
-          </Link>
-          <span className="ei-workspace-label">Staff workspace</span>
-          <nav aria-label="Staff navigation">
-            <Link href="/staff">Calendar</Link>
-            <Link
-              className="ei-current"
-              aria-current="page"
-              href="/staff/enquiries"
-            >
-              Enquiries
-            </Link>
-            <Link className="ei-guest-link" href="/">
-              Guest site
-            </Link>
-            <Button
-              className="ei-text-control"
-              aria-label="Sign out"
-              onPress={() => void signOut()}
-            >
-              <EnquiryIcon name="logout" />
-              <span className="ei-signout-text">Sign out</span>
-            </Button>
-          </nav>
-        </div>
-      </header>
+      <StaffNavigation
+        current="enquiries"
+        beforeNavigate={canLeave}
+        onSignOut={() => void signOut()}
+      />
       <main className="ei-shell" id="enquiry-main">
         <div className="ei-page-heading">
           <div>
@@ -458,13 +476,19 @@ export default function EnquiryInbox() {
               className="ei-control ei-icon-control"
               aria-label="Refresh inbox"
               isDisabled={loading}
-              onPress={() => void load()}
+              onPress={() => {
+                if (canLeave()) void load();
+              }}
             >
               <EnquiryIcon name="refresh" />
             </Button>
             <Button
               className="ei-control"
               onPress={() => {
+                if (!canLeave()) return;
+                setDetail(null);
+                edits.current.routing = false;
+                edits.current.draft = false;
                 setIntakeOpen(true);
                 setSimError("");
                 setSimSuccess("");
@@ -487,6 +511,7 @@ export default function EnquiryInbox() {
                 className="ei-lane-tab"
                 aria-pressed={lane === key}
                 onPress={() => {
+                  if (!canLeave()) return;
                   setLane(key);
                   setPage(1);
                 }}
@@ -504,6 +529,7 @@ export default function EnquiryInbox() {
               icon={source ? channelIcon(source) : "inbox"}
               value={source || "all"}
               onChange={(value) => {
+                if (!canLeave()) return;
                 setSource(value === "all" ? "" : value);
                 setPage(1);
               }}
@@ -538,6 +564,7 @@ export default function EnquiryInbox() {
                       label="Category"
                       value={category || "all"}
                       onChange={(value) => {
+                        if (!canLeave()) return;
                         setCategory(value === "all" ? "" : value);
                         setPage(1);
                       }}
@@ -553,6 +580,7 @@ export default function EnquiryInbox() {
                       label="Owner"
                       value={owner || "all"}
                       onChange={(value) => {
+                        if (!canLeave()) return;
                         setOwner(value === "all" ? "" : value);
                         setPage(1);
                       }}
@@ -646,9 +674,7 @@ export default function EnquiryInbox() {
                               : "WhatsApp"}
                         </span>
                         <span>
-                          {row.needsReview
-                            ? "Needs review"
-                            : readable(row.processingState)}
+                          {row.needsReview ? "Needs review" : "Reviewed"}
                         </span>
                       </div>
                     </Button>
@@ -666,14 +692,18 @@ export default function EnquiryInbox() {
               <Button
                 className="ei-control"
                 isDisabled={loading || page === 1}
-                onPress={() => setPage(page - 1)}
+                onPress={() => {
+                  if (canLeave()) setPage(page - 1);
+                }}
               >
                 Previous
               </Button>
               <Button
                 className="ei-control"
                 isDisabled={loading || page * 25 >= total}
-                onPress={() => setPage(page + 1)}
+                onPress={() => {
+                  if (canLeave()) setPage(page + 1);
+                }}
               >
                 Next
               </Button>
@@ -718,9 +748,7 @@ export default function EnquiryInbox() {
                 </div>
                 <div className="ei-status-line">
                   <span className="ei-status-tag">
-                    {detail.needsReview
-                      ? "Needs review"
-                      : readable(detail.processingState)}
+                    {detail.needsReview ? "Needs review" : "Reviewed"}
                   </span>
                   <span>{readable(detail.category)}</span>
                   {detail.gmAttention && (
@@ -734,6 +762,36 @@ export default function EnquiryInbox() {
                     {ownerLabel(detail.owner)}
                   </span>
                 </div>
+                <EnquiryRoutingEditor
+                  key={`routing-${detail.id}`}
+                  enquiry={{ ...detail, draft: detail.draft ?? "" }}
+                  onDirty={(value) => {
+                    edits.current.routing = value;
+                  }}
+                  onBusy={(value) => {
+                    edits.current.routingBusy = value;
+                  }}
+                  onSaved={(changes) => {
+                    const { category, owner, needsReview, gmAttention } =
+                      changes;
+                    setDetail((current) =>
+                      current
+                        ? {
+                            ...current,
+                            category,
+                            owner,
+                            needsReview,
+                            gmAttention,
+                          }
+                        : current,
+                    );
+                    setRows((current) =>
+                      current.map((row) =>
+                        row.id === detail.id ? { ...row, ...changes } : row,
+                      ),
+                    );
+                  }}
+                />
                 <Tabs
                   className="ei-detail-tabs"
                   selectedKey={tab}
@@ -777,7 +835,7 @@ export default function EnquiryInbox() {
                       </dl>
                     </section>
                   </TabPanel>
-                  <TabPanel id="assistant">
+                  <TabPanel id="assistant" shouldForceMount>
                     <div className="ei-assistant-heading">
                       <div>
                         <h3>Enquiry assistance</h3>
@@ -806,16 +864,25 @@ export default function EnquiryInbox() {
                         <dd>Not analysed</dd>
                       </div>
                     </dl>
-                    <section className="ei-draft">
-                      <h3>Draft reply</h3>
-                      <p>
-                        {detail.draft ||
-                          "No draft yet. No reply has been sent."}
-                      </p>
-                    </section>
+                    <EnquiryDraftEditor
+                      key={`draft-${detail.id}`}
+                      enquiry={{ ...detail, draft: detail.draft ?? "" }}
+                      onDirty={(value) => {
+                        edits.current.draft = value;
+                      }}
+                      onBusy={(value) => {
+                        edits.current.draftBusy = value;
+                      }}
+                      onSaved={(changes) => {
+                        setDetail((current) =>
+                          current
+                            ? { ...current, draft: changes.draft }
+                            : current,
+                        );
+                      }}
+                    />
                     <p className="ei-preview-note" id="enquiry-ai-status">
-                      Analysis is not available yet. Nothing is sent
-                      automatically.
+                      Analysis is not available yet.
                     </p>
                   </TabPanel>
                 </Tabs>

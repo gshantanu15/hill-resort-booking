@@ -14,12 +14,14 @@ export default function EnquiryChoice({
   onChange,
   options,
   icon,
+  isDisabled,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   options: Array<{ id: string; name: string; icon?: IconName }>;
   icon?: IconName;
+  isDisabled?: boolean;
 }) {
   return (
     <Select
@@ -27,6 +29,7 @@ export default function EnquiryChoice({
       selectedKey={value}
       onSelectionChange={(key) => onChange(String(key))}
       className="ei-choice"
+      isDisabled={isDisabled}
     >
       <Button className="ei-control">
         {icon && <EnquiryIcon name={icon} />}

@@ -8,6 +8,8 @@ import {
   enquiryInputSchema,
   simulatedEnquiryInputSchema,
   enquiryListSchema,
+  enquiryUpdateSchema,
+  defaultEnquiryOwner,
 } from "./enquiry-validation";
 import { BookingError } from "./booking";
 
@@ -22,6 +24,94 @@ export async function saveWebsiteEnquiry(db: Database, raw: unknown) {
     );
   const input = parsed.data;
   return saveEnquiry(db, input, "website");
+}
+
+export async function updateStaffEnquiry(
+  db: Database,
+  id: string,
+  raw: unknown,
+) {
+  if (!z.uuid().safeParse(id).success)
+    throw new BookingError(
+      "INVALID_REFERENCE",
+      "Choose a valid enquiry reference.",
+    );
+  const parsed = enquiryUpdateSchema.safeParse(raw);
+  if (!parsed.success)
+    throw new BookingError(
+      "INVALID_ENQUIRY_EDIT",
+      parsed.error.issues[0]?.message ?? "Check your changes.",
+    );
+  const input = parsed.data;
+  return db.transaction(async (tx) => {
+    await tx.execute(sql`set local lock_timeout = '5s'`);
+    await tx.execute(sql`set local statement_timeout = '10s'`);
+    const t = schema.enquiries;
+    const [current] = await tx
+      .select({
+        category: t.category,
+        owner: t.owner,
+        needsReview: t.needsReview,
+        gmAttention: t.gmAttention,
+        draft: t.draft,
+      })
+      .from(t)
+      .where(eq(t.id, id))
+      .for("update");
+    if (!current)
+      throw new BookingError(
+        "ENQUIRY_NOT_FOUND",
+        "This enquiry could not be found.",
+        404,
+      );
+    let changes: Partial<typeof current>;
+    let stale: boolean;
+    let alreadySaved: boolean;
+    if (input.action === "draft") {
+      changes = { draft: input.draft };
+      stale = current.draft !== input.expectedDraft;
+      alreadySaved = current.draft === input.draft;
+    } else {
+      const owner =
+        input.owner !== undefined
+          ? input.owner
+          : input.category !== input.expected.category
+            ? defaultEnquiryOwner(input.category)
+            : input.expected.owner;
+      const attention =
+        input.category === "complaint" || input.category === "unsorted";
+      changes = {
+        category: input.category,
+        owner,
+        needsReview: attention,
+        gmAttention: attention,
+      };
+      stale =
+        current.category !== input.expected.category ||
+        current.owner !== input.expected.owner;
+      alreadySaved =
+        current.category === input.category && current.owner === owner;
+    }
+    if (stale && !alreadySaved)
+      throw new BookingError(
+        "ENQUIRY_EDIT_CONFLICT",
+        "Another staff session changed this enquiry. Your edits are kept here; reload the saved version before trying again.",
+        409,
+      );
+    if (alreadySaved && stale) return current;
+    const [saved] = await tx
+      .update(t)
+      .set(changes)
+      .where(eq(t.id, id))
+      .returning({
+        category: t.category,
+        owner: t.owner,
+        needsReview: t.needsReview,
+        gmAttention: t.gmAttention,
+        draft: t.draft,
+      });
+    return saved;
+  });
 }
 
 export async function saveSimulatedEnquiry(db: Database, raw: unknown) {

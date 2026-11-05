@@ -17,6 +17,44 @@ export const simulatedEnquiryInputSchema = enquiryInputSchema.extend({
   source: z.enum(["email", "whatsapp"]),
 });
 
+export const enquiryCategorySchema = z.enum([
+  "room",
+  "wedding",
+  "offsite",
+  "complaint",
+  "unsorted",
+]);
+const enquiryOwnerSchema = z.enum(["reservations", "sales", "gm"]).nullable();
+export const enquiryUpdateSchema = z.discriminatedUnion("action", [
+  z
+    .object({
+      action: z.literal("route"),
+      category: enquiryCategorySchema,
+      owner: enquiryOwnerSchema.optional(),
+      expected: z
+        .object({ category: enquiryCategorySchema, owner: enquiryOwnerSchema })
+        .strict(),
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal("draft"),
+      draft: z.string().max(6000, "Keep the draft within 6,000 characters."),
+      expectedDraft: z.string().max(6000),
+    })
+    .strict(),
+]);
+
+export function defaultEnquiryOwner(
+  category: z.infer<typeof enquiryCategorySchema>,
+) {
+  return category === "room"
+    ? "reservations"
+    : category === "wedding" || category === "offsite"
+      ? "sales"
+      : "gm";
+}
+
 export const enquiryListSchema = z
   .object({
     source: z.enum(["website", "email", "whatsapp"]).optional(),

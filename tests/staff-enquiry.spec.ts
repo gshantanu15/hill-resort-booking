@@ -60,10 +60,30 @@ test("staff sees all sources, filters details and recovers simulated intake with
       page.getByRole("heading", { name: "Rates & availability" }),
     ).toBeVisible();
     await page.waitForLoadState("networkidle");
+    const checkNavigation = async (current: string) => {
+      const navigation = page.getByRole("navigation", {
+        name: "Staff navigation",
+      });
+      for (const label of ["Guest site", "Enquiries", "Calendar"])
+        await expect(
+          navigation.getByRole("link", { name: label, exact: true }),
+        ).toBeVisible();
+      await expect(
+        navigation.getByRole("button", { name: "Sign out", exact: true }),
+      ).toBeVisible();
+      await expect(
+        navigation.getByRole("link", { name: current, exact: true }),
+      ).toHaveAttribute("aria-current", "page");
+      await expect(
+        page.getByText("Staff workspace", { exact: true }),
+      ).toBeVisible();
+    };
+    await checkNavigation("Calendar");
     await page.getByRole("link", { name: "Enquiries", exact: true }).click();
     await expect(
       page.getByRole("heading", { name: "Enquiries" }),
     ).toBeVisible();
+    await checkNavigation("Enquiries");
     expect(
       (
         await page.request.post("/api/staff/enquiries", {
@@ -154,7 +174,7 @@ test("staff sees all sources, filters details and recovers simulated intake with
     });
     writeFileSync(info.outputPath("staff-detail.html"), await page.content());
     await detail.getByRole("tab", { name: /Assistant/ }).click();
-    await expect(detail).toContainText("No reply has been sent");
+    await expect(detail).toContainText("Unsent draft.");
     await expect(
       detail.getByRole("button", { name: "Analyse enquiry" }),
     ).toBeDisabled();
@@ -252,6 +272,14 @@ test("authenticated nonstaff cannot read or create staff enquiries", async ({
     ).toBe(true);
     expect((await request.get("/api/staff/enquiries")).status()).toBe(403);
     expect(
+      (
+        await request.patch(`/api/staff/enquiries/${randomUUID()}`, {
+          headers: { origin: baseURL! },
+          data: {},
+        })
+      ).status(),
+    ).toBe(403);
+    expect(
       (await request.get(`/api/staff/enquiries/${randomUUID()}`)).status(),
     ).toBe(403);
     expect(
@@ -264,6 +292,202 @@ test("authenticated nonstaff cannot read or create staff enquiries", async ({
     ).toBe(403);
   } finally {
     await db`delete from app_user where id=${id}`;
+    await db.end();
+  }
+});
+
+test("staff corrects routing and saves unsent drafts with safe conflict recovery", async ({
+  page,
+  request,
+  baseURL,
+}, info) => {
+  const db = database();
+  const email = randomUUID() + "@example.test";
+  const name = "Routing " + randomUUID().slice(0, 8);
+  try {
+    const created = await request.post("/api/enquiries", {
+      data: {
+        submissionId: randomUUID(),
+        contact: { name, email },
+        message: "Please help arrange a family stay.",
+      },
+    });
+    expect(created.status()).toBe(201);
+    const id = (await created.json()).reference;
+    const url = "/api/staff/enquiries/" + id;
+    expect((await request.patch(url, { data: {} })).status()).toBe(401);
+    expect(
+      (
+        await page.request.post("/api/auth/sign-in/email", {
+          headers: { origin: baseURL! },
+          data: { email: DEMO_STAFF_EMAIL, password: DEMO_STAFF_PASSWORD },
+        })
+      ).ok(),
+    ).toBe(true);
+    expect(
+      (
+        await page.request.patch(url, {
+          headers: { origin: "https://untrusted.example" },
+          data: {},
+        })
+      ).status(),
+    ).toBe(403);
+    expect(
+      (
+        await page.request.patch(url, {
+          headers: { origin: baseURL! },
+          data: { action: "send" },
+        })
+      ).status(),
+    ).toBe(400);
+    await page.goto("/staff/enquiries");
+    await page
+      .getByRole("button", { name: "Open enquiry from " + name, exact: true })
+      .click();
+    const routing = page.getByRole("region", { name: "Routing", exact: true });
+    const choose = async (label: string, value: string) => {
+      await routing.getByRole("button", { name: new RegExp(label) }).click();
+      await page.getByRole("option", { name: value, exact: true }).click();
+    };
+    await choose("Category", "Room");
+    await expect(routing.getByRole("button", { name: /Owner/ })).toContainText(
+      "Reservations",
+    );
+    await routing
+      .getByRole("button", { name: "Save routing", exact: true })
+      .click();
+    await expect(routing.getByRole("status")).toContainText("Routing saved");
+    await choose("Category", "Complaint");
+    await expect(routing.getByRole("button", { name: /Owner/ })).toContainText(
+      "GM",
+    );
+    await choose("Owner", "Sales");
+    await routing
+      .getByRole("button", { name: "Save routing", exact: true })
+      .click();
+    await expect(routing.getByRole("status")).toContainText("Routing saved");
+    await expect(page.locator(".ei-status-line")).toContainText("GM attention");
+    await expect(page.locator(".ei-status-line")).toContainText("Sales");
+    await page.getByRole("tab", { name: /Assistant/ }).click();
+    const draft = page.getByRole("textbox", {
+      name: "Draft reply",
+      exact: true,
+    });
+    await draft.fill(
+      "Thank you for telling us. Our team will review your concern.",
+    );
+    await page.getByRole("tab", { name: "Enquiry", exact: true }).click();
+    await page.getByRole("tab", { name: /Assistant/ }).click();
+    await expect(draft).toHaveValue(
+      "Thank you for telling us. Our team will review your concern.",
+    );
+    page.once("dialog", (dialog) => dialog.dismiss());
+    await page.getByRole("link", { name: "Calendar", exact: true }).click();
+    await expect(draft).toHaveValue(
+      "Thank you for telling us. Our team will review your concern.",
+    );
+    await page.route(
+      "**/api/staff/enquiries/" + id,
+      async (route) => {
+        if (route.request().method() !== "PATCH") return route.continue();
+        const response = await route.fetch();
+        expect(response.status()).toBe(200);
+        await route.abort("failed");
+      },
+      { times: 1 },
+    );
+    await page.getByRole("button", { name: "Save draft", exact: true }).click();
+    await expect(
+      page
+        .getByRole("region", { name: "Draft reply", exact: true })
+        .getByRole("status"),
+    ).toContainText("could not be confirmed");
+    await expect(draft).toHaveValue(
+      "Thank you for telling us. Our team will review your concern.",
+    );
+    await page.getByRole("button", { name: "Save draft", exact: true }).click();
+    await expect(
+      page
+        .getByRole("region", { name: "Draft reply", exact: true })
+        .getByRole("status"),
+    ).toContainText("Draft saved");
+    const baseline = await draft.inputValue();
+    expect(
+      (
+        await page.request.patch(url, {
+          headers: { origin: baseURL! },
+          data: {
+            action: "draft",
+            draft: "Saved by another staff session.",
+            expectedDraft: baseline,
+          },
+        })
+      ).status(),
+    ).toBe(200);
+    await draft.fill("My local edits must remain here.");
+    await page.getByRole("button", { name: "Save draft", exact: true }).click();
+    await expect(
+      page
+        .getByRole("region", { name: "Draft reply", exact: true })
+        .getByRole("status"),
+    ).toContainText("changed elsewhere");
+    await expect(draft).toHaveValue("My local edits must remain here.");
+    page.once("dialog", (dialog) => dialog.dismiss());
+    await page
+      .getByRole("button", { name: "Reload saved draft", exact: true })
+      .click();
+    await expect(draft).toHaveValue("My local edits must remain here.");
+    page.once("dialog", (dialog) => dialog.accept());
+    await page
+      .getByRole("button", { name: "Reload saved draft", exact: true })
+      .click();
+    await expect(draft).toHaveValue("Saved by another staff session.");
+    await draft.fill("Final unsent draft for the team to review.");
+    await page.getByRole("button", { name: "Save draft", exact: true }).click();
+    await expect(
+      page
+        .getByRole("region", { name: "Draft reply", exact: true })
+        .getByRole("status"),
+    ).toContainText("Draft saved");
+    await page.reload();
+    await page
+      .getByRole("button", { name: "Open enquiry from " + name, exact: true })
+      .click();
+    await expect(page.locator(".ei-status-line")).toContainText("GM attention");
+    await expect(
+      routing.getByRole("button", { name: /Category/ }),
+    ).toContainText("Complaint");
+    await expect(routing.getByRole("button", { name: /Owner/ })).toContainText(
+      "Sales",
+    );
+    await page.getByRole("tab", { name: /Assistant/ }).click();
+    await expect(draft).toHaveValue(
+      "Final unsent draft for the team to review.",
+    );
+    await expect(page.getByRole("button", { name: /send reply/i })).toHaveCount(
+      0,
+    );
+    const saved = await page.request.get(url);
+    expect(saved.headers()["cache-control"]).toBe("no-store");
+    expect((await saved.json()).enquiry).toMatchObject({
+      category: "complaint",
+      owner: "sales",
+      gmAttention: true,
+      needsReview: true,
+      draft: "Final unsent draft for the team to review.",
+      message: "Please help arrange a family stay.",
+    });
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    await page.screenshot({
+      path: info.outputPath("manual-routing-draft.png"),
+      fullPage: true,
+    });
+  } finally {
+    await db`delete from enquiries where contact_email=${email}`;
     await db.end();
   }
 });

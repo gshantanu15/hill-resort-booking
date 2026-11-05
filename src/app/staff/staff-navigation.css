@@ -1,0 +1,101 @@
+.staff-navigation {
+  display: block;
+  min-height: 0;
+  max-width: none;
+  padding: 0;
+  border-bottom: 1px solid var(--rule);
+  background: var(--light);
+  color: var(--ink);
+  font: 400 14px/1.5 var(--font-body);
+}
+.staff-navigation-inner {
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-inline: 40px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  min-height: 72px;
+}
+.staff-navigation .staff-navigation-brand {
+  font: 400 27px/1.2 var(--font-display);
+  white-space: nowrap;
+  text-decoration: none;
+  color: var(--ink);
+}
+.staff-navigation-brand span {
+  font: 400 13px/1.4 var(--font-body);
+  margin-left: 8px;
+}
+.staff-navigation-label {
+  padding-left: 32px;
+  border-left: 1px solid var(--rule);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.staff-navigation nav {
+  display: flex;
+  align-items: stretch;
+  gap: 24px;
+  margin-left: auto;
+  align-self: stretch;
+}
+.staff-navigation nav a,
+.staff-navigation nav button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--ink);
+  font: inherit;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+}
+.staff-navigation nav [aria-current="page"] {
+  border-bottom-color: var(--accent);
+}
+.staff-navigation nav a:hover,
+.staff-navigation nav button:hover {
+  color: var(--accent);
+}
+.staff-navigation :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+.staff-navigation button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.staff-navigation svg {
+  width: 20px;
+  height: 20px;
+}
+@media (max-width: 850px) {
+  .staff-navigation-inner {
+    flex-wrap: wrap;
+    gap: 0 20px;
+    padding: 16px 20px 0;
+  }
+  .staff-navigation-label {
+    margin-left: auto;
+    padding-left: 20px;
+  }
+  .staff-navigation nav {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: 100%;
+    margin: 12px 0 0;
+    gap: 8px;
+  }
+  .staff-navigation nav a,
+  .staff-navigation nav button {
+    font-size: 13px;
+    gap: 4px;
+  }
+}

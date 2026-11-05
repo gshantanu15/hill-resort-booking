@@ -12,6 +12,7 @@ import {
   getStaffEnquiry,
   listStaffEnquiries,
   saveSimulatedEnquiry,
+  updateStaffEnquiry,
 } from "../../src/lib/enquiries";
 
 const url = process.env.TEST_DATABASE_URL;
@@ -222,6 +223,156 @@ describe("staff enquiry persistence and projections", () => {
       });
     } finally {
       await cleanup([value.submissionId]);
+    }
+  });
+
+  it("routes with safe defaults, preserves idempotent replays, and protects optimistic updates", async () => {
+    const value = input("email");
+    try {
+      const saved = await saveSimulatedEnquiry(db, value);
+      const route = {
+        action: "route" as const,
+        category: "complaint" as const,
+        expected: { category: "unsorted" as const, owner: null },
+      };
+      const updated = await updateStaffEnquiry(db, saved.reference, route);
+      expect(updated).toMatchObject({
+        category: "complaint",
+        owner: "gm",
+        needsReview: true,
+        gmAttention: true,
+      });
+      await expect(
+        updateStaffEnquiry(db, saved.reference, route),
+      ).resolves.toMatchObject(updated);
+      await expect(
+        updateStaffEnquiry(db, saved.reference, {
+          action: "route",
+          category: "room",
+          owner: "reservations",
+          expected: { category: "unsorted", owner: null },
+        }),
+      ).rejects.toMatchObject({ status: 409 });
+      const draft = await updateStaffEnquiry(db, saved.reference, {
+        action: "draft",
+        draft: "A saved draft",
+        expectedDraft: "",
+      });
+      expect(draft).toMatchObject({
+        draft: "A saved draft",
+        category: "complaint",
+        owner: "gm",
+        gmAttention: true,
+      });
+      await expect(
+        updateStaffEnquiry(db, saved.reference, {
+          action: "route",
+          category: "room",
+          owner: "reservations",
+          expected: { category: "unsorted", owner: null },
+        }),
+      ).rejects.toMatchObject({ status: 409 });
+      await expect(
+        updateStaffEnquiry(db, saved.reference, {
+          action: "draft",
+          draft: "x",
+          expectedDraft: "wrong",
+        }),
+      ).rejects.toMatchObject({ status: 409 });
+      await expect(
+        updateStaffEnquiry(db, "not-a-uuid", route),
+      ).rejects.toMatchObject({ status: 400 });
+      await expect(
+        updateStaffEnquiry(db, randomUUID(), route),
+      ).rejects.toMatchObject({ status: 404 });
+    } finally {
+      await cleanup([value.submissionId]);
+    }
+  });
+
+  it("uses category defaults, supports explicit owner overrides, and leaves drafts independent", async () => {
+    const values = [
+      input("email"),
+      input("whatsapp"),
+      input("email"),
+      input("whatsapp"),
+      input("email"),
+    ];
+    try {
+      const saved = await Promise.all(
+        values.map((value) => saveSimulatedEnquiry(db, value)),
+      );
+      const room = await updateStaffEnquiry(db, saved[0].reference, {
+        action: "route",
+        category: "room",
+        expected: { category: "unsorted", owner: null },
+      });
+      expect(room).toMatchObject({
+        category: "room",
+        owner: "reservations",
+        needsReview: false,
+        gmAttention: false,
+      });
+      const wedding = await updateStaffEnquiry(db, saved[1].reference, {
+        action: "route",
+        category: "wedding",
+        owner: "gm",
+        expected: { category: "unsorted", owner: null },
+      });
+      expect(wedding).toMatchObject({
+        category: "wedding",
+        owner: "gm",
+        needsReview: false,
+        gmAttention: false,
+      });
+      const offsite = await updateStaffEnquiry(db, saved[2].reference, {
+        action: "route",
+        category: "offsite",
+        expected: { category: "unsorted", owner: null },
+      });
+      expect(offsite).toMatchObject({
+        category: "offsite",
+        owner: "sales",
+        needsReview: false,
+        gmAttention: false,
+      });
+      const complaint = await updateStaffEnquiry(db, saved[3].reference, {
+        action: "route",
+        category: "complaint",
+        owner: "sales",
+        expected: { category: "unsorted", owner: null },
+      });
+      expect(complaint).toMatchObject({
+        category: "complaint",
+        owner: "sales",
+        needsReview: true,
+        gmAttention: true,
+      });
+      const unsorted = await updateStaffEnquiry(db, saved[4].reference, {
+        action: "route",
+        category: "unsorted",
+        expected: { category: "unsorted", owner: null },
+      });
+      expect(unsorted).toMatchObject({
+        category: "unsorted",
+        owner: null,
+        needsReview: true,
+        gmAttention: true,
+      });
+      const draft = await updateStaffEnquiry(db, saved[0].reference, {
+        action: "draft",
+        draft: "Independent draft",
+        expectedDraft: "",
+      });
+      expect(draft).toMatchObject({
+        category: "room",
+        owner: "reservations",
+        needsReview: false,
+        gmAttention: false,
+        draft: "Independent draft",
+      });
+    } finally {
+      await cleanup(values.map((value) => value.submissionId));
     }
   });
 });

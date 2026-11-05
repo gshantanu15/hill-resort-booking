@@ -8,7 +8,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import StaffNavigation from "./staff-navigation";
 import {
   formatPaise,
   parsePricePaise,
@@ -387,68 +387,15 @@ export default function CalendarEditor({
       <a className="skip" href="#staff-main">
         Skip to content
       </a>
-      <header className="staff-topbar">
-        <div className="staff-container staff-topbar-inner">
-          <Link
-            className="staff-wordmark"
-            href="/"
-            onClick={(event) => {
-              if (
-                unsaved &&
-                !window.confirm(
-                  "Discard unsaved night edits and open the guest site?",
-                )
-              )
-                event.preventDefault();
-            }}
-          >
-            Aavana <span>Estate</span>
-          </Link>
-          <span className="staff-workspace-name">Staff workspace</span>
-          <nav className="staff-account-nav" aria-label="Staff navigation">
-            <Link
-              className="staff-quiet-link"
-              href="/"
-              onClick={(event) => {
-                if (
-                  unsaved &&
-                  !window.confirm(
-                    "Discard unsaved night edits and open the guest site?",
-                  )
-                )
-                  event.preventDefault();
-              }}
-            >
-              Guest site
-            </Link>
-            <Link
-              className="staff-quiet-link"
-              href="/staff/enquiries"
-              onClick={(event) => {
-                if (
-                  unsaved &&
-                  !window.confirm(
-                    "Discard unsaved night edits and open enquiries?",
-                  )
-                )
-                  event.preventDefault();
-              }}
-            >
-              Enquiries
-            </Link>
-            <button
-              className="staff-quiet-button"
-              type="button"
-              disabled={busy}
-              onClick={() => void signOut()}
-              aria-label="Sign out"
-            >
-              <StaffIcon name="logout" />
-              <span className="staff-signout-text">Sign out</span>
-            </button>
-          </nav>
-        </div>
-      </header>
+      <StaffNavigation
+        current="calendar"
+        busy={busy}
+        onSignOut={() => void signOut()}
+        beforeNavigate={() =>
+          !unsaved ||
+          window.confirm("Discard unsaved night edits and leave the calendar?")
+        }
+      />
       <main id="staff-main" className="staff-container staff-workspace">
         <div className="staff-page-intro">
           <div>
