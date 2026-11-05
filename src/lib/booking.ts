@@ -12,6 +12,8 @@ import {
   type BookingSelection,
 } from "./booking-validation";
 import { splitInclusiveNight } from "./booking-tax";
+import { contactSchema as validContactSchema } from "./booking-contact";
+import { acceptanceSchema, isCurrentAcceptance } from "./booking-acceptance";
 
 type Database = Pick<PostgresJsDatabase<typeof schema>, "transaction">;
 type Transaction = Parameters<
@@ -43,6 +45,7 @@ const confirmationSchema = z
     submissionId: z.uuid(),
     quoteToken: z.string().min(20).max(2000),
     paymentOutcome: z.enum(["success", "failure"]),
+    acceptance: acceptanceSchema.optional(),
   })
   .strict();
 type Night = ReturnType<typeof splitInclusiveNight> & {
@@ -436,7 +439,7 @@ export async function confirmBooking(
   if (!parsed.success)
     throw new BookingError(
       "INVALID_REQUEST",
-      parsed.error.issues.map((issue) => issue.message).join("; "),
+      "Review your booking details and agreement choices before continuing.",
     );
   const input = parsed.data;
   if (input.paymentOutcome !== "success")
@@ -451,6 +454,7 @@ export async function confirmBooking(
     selection,
     contact: { ...input.contact, phone: input.contact.phone ?? null },
     quoteHash: accepted.hash,
+    ...(input.acceptance ? { acceptance: input.acceptance } : {}),
   });
   const submissionId = input.submissionId.toLowerCase();
   return db.transaction(async (tx) => {
@@ -472,6 +476,18 @@ export async function confirmBooking(
         );
       return confirmationInTransaction(tx, existing.id);
     }
+    // Resolve exact committed retries before applying new validation or policy versions.
+    if (!isCurrentAcceptance(input.acceptance))
+      throw new BookingError(
+        "POLICY_ACCEPTANCE_REQUIRED",
+        "Review and accept the current booking terms and data-use notice before confirming.",
+      );
+    const contactCheck = validContactSchema.safeParse(input.contact);
+    if (!contactCheck.success)
+      throw new BookingError(
+        "INVALID_CONTACT",
+        contactCheck.error.issues[0]?.message ?? "Check your contact details.",
+      );
     const now = options.now ?? new Date();
     const valid = validSelection(selection, now);
     const quote = await quoteInTransaction(
@@ -499,6 +515,9 @@ export async function confirmBooking(
       .values({
         submissionId,
         requestFingerprint: fingerprint,
+        termsVersion: input.acceptance!.termsVersion,
+        dataUseVersion: input.acceptance!.dataUseVersion,
+        policyAcceptedAt: now,
         contactName: input.contact.name,
         contactEmail: input.contact.email,
         contactPhone: input.contact.phone ?? null,

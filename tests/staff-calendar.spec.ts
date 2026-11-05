@@ -260,7 +260,13 @@ test("calendar exposes safe load and save failures without implying success", as
   );
   await expect(page.getByTestId("night-garden-room-2026-11-03")).toBeVisible();
   await page.getByTestId("night-garden-room-2026-11-03").click();
+  const rateInput = page.getByLabel("Nightly rate, including GST");
+  await expect(rateInput).toHaveValue("10500.00");
+  // The mobile dialog deliberately focuses the rate after opening; wait before editing another field.
+  if ((page.viewportSize()?.width ?? 1440) < 700)
+    await expect(rateInput).toBeFocused();
   await page.getByLabel("Website allotment").fill("3");
+  await expect(rateInput).toHaveValue("10500.00");
   await page.getByRole("button", { name: "Save night" }).click();
   await expect(page.locator("#staff-calendar-error")).toContainText(
     /ceiling|booked/i,

@@ -4,7 +4,7 @@ A six-day build of a reviewable resort direct-booking demo. It covers mixed room
 
 ## Current status
 
-Live Day 2 demo: https://hill-resort-booking.vercel.app . Neon development/demo branches are configured. GitHub is linked for deployments from main. OpenRouter is verified with Gemma as primary and an owner-approved free Dots fallback. All four live sample classifications passed. The owner-approved design system is saved in [DESIGN.md](DESIGN.md) and guides future screens. See [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md) for the acceptance checklist, [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) for the public scope, and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the locked decisions.
+Resort booking demo: https://hill-resort-booking.vercel.app . Neon development/demo branches are configured. GitHub is linked for deployments from main. OpenRouter is verified with Gemma as primary and an owner-approved free Dots fallback. All four live sample classifications passed. The owner-approved design system is saved in [DESIGN.md](DESIGN.md) and guides future screens. See [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md) for the acceptance checklist, [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) for the public scope, and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the locked decisions.
 
 ## Planned stack
 
@@ -18,6 +18,10 @@ Run `npm ci`, copy `.env.example` to `.env.local`, then `npm run dev`; never com
 
 Payments, email/WhatsApp, and reservation-system connections are simulated. The database contains synthetic data. The demo is not a production launch or a substitute for privacy, security, tax, payment, or operational review.
 
-See [local setup and deployment](docs/SETUP.md) for exact commands and connection requirements. The day-one catalogue and Day 2 foundations are implemented; guest booking and AI features remain scheduled work.
+See [local setup and deployment](docs/SETUP.md) for exact commands and connection requirements. The catalogue, booking engine, staff calendar and Day 3 guest journey are implemented. Enquiry inbox and AI integration remain scheduled work.
 
-Day 2 adds bounded nightly inventory/rates, server quotes, atomic mixed-booking confirmation/retries, and the staff calendar at `/staff/login`. See [booking rules and learning](docs/BOOKING_RULES.md). The synthetic shared login is `staff@aavana.example` / `EstateDemo!2026`; provision it with `npm run db:seed-staff` after migrations and the general seed. The guest selection/review/payment screens remain Day 3 work.
+Day 2 adds bounded nightly inventory/rates, server quotes, atomic mixed-booking confirmation/retries, and the staff calendar at `/staff/login`. See [booking rules and learning](docs/BOOKING_RULES.md). The synthetic shared login is `staff@aavana.example` / `EstateDemo!2026`; provision it with `npm run db:seed-staff` after migrations and the general seed. The guest journey is available at `/book`: mixed selection, itemized review, clearly labelled test payment and persisted confirmation. See [Day 3 evidence](docs/DAY_3_EVIDENCE.md).
+
+The approved guest redesign is deployed: photographic galleries and amenities, availability-bounded quantities, derived guest totals, arrival/departure calendar, explicit room disclosures, tabular quote and payment switch, and copyable persisted confirmation. See [redesign release evidence](docs/GUEST_REDESIGN_EVIDENCE.md) for regression results and live smoke boundaries.
+
+The November 4 follow-up polish is also deployed: improved imagery and validation, optional-phone checks, separate draft-policy acceptance receipts (migration 0007), and an explicitly unsent confirmation-email preview. Final release checks passed: 46 unit, 105 isolated database and 24 desktop/mobile browser tests. See [latest release evidence](docs/GUEST_POLISH_RELEASE.md). Day 4 enquiry inbox and AI integration remain pending.

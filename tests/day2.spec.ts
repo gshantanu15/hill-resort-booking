@@ -1,3 +1,4 @@
+import { currentAcceptance } from "../src/lib/booking-acceptance";
 import { expect, test } from "@playwright/test";
 import { DEMO_STAFF_EMAIL, DEMO_STAFF_PASSWORD } from "../src/lib/demo-staff";
 import postgres from "postgres";
@@ -120,6 +121,7 @@ test("staff calendar and booking API contracts", async ({
         submissionId: crypto.randomUUID(),
         quoteToken: quote.token,
         paymentOutcome: "success",
+        acceptance: currentAcceptance(),
       },
     });
     expect(stale.status()).toBe(409);
@@ -135,6 +137,7 @@ test("staff calendar and booking API contracts", async ({
         submissionId: crypto.randomUUID(),
         quoteToken: fresh.token,
         paymentOutcome: "success",
+        acceptance: currentAcceptance(),
       },
     });
     expect(confirmed.ok()).toBeTruthy();

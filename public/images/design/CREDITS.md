@@ -10,3 +10,16 @@ These are licensed reference photographs for the fictional Aavana Estate demo. T
 | lobby-lounge-of-amantaka-suite-amantaka-luxury-resort-hotel--1920.jpg | [Lobby lounge, Amantaka Suite](https://commons.wikimedia.org/wiki/File:Lobby_lounge_of_Amantaka_Suite_Amantaka_luxury_Resort_%26_Hotel_Luang_Prabang_Laos.jpg), Basile Morin                          | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
 
 The guest page exposes these credits under the footer's photography disclosure. Retain attribution and applicable share-alike terms when redistributing or adapting these images.
+
+## Owner-supplied AI-generated illustrations
+
+The following concept images were supplied by the project owner for the Aavana Estate preview and are marked in the guest catalogue as illustrative. They are not photographs of the property and do not establish amenities or services:
+
+| Local file                              | Use                                |
+| --------------------------------------- | ---------------------------------- |
+| `aavana/estate-room-reading-corner.jpg` | Estate room reading-corner concept |
+| `aavana/estate-room-bathroom.jpg`       | Estate room bathroom concept       |
+| `aavana/garden-room-sit-out.jpg`        | Garden room sit-out concept        |
+| `aavana/estate-villa-kitchen.jpg`       | Estate villa kitchen concept       |
+
+These derivatives were supplied as Gemini-generated images. Keep the original provenance and usage records with the project before any commercial publication.

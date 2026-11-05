@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { randomUUID, createHash } from "node:crypto";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
@@ -10,6 +10,7 @@ import {
   getAvailability,
   getConfirmation,
 } from "../../src/lib/booking";
+import { currentAcceptance } from "../../src/lib/booking-acceptance";
 import * as schema from "../../src/db/schema";
 
 const url = process.env.TEST_DATABASE_URL;
@@ -38,6 +39,7 @@ const selection = (roomTypeId: string) => ({
   items: [{ roomTypeId, quantity: 1, adults: 1, children: 0 }],
 });
 const contact = { name: "Synthetic Guest", email: "guest@example.test" };
+const acceptance = currentAcceptance();
 
 beforeAll(async () => {
   await migrate(db, { migrationsFolder: "./drizzle" });
@@ -82,6 +84,55 @@ async function quote(id: string) {
 }
 
 describe("booking service transaction boundaries", () => {
+  it("requires acceptance for new writes but resolves exact pre-upgrade committed retries", async () => {
+    const f = await fixture();
+    try {
+      const q = await quote(f.id);
+      const legacy = {
+        selection: selection(f.id),
+        contact,
+        submissionId: randomUUID(),
+        quoteToken: q.token,
+        paymentOutcome: "success" as const,
+      };
+      await expect(
+        confirmBooking(db, legacy, { now: NOW, secret }),
+      ).rejects.toMatchObject({ code: "POLICY_ACCEPTANCE_REQUIRED" });
+      const empty =
+        await client`SELECT booked FROM nightly_inventory WHERE room_type_id=${f.id}`;
+      expect(empty.map((row) => Number(row.booked))).toEqual([0, 0]);
+      const result = await confirmBooking(
+        db,
+        { ...legacy, acceptance },
+        { now: NOW, secret },
+      );
+      // Represent a previously committed v1 row: its fingerprint never included policy fields.
+      const oldFingerprint = createHash("sha256")
+        .update(
+          JSON.stringify({
+            selection: legacy.selection,
+            contact: { ...contact, phone: null },
+            quoteHash: q.hash,
+          }),
+        )
+        .digest("hex");
+      await client`UPDATE bookings SET request_fingerprint=${oldFingerprint},terms_version=NULL,data_use_version=NULL,policy_accepted_at=NULL WHERE id=${result.id}`;
+      const retry = await confirmBooking(db, legacy, {
+        now: new Date("2026-12-01T00:00:00Z"),
+        secret,
+      });
+      expect(retry.id).toBe(result.id);
+      const rows =
+        await client`SELECT booked FROM nightly_inventory WHERE room_type_id=${f.id}`;
+      expect(rows.map((row) => Number(row.booked))).toEqual([1, 1]);
+      expect(retry).not.toHaveProperty("termsVersion");
+      expect(retry).not.toHaveProperty("dataUseVersion");
+      expect(retry).not.toHaveProperty("policyAcceptedAt");
+    } finally {
+      await cleanup(f.id);
+    }
+  });
+
   it("serializes a staff allotment reduction competing with a last-unit booking", async () => {
     const f = await fixture();
     const staff = postgres(url, { max: 1, prepare: false });
@@ -97,6 +148,7 @@ describe("booking service transaction boundaries", () => {
             submissionId: randomUUID(),
             quoteToken: q.token,
             paymentOutcome: "success",
+            acceptance,
           },
           { now: NOW, secret },
         ),
@@ -141,12 +193,19 @@ describe("booking service transaction boundaries", () => {
           submissionId: randomUUID(),
           quoteToken: q.token,
           paymentOutcome: "success",
+          acceptance,
         },
         { now: NOW, secret },
       );
       expect(result.id).toMatch(/^[0-9a-f-]{36}$/);
       const saved = await getConfirmation(db, result.id);
       expect(saved.selection.items[0].roomTypeId).toBe(f.id);
+      const receipt = await client`
+        SELECT terms_version, data_use_version, policy_accepted_at
+        FROM bookings WHERE id=${result.id}`;
+      expect(receipt[0].terms_version).toBe(acceptance.termsVersion);
+      expect(receipt[0].data_use_version).toBe(acceptance.dataUseVersion);
+      expect(receipt[0].policy_accepted_at).toBeTruthy();
       const rows =
         await client`SELECT booked FROM nightly_inventory WHERE room_type_id=${f.id}`;
       expect(rows.map((r) => Number(r.booked))).toEqual([1, 1]);
@@ -168,6 +227,7 @@ describe("booking service transaction boundaries", () => {
             submissionId: randomUUID(),
             quoteToken: q.token,
             paymentOutcome: "failure",
+            acceptance,
           },
           { now: NOW, secret },
         ),
@@ -175,6 +235,61 @@ describe("booking service transaction boundaries", () => {
       const rows =
         await client`SELECT booked FROM nightly_inventory WHERE room_type_id=${f.id}`;
       expect(rows.every((r) => Number(r.booked) === 0)).toBe(true);
+    } finally {
+      await cleanup(f.id);
+    }
+  });
+
+  it("requires current policy acceptance before a new booking write", async () => {
+    const f = await fixture();
+    try {
+      const q = await quote(f.id);
+      await expect(
+        confirmBooking(
+          db,
+          {
+            selection: selection(f.id),
+            contact,
+            submissionId: randomUUID(),
+            quoteToken: q.token,
+            paymentOutcome: "success",
+            acceptance: {
+              ...acceptance,
+              termsVersion: "outdated-review-version",
+            },
+          },
+          { now: NOW, secret },
+        ),
+      ).rejects.toMatchObject({ code: "POLICY_ACCEPTANCE_REQUIRED" });
+      const rows =
+        await client`SELECT booked FROM nightly_inventory WHERE room_type_id=${f.id}`;
+      expect(rows.every((row) => Number(row.booked) === 0)).toBe(true);
+    } finally {
+      await cleanup(f.id);
+    }
+  });
+
+  it("rejects an invalid optional phone without writing inventory", async () => {
+    const f = await fixture();
+    try {
+      const q = await quote(f.id);
+      await expect(
+        confirmBooking(
+          db,
+          {
+            selection: selection(f.id),
+            contact: { ...contact, phone: "not a phone" },
+            submissionId: randomUUID(),
+            quoteToken: q.token,
+            paymentOutcome: "success",
+            acceptance,
+          },
+          { now: NOW, secret },
+        ),
+      ).rejects.toMatchObject({ code: "INVALID_CONTACT" });
+      const rows =
+        await client`SELECT booked FROM nightly_inventory WHERE room_type_id=${f.id}`;
+      expect(rows.every((row) => Number(row.booked) === 0)).toBe(true);
     } finally {
       await cleanup(f.id);
     }
@@ -194,6 +309,7 @@ describe("booking service transaction boundaries", () => {
             submissionId: randomUUID(),
             quoteToken: q.token,
             paymentOutcome: "success",
+            acceptance,
           },
           { now: NOW, secret },
         ),
@@ -217,6 +333,7 @@ describe("booking service transaction boundaries", () => {
         submissionId,
         quoteToken: q.token,
         paymentOutcome: "success" as const,
+        acceptance,
       };
       const first = await confirmBooking(db, input, { now: NOW, secret });
       const second = await confirmBooking(db, input, { now: NOW, secret });
@@ -247,6 +364,7 @@ describe("booking service transaction boundaries", () => {
             submissionId: randomUUID(),
             quoteToken: qa.token,
             paymentOutcome: "success",
+            acceptance,
           },
           { now: NOW, secret },
         ),
@@ -258,6 +376,7 @@ describe("booking service transaction boundaries", () => {
             submissionId: randomUUID(),
             quoteToken: qb.token,
             paymentOutcome: "success",
+            acceptance,
           },
           { now: NOW, secret },
         ),
@@ -290,6 +409,7 @@ describe("booking service transaction boundaries", () => {
         submissionId,
         quoteToken: q.token,
         paymentOutcome: "success" as const,
+        acceptance,
       };
       await confirmBooking(db, input, { now: NOW, secret });
       await expect(
@@ -317,6 +437,7 @@ describe("booking service transaction boundaries", () => {
             submissionId: randomUUID(),
             quoteToken: `${q.token}x`,
             paymentOutcome: "success",
+            acceptance,
           },
           { now: NOW, secret },
         ),
@@ -330,6 +451,7 @@ describe("booking service transaction boundaries", () => {
             submissionId: randomUUID(),
             quoteToken: q.token,
             paymentOutcome: "success",
+            acceptance,
           },
           { now: new Date(NOW.getTime() + 16 * 60000), secret },
         ),
@@ -369,6 +491,7 @@ describe("booking service transaction boundaries", () => {
               submissionId: randomUUID(),
               quoteToken: q.token,
               paymentOutcome: "success",
+              acceptance,
             },
             { now: NOW, secret },
           ),
@@ -396,6 +519,7 @@ describe("booking service transaction boundaries", () => {
         submissionId: randomUUID(),
         quoteToken: q.token,
         paymentOutcome: "success" as const,
+        acceptance,
       };
       const [one, two] = await Promise.all([
         confirmBooking(drizzle(a, { schema }), input, { now: NOW, secret }),
@@ -427,6 +551,7 @@ describe("booking service transaction boundaries", () => {
           submissionId: randomUUID(),
           quoteToken: q.token,
           paymentOutcome: "success",
+          acceptance,
         },
         { now: NOW, secret },
       );

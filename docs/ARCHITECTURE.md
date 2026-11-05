@@ -4,7 +4,17 @@
 
 Approved baseline; implementation in progress.
 
-## Decisions
+## Day 3 guest journey
+
+The owner approved illustrative amenities for the fictional accommodation, stored as presentation content keyed by room type. Capacities and prices continue to come from application data. No included meals, extra beds, or real-property claims are implied.
+
+The guest checkout uses the existing availability, signed quote, and transactional confirmation services. Per-tab draft storage supports refresh recovery. A payment request must be saved before sending; an uncertain response retains the exact submission identifier and payload for retry. Guest edits remain blocked until that attempt resolves, avoiding a fresh submission after a possibly committed booking. Known declines remain recoverable. Refreshed quotes require renewed acceptance.
+
+Payment remains explicitly simulated: one primary payment action and an expandable outcome selector, defaulting to success. Confirmation is a separate persisted, contact-free read through the random booking reference. There is no payment provider, new payment table, or guest account.
+
+## Baseline decisions
+
+The approved guest redesign retains the booking API and persistence boundary. Overall guest totals are derived from room-type allocations; older unsubmitted drafts are normalized before quoting, while pending payment requests remain byte-for-byte equivalent in meaning on retries. Availability limits quantity increases without exposing stock counts or silently reducing existing selections after date changes. The guest React Aria calendar's selected end is checkout directly, unlike the staff editor's inclusive stay-night picker. Payment outcome switching and visual confirmation do not introduce payment states or inventory holds. Confirmation continues to read persisted snapshots and never exposes contact data.
 
 - Next.js and TypeScript provide one full-stack application with server-side business logic.
 - Tailwind provides the visual system for the restrained coffee-estate design.
@@ -136,8 +146,20 @@ Every enquiry is persisted before AI processing and records its source. AI retur
 
 ## Demo boundaries
 
-The deployment uses a shared synthetic dataset. Reviewers may see each other's demo changes. An operator-only seed/reset path restores it. This architecture is suitable for a demo and requires further security, privacy, operations, and external-system work before production use.
+The deployment uses a shared synthetic dataset. Reviewers may see each other's demo changes. Fill-missing seeding is implemented; an operator-only full reset remains Day 5 work. This architecture is suitable for a demo and requires further security, privacy, operations, and external-system work before production use.
 
 ## OpenRouter setup decision — November 2, 2026
 
 Owner selected google/gemma-4-26b-a4b-it:free. Owner-approved Dots free fallback resolves upstream shared-pool 429s while keeping Gemma primary. No paid fallback; 50/day and 20/min upstream quotas are the demo planning limits. JSON mode plus application-side validation is used because the live free endpoint rejects strict JSON Schema routing. Credentials stay server-only. See [OpenRouter configuration](OPENROUTER.md) for live verification status and failure handling.
+
+## Approved booking polish integration — November 4, 2026
+
+The owner approved the notification/contact/terms/email-preview mock, four supplied Gemini illustrations, and subsequent removal of image captions. The guest catalogue uses seven image choices across the three accommodation galleries with no shared image between room types. Thumbnail selectors retain accessible names; no selected-image text captions are shown. A single illustrative/AI imagery note and provenance remain available.
+
+Booking feedback uses Sonner in the document flow so errors do not cover dates, price totals or actions. Validation explains missing dates and invalid guest/contact counts, with persistent field messages. Optional phone numbers are checked on client and server using libphonenumber-js numbering metadata; a format-valid number is not proof of ownership. Network and response-parser details are replaced by safe retry text.
+
+Two initially unchecked acceptance choices offer the complete business-facing terms and separate data-use notice in centred, keyboard-accessible dialogs. The notices retain their approved non-binding draft status and unresolved operator/contact/policy details; integrating these documents does not activate real commercial policies. The full approved wording is versioned in src/lib/booking-policies.ts and docs/BOOKING_POLICIES_DRAFT.md.
+
+New booking writes require current document acceptance and record versions plus a server timestamp in the same inventory transaction. Migration 0007 adds nullable receipt columns so older booking rows remain readable. Exact committed retries are looked up before imposing newer policy/phone rules; pending client requests are replayed unchanged. Public confirmation still excludes contact details, acceptance receipts and retry fingerprints.
+
+Confirmation uses the approved saved-demo framing and email-sent example beside an explicitly unsent preview. The preview uses only persisted public stay/price information and does not fetch the contact email. There is no download control, outbound email integration or real charging.

@@ -1,22 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { listRooms } from "@/db/rooms";
+import { GuestCatalogue } from "./guest-catalogue";
+import "./catalogue.css";
 export const dynamic = "force-dynamic";
 export default async function Home() {
   const { rooms, source } = await listRooms();
-  const photographs: Record<string, string> = {
-    "estate-room":
-      "/images/design/canopy-bed-of-khan-pool-suite-in-amantaka-luxury-resort-hote-1920.jpg",
-    "garden-room":
-      "/images/design/canopy-bed-and-wardrobes-in-khan-pool-suite-at-amantaka-luxu-1920.jpg",
-    "estate-villa":
-      "/images/design/lobby-lounge-of-amantaka-suite-amantaka-luxury-resort-hotel--1920.jpg",
-  };
-  const roomSummaries: Record<string, string> = {
-    "estate-room": "A reading corner for slow mornings",
-    "garden-room": "A private sit-out for the family",
-    "estate-villa": "A living space and sheltered terrace",
-  };
   return (
     <>
       <a className="skip" href="#main">
@@ -66,7 +55,12 @@ export default async function Home() {
               <h2>Stay a little longer.</h2>
               <p>A place of your own.</p>
               <span className="collection-note">
-                Illustrative rooms and rates
+                Illustrative rooms, amenities and rates · availability checked
+                when you choose dates
+              </span>
+              <span className="collection-note">
+                Room images are illustrative; some are AI-generated concept
+                images supplied for this preview.
               </span>
             </div>
             <p>
@@ -74,44 +68,7 @@ export default async function Home() {
               <br />A villa to make your own.
             </p>
           </div>
-          <div className="room-grid">
-            {rooms.map((room) => (
-              <article key={room.id} id={room.id}>
-                <div className="room-photo" data-slot={`room-${room.id}`}>
-                  <Image
-                    src={photographs[room.id] ?? room.image}
-                    alt={`Illustrative ${room.name.toLowerCase()} interior, not a photograph of the fictional estate`}
-                    fill
-                    sizes="(max-width: 760px) 100vw, 33vw"
-                  />
-                </div>
-                <div className="room-title">
-                  <h3>{room.name}</h3>
-                  <span>Up to {room.capacity} guests</span>
-                </div>
-                <details className="room-description">
-                  <summary>
-                    {roomSummaries[room.id] ?? "About this stay"}
-                  </summary>
-                  <p>{room.description}</p>
-                </details>
-                <p className="price">
-                  {new Intl.NumberFormat("en-IN", {
-                    style: "currency",
-                    currency: "INR",
-                    maximumFractionDigits: 0,
-                  }).format(room.baseRatePaise / 100)}{" "}
-                  <span>indicative / night · exact price depends on dates</span>
-                </p>
-              </article>
-            ))}
-          </div>
-          {rooms.length === 0 && (
-            <p>
-              Our stays aren’t available to browse right now. Please try again
-              later.
-            </p>
-          )}
+          <GuestCatalogue rooms={rooms} />
         </section>
         <section id="about" className="estate">
           <div className="estate-heading">
@@ -163,7 +120,8 @@ export default async function Home() {
             {source === "database"
               ? "Room catalogue connected to PostgreSQL."
               : "Preview catalogue: sample data. Database connection pending."}{" "}
-            Availability and checkout arrive in the next increments.
+            Choose a stay to check dates, see an authoritative total, and
+            complete a clearly labelled test booking.
           </p>
           <p data-credits>
             Photographs:{" "}
@@ -183,7 +141,8 @@ export default async function Home() {
               lounge
             </a>
             ), CC BY-SA 4.0, Wikimedia Commons. Images cropped and colour
-            adjusted for this concept.
+            adjusted for this concept. Additional room detail images were
+            supplied as AI-generated illustrations for this preview.
           </p>
         </details>
       </footer>

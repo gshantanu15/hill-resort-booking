@@ -646,6 +646,26 @@ footer > a:last-of-type {
   font-size: 12px;
   margin-top: 12px;
 }
+.amenities {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 24px;
+  margin: 16px 0 0;
+  padding-left: 18px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.room-book {
+  margin-top: 20px;
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+}
+@media (max-width: 760px) {
+  .amenities {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 
 /* Approved guest footer redesign. Scope stays within the footer. */
 .site-footer {

@@ -34,6 +34,8 @@ Quiet photographic hospitality: pristine, contemporary and calming. Sell the exp
 
 ## Future booking and staff screens
 
+Guest redesign approved November 4, 2026 after three mock revisions: photographic room rows with galleries and semantic amenity icons; a visible three-step workbench; arrival/departure calendar with exclusive checkout; quantities bounded by availability without public stock counts; per-type guest allocations with derived totals; click-only room disclosures; a compact squish-style test outcome switch; and tabular nightly charges. Confirmation groups its filled success seal with the heading, shows readable dates, and provides full-reference copying. The pre-payment review uses a document icon, never a success tick. `--guest-soft` extends the existing neutral palette; guest primary actions remain outlined.
+
 - Carry the same tokens, type, spacing and controls into the three-step guest booking flow.
 - Keep selection, itemized prices, taxes, availability changes and confirmation easy to scan. Do not imply successful bookings or messages before real persistence succeeds.
 - Staff screens are practical workspaces: Hanken for forms and tables, compact but accessible controls, clear states, and no decorative photographic hero. Share the palette without copying the marketing layout.
@@ -44,4 +46,8 @@ Quiet photographic hospitality: pristine, contemporary and calming. Sell the exp
 
 Current photographs are licensed illustrative placeholders, not photos of Aavana. Preserve visible access to attribution and transformation notices. Replace them with authorized estate and room/villa photography when available; never invent amenities, awards or testimonials.
 
+Day 3 owner-approved demo exception: use the agreed synthetic room amenities in `src/lib/accommodation.ts`, identified as illustrative accommodation details. This does not authorize claims about a real property, included meals, extra beds, awards or testimonials.
+
 See `public/fonts/` for font license files, `public/images/design/CREDITS.md` for photograph provenance, and `docs/DESIGN_REVIEW.md` for approval and verification history. No additional token export formats are needed yet.
+
+Guest polish and imagery approved November 4, 2026: use the four supplied Gemini illustrations only in their assigned room galleries (Estate room reading corner/bathroom, Garden room sit-out, Estate villa kitchen concept). Do not share those image choices across accommodation types or show visible image captions/thumbnail labels. Keep meaningful accessible descriptions and a quiet illustrative/AI note. Notifications reserve space in the active booking panel rather than overlaying content. Offer separately unchecked terms/data-use choices with centred readable dialogs; the approved draft remains explicitly non-binding. The email-sent message is an explicitly labelled example beside an unsent preview, with no downloadable confirmation.

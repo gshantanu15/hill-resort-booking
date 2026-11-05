@@ -3,3 +3,11 @@ test-results/
 playwright-report/
 coverage/
 .env*
+output/
+.hallmark/
+node_modules/
+.next/
+.git/
+.vercel/
+.agents/
+.codex/

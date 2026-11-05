@@ -96,16 +96,18 @@ Record important implementation choices and brief rationale in `docs/ARCHITECTUR
 
 **Goal:** deliver the primary guest experience end to end.
 
-- [ ] Build polished room browsing/detail views with optimized images and clear amenities.
-- [ ] Implement dates, guest counts, and per-type quantities for mixed bookings.
-- [ ] Keep checkout to three steps: selection → guest details/review → simulated payment/confirmation.
-- [ ] Show nightly charges, taxes, quantities, and total before confirmation.
-- [ ] Handle changed prices or availability by returning an updated review state requiring guest acceptance.
-- [ ] Provide simulated success and failure controls without collecting real card details.
-- [ ] Display a persisted confirmation using an unguessable reference; prevent sequential identifier exposure.
-- [ ] Add mobile, keyboard, validation, loading, and empty-state behavior.
+- [x] Build polished room browsing/detail views with optimized images and clear amenities.
+- [x] Implement dates, guest counts, and per-type quantities for mixed bookings.
+- [x] Keep checkout to three steps: selection → guest details/review → simulated payment/confirmation.
+- [x] Show nightly charges, taxes, quantities, and total before confirmation.
+- [x] Handle changed prices or availability by returning an updated review state requiring guest acceptance.
+- [x] Provide simulated success and failure controls without collecting real card details.
+- [x] Display a persisted confirmation using an unguessable reference; prevent sequential identifier exposure.
+- [x] Add mobile, keyboard, validation, loading, and empty-state behavior.
 
 **Done when:** a guest can book two rooms and one villa together; refreshes and repeated submissions do not duplicate; failed payment leaves inventory unchanged; confirmed booking reduces availability on every booked night; deployed journey works on desktop and mobile.
+
+**Status:** complete. The approved guest redesign and subsequent polish are deployed. Final November 4 validation: 46 unit, 105 isolated database and 24 desktop/mobile browser checks passed, plus types, lint, repository formatting and production build. Migration 0007 is applied to development and production. Live smoke passed without booking writes or changes to existing inventory/rates. See [latest release evidence](GUEST_POLISH_RELEASE.md), [integration checks](GUEST_POLISH_INTEGRATION_EVIDENCE.md) and [original Day 3 evidence](DAY_3_EVIDENCE.md).
 
 ## Day 4 — Thursday, November 5: Enquiry inbox and OpenRouter
 
@@ -162,7 +164,7 @@ Record important implementation choices and brief rationale in `docs/ARCHITECTUR
 | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
 | Day 1 | Exit criteria passed in the November 2 closing review; see [closing evidence](DAY_1_EVIDENCE.md#closing-review--november-2-2026).                                                                                                        | Complete |
 | Day 2 | Units 1–17 complete: 35 unit, 102 database, six desktop/mobile checks; types/lint/format/build and deployed smoke passed. Implementation `bb23d2a`, successful GitHub CI, demo migrated/seeded. See [Day 2 evidence](DAY_2_EVIDENCE.md). | Complete |
-| Day 3 | —                                                                                                                                                                                                                                        | Pending  |
+| Day 3 | Guest redesign and polish deployed; 46 unit, 105 database and 24 desktop/mobile checks pass. Migration 0007 applied to both environments; live smoke preserved existing data. See [release evidence](GUEST_POLISH_RELEASE.md).           | Complete |
 | Day 4 | —                                                                                                                                                                                                                                        | Pending  |
 | Day 5 | —                                                                                                                                                                                                                                        | Pending  |
 | Day 6 | —                                                                                                                                                                                                                                        | Pending  |

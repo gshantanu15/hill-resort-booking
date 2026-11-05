@@ -14,4 +14,13 @@
   --scrim-mid: oklch(17% 0.022 145 / 0.26);
   --scrim-clear: oklch(17% 0.022 145 / 0);
   --duration: 180ms;
+  --guest-soft: oklch(92% 0.016 92);
+  --switch-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+/* Approved guest notification and policy tokens. */
+:root {
+  --guest-error: oklch(43% 0.09 28);
+  --guest-warning: oklch(46% 0.075 78);
+  --guest-info: oklch(43% 0.06 235);
+  --guest-dialog-scrim: oklch(20% 0.02 145 / 0.42);
 }

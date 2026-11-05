@@ -101,7 +101,20 @@ export function validateSelection(
   input: unknown,
   now: Date = new Date(),
 ): BookingSelection {
-  const selection = bookingSelectionSchema.parse(input);
+  const parsed = bookingSelectionSchema.safeParse(input);
+  if (!parsed.success) {
+    const path = parsed.error.issues[0]?.path;
+    if (path?.[0] === "checkIn" || path?.[0] === "checkOut")
+      throw new Error(
+        "Choose both an arrival and a departure date before continuing.",
+      );
+    if (path?.[0] === "items" && path.length === 1)
+      throw new Error("Choose at least one room or villa before continuing.");
+    throw new Error(
+      "Check accommodation quantities and guest counts. Use whole numbers within the available limits.",
+    );
+  }
+  const selection = parsed.data;
   parseDate(selection.checkIn);
   parseDate(selection.checkOut);
   validateStay(selection.checkIn, selection.checkOut, now);

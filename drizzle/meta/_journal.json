@@ -50,6 +50,13 @@
       "when": 1793706029397,
       "tag": "0006_estate_inclusive_prices",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793796866340,
+      "tag": "0007_booking_policy_receipt",
+      "breakpoints": true
     }
   ]
 }
