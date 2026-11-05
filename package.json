@@ -18,6 +18,7 @@
     "db:seed": "tsx scripts/seed.ts",
     "db:seed-staff": "tsx scripts/seed-staff.ts",
     "ai:check": "node --conditions=react-server --import tsx scripts/check-openrouter.ts",
+    "ai:trial": "node --import tsx scripts/evaluate-haiku.ts",
     "postinstall": "node scripts/fetch-fonts.mjs",
     "prebuild": "node scripts/fetch-fonts.mjs",
     "fonts:fetch": "node scripts/fetch-fonts.mjs"

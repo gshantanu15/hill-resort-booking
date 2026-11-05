@@ -2,6 +2,8 @@
 
 Verified November 2, 2026 after all four live sample classifications passed.
 
+November 5 milestone 5: the owner approved milestone 4 (commit `dee1070`) and authorized paid-model research. The running free configuration below is unchanged. See [current research and trial decision](AI_MODEL_RESEARCH.md) and [synthetic evaluation corpus](AI_EVALUATION_CASES.json). System One was clarified as decision models such as Jev; the owner has now selected Haiku 5.5 only with a $5 cumulative trial ceiling. The owner funded $5 and synthetic evaluation completed for $0.0096023. Final integration configuration is owner-approved; see [measured results and decision](AI_MODEL_DECISION.md). See [setup, limits and emergency stop](AI_OPERATIONS.md). Paid inference was restricted to the standalone synthetic evaluator. No hosted configuration change has occurred. `npm run ai:trial` is a separate dry-run-by-default evaluator; explicit `--run` requires funding and a $5-or-lower lifetime key limit. The application transport below remains unchanged.
+
 ## Model routing
 
 - Primary: `google/gemma-4-26b-a4b-it:free` (`OPENROUTER_MODEL`).
