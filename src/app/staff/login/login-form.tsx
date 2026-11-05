@@ -1,11 +1,9 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
 import { DEMO_STAFF_EMAIL, DEMO_STAFF_PASSWORD } from "@/lib/demo-staff";
 
 export function LoginForm() {
-  const router = useRouter();
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -25,8 +23,8 @@ export function LoginForm() {
       });
       if (!response.ok)
         throw new Error("Sign-in failed. Check your email and password.");
-      router.push("/staff");
-      router.refresh();
+      // Discard routes prefetched before sign-in, including cached auth redirects.
+      window.location.replace("/staff");
     } catch (failure) {
       setError(
         failure instanceof Error ? failure.message : "Unable to sign in.",
@@ -37,6 +35,7 @@ export function LoginForm() {
   }
   return (
     <form
+      method="post"
       className="staff-form staff-login-form"
       onSubmit={submit}
       aria-busy={busy}

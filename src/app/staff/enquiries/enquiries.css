@@ -1,0 +1,1146 @@
+/* Hallmark · shape: app screen · genre: modern-minimal · theme: locked Aavana Estate · redesign: approved integration · nav: staff topbar · signature: conversation queue and reading pane · states: full, loading, empty, error · axes: light/grotesk-sans/woodland · posture: restrained · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H5 E4 S4 R5 V4 · weakest: S, source icons and original messages establish the resort inbox rather than generic AI decoration. */
+/* Hallmark · waive 39b · queue rows contain sender, message preview and source metadata · Full-row enquiry selection deliberately uses a larger target than toolbar buttons. */
+/* Hallmark · answered F25 · Mobile opens contact and message content in a dedicated reading view with an Inbox return control; these fields remain reachable. */
+
+:root {
+  --ei-paper: var(--paper);
+  --ei-paper-2: var(--light);
+  --ei-paper-3: var(--guest-soft);
+  --ei-ink: var(--ink);
+  --ei-ink-2: var(--ink);
+  --ei-muted: var(--muted);
+  --ei-rule: var(--rule);
+  --ei-accent: var(--accent);
+  --ei-accent-ink: var(--light);
+  --ei-focus: var(--accent);
+  --ei-error: var(--guest-error);
+  --ei-selected: color-mix(in oklab, var(--accent) 8%, var(--light));
+  --ei-hover: color-mix(in oklab, var(--accent) 4%, var(--light));
+  --ei-scrim: var(--guest-dialog-scrim);
+  --ei-text-xs: 0.8125rem;
+  --ei-text-sm: 0.875rem;
+  --ei-text-md: 1rem;
+  --ei-text-lg: 1.125rem;
+  --ei-text-xl: 1.5rem;
+  --ei-text-display: 2rem;
+  --ei-radius-control: 2px;
+  --ei-container: 1440px;
+  --ei-gutter: 40px;
+}
+.ei-app {
+  font: 400 16px/1.55 var(--font-body);
+  color: var(--ei-ink);
+  background: var(--ei-paper);
+  min-height: 100vh;
+}
+.ei-app h1,
+.ei-app h2,
+.ei-app h3,
+.ei-intake-modal h2,
+.ei-filter-popover h2 {
+  font-family: var(--font-body);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  margin: 0;
+  overflow-wrap: break-word;
+  min-width: 0;
+  text-wrap: balance;
+}
+.ei-app p,
+.ei-intake-modal p {
+  margin: 0;
+}
+.ei-app svg,
+.ei-intake-modal svg,
+.ei-filter-popover svg,
+.ei-choice-popover svg {
+  display: block;
+  flex: none;
+}
+.ei-app dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.ei-app dt {
+  color: var(--ei-muted);
+}
+.ei-topbar {
+  max-width: none;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  display: block;
+}
+.ei-reader-footer {
+  margin: 0;
+  max-width: none;
+}
+html,
+body {
+  overflow-x: clip;
+}
+.ei-app h1,
+.ei-modal-overlay h1,
+.ei-filter-popover h1,
+.ei-choice-popover h1,
+.ei-app h2,
+.ei-modal-overlay h2,
+.ei-filter-popover h2,
+.ei-choice-popover h2,
+.ei-app h3,
+.ei-modal-overlay h3,
+.ei-filter-popover h3,
+.ei-choice-popover h3 {
+  text-wrap: balance;
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+.ei-shell {
+  max-width: var(--ei-container);
+  margin-inline: auto;
+  padding-inline: var(--ei-gutter);
+}
+.ei-topbar {
+  border-bottom: 1px solid var(--ei-rule);
+  background: var(--ei-paper-2);
+}
+.ei-topbar-inner {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  height: 72px;
+}
+.ei-wordmark {
+  font: 400 27px/1.2 var(--font-display);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.ei-wordmark span {
+  font: 400 13px var(--font-body);
+  margin-left: 8px;
+}
+.ei-workspace-label {
+  color: var(--ei-muted);
+  border-left: 1px solid var(--ei-rule);
+  padding-left: 28px;
+  font-size: var(--ei-text-sm);
+}
+.ei-topbar nav {
+  display: flex;
+  align-items: stretch;
+  gap: 32px;
+  margin-left: auto;
+  height: 100%;
+}
+.ei-topbar nav a {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  text-decoration: none;
+  color: var(--ei-muted);
+  font-size: var(--ei-text-sm);
+  border-bottom: 2px solid var(--ei-paper-2);
+}
+.ei-topbar nav a.ei-current {
+  border-color: var(--ei-accent);
+  color: var(--ei-ink);
+}
+.ei-topbar nav a:hover {
+  color: var(--ei-ink);
+}
+.ei-page-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-block: 32px 24px;
+}
+.ei-page-heading h1 {
+  font-size: var(--ei-text-display);
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+.ei-page-heading p {
+  color: var(--ei-muted);
+  margin-top: 8px;
+}
+.ei-heading-actions,
+.ei-toolbar-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ei-control,
+.ei-text-control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  border: 1px solid var(--ei-muted);
+  background: var(--ei-paper-2);
+  color: var(--ei-ink);
+  padding: 8px 16px;
+  border-radius: var(--ei-radius-control);
+  white-space: nowrap;
+  cursor: pointer;
+  font: 400 var(--ei-text-sm)/1.3 var(--font-body);
+}
+.ei-text-control {
+  border: 0;
+  background: var(--ei-paper);
+  padding-inline: 8px;
+}
+.ei-icon-control {
+  width: 48px;
+  padding: 8px;
+}
+.ei-app button:hover,
+.ei-choice-popover [role="option"][data-focused] {
+  background: var(--ei-hover);
+}
+.ei-app button:active,
+.ei-modal-overlay button:active,
+.ei-filter-popover button:active,
+.ei-choice-popover button:active {
+  transform: translateY(1px);
+}
+.ei-app button[disabled],
+.ei-modal-overlay button[disabled],
+.ei-filter-popover button[disabled],
+.ei-choice-popover button[disabled],
+.ei-app button[data-disabled],
+.ei-modal-overlay button[data-disabled],
+.ei-filter-popover button[data-disabled],
+.ei-choice-popover button[data-disabled] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+.ei-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid var(--ei-rule);
+}
+.ei-app .react-aria-TabList {
+  display: flex;
+  gap: 24px;
+}
+.ei-app .react-aria-Tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 56px;
+  padding: 8px 0;
+  border-bottom: 2px solid var(--ei-paper);
+  color: var(--ei-muted);
+  font-size: var(--ei-text-sm);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.ei-app .react-aria-Tab[data-selected] {
+  border-color: var(--ei-accent);
+  color: var(--ei-ink);
+}
+.ei-tab-count,
+.ei-filter-count {
+  padding: 2px 8px;
+  background: var(--ei-paper-3);
+  border-radius: var(--ei-radius-control);
+  font-size: var(--ei-text-xs);
+}
+.ei-toolbar-filters {
+  padding-bottom: 8px;
+}
+.ei-choice .ei-control {
+  min-width: 144px;
+  justify-content: flex-start;
+}
+.ei-choice .ei-control .react-aria-SelectValue {
+  flex: 1;
+  text-align: left;
+}
+.ei-choice-popover,
+.ei-filter-popover {
+  background: var(--ei-paper-2);
+  border: 1px solid var(--ei-muted);
+  z-index: 20;
+  max-height: var(--available-height, calc(100dvh - 32px));
+  overflow: auto;
+  border-radius: var(--ei-radius-control);
+}
+.ei-choice-popover {
+  min-width: var(--trigger-width);
+  padding: 4px;
+}
+.ei-choice-popover .react-aria-ListBoxItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  min-height: 48px;
+  cursor: pointer;
+  border-radius: var(--ei-radius-control);
+  font-size: var(--ei-text-sm);
+}
+.ei-choice-popover .react-aria-ListBoxItem[data-selected] {
+  background: var(--ei-selected);
+}
+.ei-filter-popover {
+  width: 272px;
+  padding: 20px;
+}
+.ei-filter-popover h2 {
+  font-size: var(--ei-text-lg);
+  margin-bottom: 16px;
+}
+.ei-filter-popover .ei-filter-field {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: var(--ei-text-sm);
+}
+.ei-filter-popover .ei-control {
+  width: 100%;
+}
+.ei-filter-popover .ei-text-control {
+  margin-top: 12px;
+}
+.ei-workbench {
+  display: grid;
+  grid-template-columns: minmax(300px, 35%) minmax(0, 1fr);
+  min-height: 640px;
+  height: auto;
+  background: var(--ei-paper-2);
+  border-bottom: 1px solid var(--ei-rule);
+}
+.ei-queue {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid var(--ei-rule);
+}
+.ei-queue-top,
+.ei-queue-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  font-size: var(--ei-text-xs);
+  color: var(--ei-muted);
+}
+.ei-queue-top span:last-child {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.ei-queue-top {
+  border-bottom: 1px solid var(--ei-rule);
+}
+.ei-queue ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  flex: 1;
+}
+.ei-queue li {
+  border-bottom: 1px solid var(--ei-rule);
+}
+.ei-queue-row {
+  width: 100%;
+  display: block;
+  text-align: left;
+  padding: 20px;
+  background: var(--ei-paper-2);
+  color: var(--ei-ink);
+  border: 0;
+  border-left: 2px solid var(--ei-paper-2);
+  cursor: pointer;
+  font: 400 var(--ei-text-md)/1.5 var(--font-body);
+}
+.ei-queue-row[aria-pressed="true"] {
+  background: var(--ei-selected);
+  border-left-color: var(--ei-accent);
+}
+.ei-row-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+.ei-row-heading strong {
+  font-weight: 600;
+  font-synthesis: weight;
+}
+.ei-row-heading time {
+  color: var(--ei-muted);
+  font-size: var(--ei-text-xs);
+  font-variant-numeric: tabular-nums;
+}
+.ei-row-subject {
+  font-size: var(--ei-text-sm);
+  margin-bottom: 4px;
+}
+.ei-row-preview {
+  color: var(--ei-muted);
+  font-size: var(--ei-text-sm);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: clip;
+}
+.ei-row-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  color: var(--ei-muted);
+  font-size: var(--ei-text-xs);
+}
+.ei-source {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  font-size: var(--ei-text-sm);
+}
+.ei-row-meta .ei-source svg {
+  width: 16px;
+  height: 16px;
+}
+.ei-queue-footer {
+  border-top: 1px solid var(--ei-rule);
+}
+.ei-reader {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.ei-reader-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 61px;
+  padding: 8px 32px;
+  border-bottom: 1px solid var(--ei-rule);
+}
+.ei-simulated {
+  font-size: var(--ei-text-xs);
+  color: var(--ei-muted);
+}
+.ei-reference {
+  margin-left: auto;
+  color: var(--ei-muted);
+  font-size: var(--ei-text-xs);
+}
+.ei-reader-scroll {
+  overflow: visible;
+  padding: 32px;
+  flex: 1;
+}
+.ei-contact-heading h2 {
+  font-size: var(--ei-text-xl);
+  line-height: 1.3;
+}
+.ei-contact-heading p {
+  color: var(--ei-muted);
+  font-size: var(--ei-text-sm);
+  margin-top: 8px;
+  overflow-wrap: anywhere;
+}
+.ei-status-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 20px;
+  font-size: var(--ei-text-xs);
+  color: var(--ei-muted);
+}
+.ei-status-tag {
+  display: inline-flex;
+  padding: 4px 8px;
+  background: var(--ei-paper-3);
+  border-radius: var(--ei-radius-control);
+  color: var(--ei-ink);
+}
+.ei-attention,
+.ei-assigned {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.ei-status-line svg {
+  width: 16px;
+  height: 16px;
+}
+.ei-detail-tabs {
+  margin-top: 24px;
+}
+.ei-detail-tabs .react-aria-TabList {
+  border-bottom: 1px solid var(--ei-rule);
+}
+.ei-detail-tabs .react-aria-Tab {
+  border-bottom-color: var(--ei-paper-2);
+}
+.ei-detail-tabs .react-aria-Tab[data-selected] {
+  border-color: var(--ei-accent);
+}
+.ei-not-run {
+  font-size: var(--ei-text-xs);
+  color: var(--ei-muted);
+  margin-left: 4px;
+}
+.ei-app .react-aria-TabPanel {
+  padding-top: 28px;
+}
+.ei-message-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.ei-message-heading h3,
+.ei-contact-details h3,
+.ei-draft h3 {
+  font-size: var(--ei-text-md);
+  letter-spacing: 0;
+  line-height: 1.5;
+  font-weight: 600;
+}
+.ei-message-heading time {
+  color: var(--ei-muted);
+  font-size: var(--ei-text-xs);
+  white-space: nowrap;
+}
+.ei-message-copy {
+  max-width: 65ch;
+  font-size: var(--ei-text-md);
+  line-height: 1.85;
+}
+.ei-message-copy p + p {
+  margin-top: 20px;
+}
+.ei-contact-details {
+  border-top: 1px solid var(--ei-rule);
+  margin-top: 32px;
+  padding-top: 24px;
+}
+.ei-app dl,
+.ei-modal-overlay dl,
+.ei-filter-popover dl,
+.ei-choice-popover dl {
+  margin: 16px 0 0;
+}
+.ei-contact-details dl div {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+  font-size: var(--ei-text-sm);
+}
+.ei-app dt,
+.ei-modal-overlay dt,
+.ei-filter-popover dt,
+.ei-choice-popover dt {
+  color: var(--ei-muted);
+}
+.ei-app dd,
+.ei-modal-overlay dd,
+.ei-filter-popover dd,
+.ei-choice-popover dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.ei-reader-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  border-top: 1px solid var(--ei-rule);
+  color: var(--ei-muted);
+  font-size: var(--ei-text-xs);
+}
+.ei-reader-footer > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ei-reader-footer .ei-text-control {
+  background: var(--ei-paper-2);
+  font-size: var(--ei-text-xs);
+}
+.ei-assistant-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.ei-assistant-heading h3 {
+  font-size: var(--ei-text-md);
+  letter-spacing: 0;
+}
+.ei-assistant-heading p {
+  color: var(--ei-muted);
+  margin-top: 8px;
+  font-size: var(--ei-text-sm);
+}
+.ei-extraction {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-block: 1px solid var(--ei-rule);
+  padding-block: 24px;
+  margin-top: 24px;
+  gap: 24px;
+  font-size: var(--ei-text-sm);
+}
+.ei-extraction dd {
+  margin-top: 12px;
+}
+.ei-draft {
+  margin-top: 28px;
+}
+.ei-draft p {
+  margin-top: 16px;
+  color: var(--ei-muted);
+  font-size: var(--ei-text-sm);
+}
+.ei-preview-note {
+  color: var(--ei-muted);
+  font-size: var(--ei-text-sm);
+  margin-top: 24px;
+}
+.ei-queue-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 32px;
+  gap: 16px;
+}
+.ei-queue-state h2 {
+  font-size: var(--ei-text-lg);
+}
+.ei-queue-state p {
+  color: var(--ei-muted);
+  font-size: var(--ei-text-sm);
+  max-width: 28ch;
+}
+.ei-back {
+  display: none;
+}
+.ei-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: clip;
+  clip-path: inset(50%);
+}
+.ei-skip-link {
+  position: fixed;
+  z-index: 30;
+  top: 8px;
+  left: 8px;
+  transform: translateY(-200%);
+  background: var(--ei-paper-2);
+  color: var(--ei-ink);
+  padding: 12px;
+}
+.ei-skip-link:focus {
+  transform: translateY(0);
+}
+.ei-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: var(--ei-scrim);
+}
+.ei-intake-modal {
+  width: 560px;
+  max-width: 100%;
+  max-height: calc(100dvh - 40px);
+  overflow: auto;
+  background: var(--ei-paper-2);
+  border: 1px solid var(--ei-muted);
+  padding: 28px;
+}
+.ei-dialog-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.ei-dialog-heading h2 {
+  font-size: var(--ei-text-xl);
+  line-height: 1.3;
+}
+.ei-intake-modal input,
+.ei-intake-modal select,
+.ei-intake-modal textarea {
+  min-height: 48px;
+  padding: 12px;
+  background: var(--ei-paper);
+  color: var(--ei-ink);
+  border: 1px solid var(--ei-muted);
+  border-radius: var(--ei-radius-control);
+  width: 100%;
+  font: 400 var(--ei-text-md) var(--font-body);
+}
+.ei-intake-modal textarea {
+  resize: vertical;
+}
+.ei-app :focus-visible,
+.ei-modal-overlay :focus-visible,
+.ei-filter-popover :focus-visible,
+.ei-choice-popover :focus-visible,
+.ei-app [data-focus-visible],
+.ei-modal-overlay [data-focus-visible],
+.ei-filter-popover [data-focus-visible],
+.ei-choice-popover [data-focus-visible] {
+  outline: 2px solid var(--ei-focus);
+  outline-offset: 2px;
+}
+.ei-app input:focus-visible,
+.ei-modal-overlay input:focus-visible,
+.ei-filter-popover input:focus-visible,
+.ei-choice-popover input:focus-visible,
+.ei-app textarea:focus-visible,
+.ei-modal-overlay textarea:focus-visible,
+.ei-filter-popover textarea:focus-visible,
+.ei-choice-popover textarea:focus-visible {
+  outline-offset: -3px;
+}
+@media (max-width: 1050px) {
+  .ei-workspace-label {
+    display: none;
+  }
+  .ei-workbench {
+    grid-template-columns: minmax(280px, 36%) minmax(0, 1fr);
+  }
+  .ei-reader-scroll {
+    padding: 24px;
+  }
+  .ei-reader-toolbar {
+    padding-inline: 24px;
+  }
+  .ei-message-heading {
+    display: block;
+  }
+  .ei-message-heading time {
+    display: block;
+    margin-top: 8px;
+  }
+  .ei-not-run {
+    display: none;
+  }
+  .ei-toolbar {
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .ei-lane-tabs {
+    order: 2;
+    width: 100%;
+  }
+  .ei-toolbar-filters {
+    padding-bottom: 0;
+  }
+}
+@media (max-width: 700px) {
+  .ei-topbar-inner {
+    height: 64px;
+    gap: 16px;
+  }
+  .ei-wordmark {
+    font-size: 23px;
+  }
+  .ei-wordmark span {
+    display: none;
+  }
+  .ei-topbar nav {
+    gap: 20px;
+  }
+  .ei-topbar nav a {
+    font-size: var(--ei-text-xs);
+  }
+  .ei-topbar nav a:last-child {
+    display: none;
+  }
+  .ei-page-heading {
+    padding-block: 24px 20px;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .ei-page-heading h1 {
+    font-size: 28px;
+  }
+  .ei-page-heading p {
+    font-size: var(--ei-text-sm);
+    max-width: 28ch;
+  }
+  .ei-heading-actions {
+    gap: 8px;
+  }
+  .ei-heading-actions > .ei-icon-control {
+    display: none;
+  }
+  .ei-heading-actions > .ei-control {
+    font-size: var(--ei-text-xs);
+    padding-inline: 12px;
+  }
+  .ei-toolbar-filters {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .ei-toolbar {
+    gap: 12px;
+  }
+  .ei-app .react-aria-TabList {
+    gap: 20px;
+  }
+  .ei-app .react-aria-Tab {
+    font-size: var(--ei-text-xs);
+    min-height: 52px;
+  }
+  .ei-workbench {
+    display: block;
+    min-height: 640px;
+    height: auto;
+    max-height: none;
+  }
+  .ei-queue {
+    border-right: 0;
+    min-height: 640px;
+  }
+  .ei-queue ul {
+    overflow: visible;
+  }
+  .ei-queue-row {
+    padding: 20px 16px;
+  }
+  .ei-queue-footer {
+    margin-top: auto;
+  }
+  .ei-reader {
+    display: none;
+  }
+  .ei-show-detail .ei-queue {
+    display: none;
+  }
+  .ei-show-detail .ei-reader {
+    display: flex;
+    min-height: 640px;
+  }
+  .ei-reader-scroll {
+    overflow: visible;
+    padding: 24px 16px;
+  }
+  .ei-reader-toolbar {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+  .ei-reference {
+    display: none;
+  }
+  .ei-back {
+    display: inline-flex;
+    font-size: var(--ei-text-xs);
+    padding-inline: 4px;
+  }
+  .ei-reader-toolbar .ei-source {
+    margin-left: auto;
+    font-size: var(--ei-text-xs);
+  }
+  .ei-reader-toolbar .ei-simulated {
+    display: none;
+  }
+  .ei-reader-footer {
+    padding: 12px 16px;
+  }
+  .ei-reader-footer > span {
+    display: none;
+  }
+  .ei-reader-footer .ei-text-control {
+    margin-left: auto;
+  }
+  .ei-contact-heading h2 {
+    font-size: 24px;
+  }
+  .ei-status-line {
+    gap: 12px;
+  }
+  .ei-detail-tabs .react-aria-TabList {
+    gap: 24px;
+  }
+  .ei-detail-tabs .react-aria-Tab {
+    font-size: var(--ei-text-sm);
+  }
+  .ei-message-copy {
+    font-size: var(--ei-text-md);
+  }
+  .ei-extraction {
+    gap: 12px;
+  }
+  .ei-intake-modal {
+    padding: 20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ei-app *,
+  .ei-modal-overlay *,
+  .ei-filter-popover *,
+  .ei-choice-popover *,
+  .ei-app *::before,
+  .ei-modal-overlay *::before,
+  .ei-filter-popover *::before,
+  .ei-choice-popover *::before,
+  .ei-app *::after,
+  .ei-modal-overlay *::after,
+  .ei-filter-popover *::after,
+  .ei-choice-popover *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+.ei-reader-empty h2 {
+  font-size: var(--ei-text-lg);
+  color: var(--ei-ink);
+}
+.ei-app h3,
+.ei-modal-overlay h3,
+.ei-filter-popover h3,
+.ei-choice-popover h3 {
+  font-synthesis: weight;
+}
+.ei-intake-modal {
+  width: min(560px, 100%);
+  min-width: 0;
+  justify-self: center;
+}
+
+.ei-app h1 {
+  max-width: none;
+}
+.ei-app h3 {
+  font-synthesis: weight;
+}
+.ei-app ul {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.ei-queue-list {
+  overflow: visible;
+  flex: 1;
+}
+.ei-workbench {
+  align-items: start;
+}
+.ei-queue {
+  align-self: stretch;
+}
+.ei-queue .ei-queue-list {
+  min-height: 320px;
+  max-height: max(480px, calc(100dvh - 400px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+@media (max-width: 700px) {
+  .ei-queue .ei-queue-list {
+    max-height: none;
+    overflow: visible;
+  }
+}
+.ei-app .ei-topbar nav {
+  align-items: stretch;
+}
+.ei-topbar nav .ei-text-control {
+  background: var(--ei-paper-2);
+}
+.ei-lane-tabs {
+  display: flex;
+  gap: 24px;
+}
+.ei-lane-tab {
+  min-height: 56px;
+  padding: 8px 0;
+  border: 0;
+  border-bottom: 2px solid var(--ei-paper);
+  background: var(--ei-paper);
+  color: var(--ei-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 400 var(--ei-text-sm) var(--font-body);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.ei-lane-tab[aria-pressed="true"] {
+  border-color: var(--ei-accent);
+  color: var(--ei-ink);
+}
+.ei-message-copy {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.ei-row-preview {
+  margin-top: 8px;
+}
+.ei-reader-empty {
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 32px;
+  color: var(--ei-muted);
+  text-align: center;
+}
+.ei-reader-empty h2 {
+  font-size: var(--ei-text-lg);
+}
+.ei-reader-empty p {
+  font-size: var(--ei-text-sm);
+  max-width: 32ch;
+}
+.ei-pagination {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  margin: 0;
+  height: auto;
+}
+.ei-pagination button {
+  font-size: var(--ei-text-xs);
+}
+.ei-form-notice {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  background: var(--ei-paper-3);
+}
+.ei-form-error {
+  color: var(--ei-error);
+}
+.ei-intake-modal form {
+  display: grid;
+  gap: 16px;
+  margin-top: 24px;
+}
+.ei-intake-modal label {
+  display: grid;
+  gap: 8px;
+  font-size: var(--ei-text-sm);
+}
+.ei-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+.ei-copy-fallback {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  font-size: var(--ei-text-sm);
+}
+.ei-copy-fallback input {
+  width: 100%;
+  padding: 12px;
+  color: var(--ei-ink);
+  background: var(--ei-paper);
+  border: 1px solid var(--ei-muted);
+  font: inherit;
+}
+.ei-filter-field {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: var(--ei-text-sm);
+}
+.ei-filter-popover h2 {
+  font-size: var(--ei-text-lg);
+}
+.ei-queue {
+  display: flex;
+  flex-direction: column;
+}
+.ei-skeleton {
+  height: 20px;
+  width: 100%;
+  background: var(--ei-paper-3);
+  border-radius: var(--ei-radius-control);
+}
+.ei-skeleton-short {
+  width: 60%;
+}
+.ei-modal-overlay {
+  grid-template-columns: minmax(0, 1fr);
+}
+.ei-intake-modal {
+  min-width: 0;
+  justify-self: center;
+  font-family: var(--font-body);
+  color: var(--ei-ink);
+}
+.ei-dialog-heading h2 {
+  font-size: var(--ei-text-xl);
+}
+.ei-filter-popover {
+  font-family: var(--font-body);
+  color: var(--ei-ink);
+}
+@media (max-width: 1050px) {
+  .ei-lane-tabs {
+    order: 2;
+    width: 100%;
+  }
+}
+@media (max-width: 700px) {
+  :root {
+    --ei-gutter: 20px;
+  }
+  .ei-lane-tabs {
+    gap: 20px;
+  }
+  .ei-lane-tab {
+    font-size: var(--ei-text-xs);
+    min-height: 52px;
+  }
+  .ei-signout-text,
+  .ei-topbar nav .ei-guest-link {
+    display: none;
+  }
+  .ei-topbar nav {
+    gap: 12px;
+  }
+  .ei-topbar .ei-wordmark {
+    font-size: 23px;
+  }
+  .ei-topbar nav .ei-control {
+    width: 48px;
+    padding: 8px;
+  }
+  .ei-topbar nav .ei-text-control {
+    padding: 8px;
+  }
+  .ei-reader-empty .ei-control {
+    display: inline-flex;
+  }
+}

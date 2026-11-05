@@ -1,9 +1,14 @@
 import "server-only";
 import { createHash } from "node:crypto";
-import { eq, gte, sql } from "drizzle-orm";
+import { and, desc, eq, gte, isNull, sql } from "drizzle-orm";
+import { z } from "zod";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import * as schema from "../db/schema";
-import { enquiryInputSchema } from "./enquiry-validation";
+import {
+  enquiryInputSchema,
+  simulatedEnquiryInputSchema,
+  enquiryListSchema,
+} from "./enquiry-validation";
 import { BookingError } from "./booking";
 
 type Database = Pick<PostgresJsDatabase<typeof schema>, "transaction">;
@@ -16,8 +21,32 @@ export async function saveWebsiteEnquiry(db: Database, raw: unknown) {
       parsed.error.issues[0]?.message ?? "Check your enquiry details.",
     );
   const input = parsed.data;
+  return saveEnquiry(db, input, "website");
+}
+
+export async function saveSimulatedEnquiry(db: Database, raw: unknown) {
+  const parsed = simulatedEnquiryInputSchema.safeParse(raw);
+  if (!parsed.success)
+    throw new BookingError(
+      "INVALID_ENQUIRY",
+      parsed.error.issues[0]?.message ?? "Check the enquiry details.",
+    );
+  return saveEnquiry(db, parsed.data, parsed.data.source);
+}
+
+async function saveEnquiry(
+  db: Database,
+  input: z.infer<typeof enquiryInputSchema>,
+  source: "website" | "email" | "whatsapp",
+) {
   const fingerprint = createHash("sha256")
-    .update(JSON.stringify({ contact: input.contact, message: input.message }))
+    .update(
+      JSON.stringify({
+        contact: input.contact,
+        message: input.message,
+        ...(source === "website" ? {} : { source }),
+      }),
+    )
     .digest("hex");
   return db.transaction(async (tx) => {
     await tx.execute(sql`set local lock_timeout = '5s'`);
@@ -30,7 +59,10 @@ export async function saveWebsiteEnquiry(db: Database, raw: unknown) {
       .from(schema.enquiries)
       .where(eq(schema.enquiries.submissionId, input.submissionId));
     if (existing) {
-      if (existing.requestFingerprint !== fingerprint)
+      if (
+        existing.source !== source ||
+        existing.requestFingerprint !== fingerprint
+      )
         throw new BookingError(
           "SUBMISSION_CONFLICT",
           "This submission was already used. Start a new enquiry.",
@@ -62,6 +94,7 @@ export async function saveWebsiteEnquiry(db: Database, raw: unknown) {
       .insert(schema.enquiries)
       .values({
         submissionId: input.submissionId,
+        source,
         requestFingerprint: fingerprint,
         contactName: input.contact.name,
         contactEmail: input.contact.email,
@@ -72,4 +105,95 @@ export async function saveWebsiteEnquiry(db: Database, raw: unknown) {
       .returning({ reference: schema.enquiries.id });
     return { ...saved, duplicate: false };
   });
+}
+
+export async function listStaffEnquiries(db: Database, raw: unknown) {
+  const parsed = enquiryListSchema.safeParse(raw);
+  if (!parsed.success)
+    throw new BookingError(
+      "INVALID_FILTER",
+      "Choose valid enquiry filters and a page between 1 and 10,000.",
+    );
+  const filters = parsed.data;
+  const t = schema.enquiries;
+  const where = and(
+    filters.source ? eq(t.source, filters.source) : undefined,
+    filters.category ? eq(t.category, filters.category) : undefined,
+    filters.owner === "unassigned"
+      ? isNull(t.owner)
+      : filters.owner
+        ? eq(t.owner, filters.owner)
+        : undefined,
+    filters.review ? eq(t.needsReview, true) : undefined,
+    filters.attention ? eq(t.gmAttention, true) : undefined,
+  );
+  return db.transaction(
+    async (tx) => {
+      const rows = await tx
+        .select({
+          id: t.id,
+          contactName: t.contactName,
+          source: t.source,
+          category: t.category,
+          owner: t.owner,
+          needsReview: t.needsReview,
+          gmAttention: t.gmAttention,
+          processingState: t.processingState,
+          createdAt: t.createdAt,
+          preview: sql<string>`left(${t.message}, 160)`,
+        })
+        .from(t)
+        .where(where)
+        .orderBy(desc(t.createdAt), desc(t.id))
+        .limit(25)
+        .offset((filters.page - 1) * 25);
+      const [count] = await tx
+        .select({ total: sql<number>`count(*)::int` })
+        .from(t)
+        .where(where);
+      return { rows, total: count.total, page: filters.page, pageSize: 25 };
+    },
+    { isolationLevel: "repeatable read", accessMode: "read only" },
+  );
+}
+
+export async function getStaffEnquiry(db: Database, id: string) {
+  if (!z.uuid().safeParse(id).success)
+    throw new BookingError(
+      "INVALID_REFERENCE",
+      "Choose a valid enquiry reference.",
+    );
+  return db.transaction(
+    async (tx) => {
+      const t = schema.enquiries;
+      const [row] = await tx
+        .select({
+          id: t.id,
+          source: t.source,
+          contact: {
+            name: t.contactName,
+            email: t.contactEmail,
+            phone: t.contactPhone,
+          },
+          message: t.message,
+          category: t.category,
+          owner: t.owner,
+          needsReview: t.needsReview,
+          gmAttention: t.gmAttention,
+          processingState: t.processingState,
+          draft: t.draft,
+          createdAt: t.createdAt,
+        })
+        .from(t)
+        .where(eq(t.id, id));
+      if (!row)
+        throw new BookingError(
+          "ENQUIRY_NOT_FOUND",
+          "This enquiry could not be found.",
+          404,
+        );
+      return { ...row, extracted: null };
+    },
+    { accessMode: "read only" },
+  );
 }

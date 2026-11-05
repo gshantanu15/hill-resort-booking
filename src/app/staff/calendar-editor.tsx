@@ -421,6 +421,21 @@ export default function CalendarEditor({
             >
               Guest site
             </Link>
+            <Link
+              className="staff-quiet-link"
+              href="/staff/enquiries"
+              onClick={(event) => {
+                if (
+                  unsaved &&
+                  !window.confirm(
+                    "Discard unsaved night edits and open enquiries?",
+                  )
+                )
+                  event.preventDefault();
+              }}
+            >
+              Enquiries
+            </Link>
             <button
               className="staff-quiet-button"
               type="button"
