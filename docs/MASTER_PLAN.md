@@ -113,6 +113,10 @@ Record important implementation choices and brief rationale in `docs/ARCHITECTUR
 
 **Goal:** demonstrate useful AI assistance while preserving staff control.
 
+**Review workflow (owner-approved November 5):** implement one milestone at a time, run focused checks, present a local URL and manual checklist, and wait for owner approval before continuing. Commit each milestone after approval. Deploy only after final local approval. Sequence: (1) guest date-picker fix, (2) persisted public intake, (3) staff inbox/simulated channels, (4) manual routing/drafts, (5) model research and configuration approval, (6) AI integration, (7) final validation/release. Model research is deferred until milestone 5. Team owners are Reservations, Sales and GM; uncertain enquiries stay Unsorted with GM attention. AI starts staff-triggered, with a reusable service for later automatic processing.
+
+**Current milestone:** 1 manually approved by the owner on November 5. Five viewport browser checks and all 46 unit tests pass, as do TypeScript and ESLint. See [Day 4 evidence](DAY_4_EVIDENCE.md). Next: milestone 2, persistent public enquiry intake. Milestones 3–7 have not started.
+
 - [ ] Build a public enquiry form and persist submissions.
 - [ ] Add staff-only simulated email and WhatsApp intake with visible source labels.
 - [ ] Build inbox filters, enquiry detail, owner assignment, and editable drafts.

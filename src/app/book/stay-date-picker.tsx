@@ -259,6 +259,8 @@ export default function StayDatePicker({
             className="guest-date-picker__popover"
             placement="bottom start"
             offset={8}
+            containerPadding={16}
+            shouldFlip
           >
             {content}
           </Popover>

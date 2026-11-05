@@ -46,6 +46,9 @@
 .guest-date-picker__popover {
   z-index: 100;
   max-width: calc(100% - 32px);
+  /* React Aria sets the available max-height; scroll its contents within it. */
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .guest-date-picker__dialog {
   width: 360px;
@@ -214,7 +217,7 @@
 .guest-date-picker__modal {
   width: 360px;
   max-width: 100%;
-  max-height: 92dvh;
+  max-height: calc(100dvh - 32px);
   overflow-y: auto;
 }
 @media (max-width: 500px) {
