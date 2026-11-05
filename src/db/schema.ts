@@ -4,6 +4,7 @@ import {
   date,
   foreignKey,
   integer,
+  index,
   pgTable,
   primaryKey,
   text,
@@ -13,6 +14,48 @@ import {
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 export * from "./auth-schema";
+export const enquiries = pgTable(
+  "enquiries",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    submissionId: uuid("submission_id").notNull().unique(),
+    requestFingerprint: text("request_fingerprint").notNull(),
+    source: text("source").notNull().default("website"),
+    contactName: text("contact_name").notNull(),
+    contactEmail: text("contact_email").notNull(),
+    contactPhone: text("contact_phone"),
+    message: text("message").notNull(),
+    category: text("category").notNull().default("unsorted"),
+    owner: text("owner"),
+    needsReview: boolean("needs_review").notNull().default(true),
+    gmAttention: boolean("gm_attention").notNull().default(true),
+    processingState: text("processing_state").notNull().default("unprocessed"),
+    draft: text("draft").notNull().default(""),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("enquiry_created_idx").on(t.createdAt),
+    index("enquiry_email_created_idx").on(t.contactEmail, t.createdAt),
+    check(
+      "enquiry_source_valid",
+      sql`${t.source} IN ('website','email','whatsapp')`,
+    ),
+    check(
+      "enquiry_message_length",
+      sql`length(btrim(${t.message})) BETWEEN 1 AND 4000`,
+    ),
+    check(
+      "enquiry_category_valid",
+      sql`${t.category} IN ('room','wedding','offsite','complaint','unsorted')`,
+    ),
+    check(
+      "enquiry_owner_valid",
+      sql`${t.owner} IS NULL OR ${t.owner} IN ('reservations','sales','gm')`,
+    ),
+  ],
+);
 export const roomTypes = pgTable(
   "room_types",
   {

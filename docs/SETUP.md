@@ -1,5 +1,7 @@
 # Local setup
 
+Day 4 enquiry intake requires additive migration `0008_enquiry_intake` before using `/enquire`. It is applied to normal development; production remains on the previous release. Local review uses `node output/release/serve-development.mjs` for the built application, or normal `npm run dev` for further development. Public intake has a 4,000-character message limit and durable limits of five enquiries per email / 100 total per database-clock hour. Exact retries return the original reference without consuming another allowance. The staff inbox and AI remain pending. See [Day 4 evidence](DAY_4_EVIDENCE.md).
+
 Use Node.js 24 and npm. Run `npm ci`, copy `.env.example` to `.env.local`, and run `npm run dev`. Without a database, the home page shows an explicitly labelled sample catalogue.
 
 For Neon, create a development branch and a separate demo branch. Set the pooled connection in DATABASE_URL and direct connection in DATABASE_URL_UNPOOLED in the ignored `.env.local`. Use the development connection for local work; configure the demo connection in Vercel. Never paste connection strings into issues, documentation, or chat.

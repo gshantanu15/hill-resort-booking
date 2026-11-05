@@ -144,6 +144,8 @@ One compact calendar editor handles a maximum 31-night range with per-row atomic
 
 Every enquiry is persisted before AI processing and records its source. AI returns category, extracted fields, uncertainty, and a draft. Application rules assign owners and always flag complaints for GM attention. Malformed, timed-out, or low-confidence results remain visible for manual review. Staff can reroute and edit drafts; nothing is sent automatically. Any quoted price comes from the rate table, never from model text.
 
+November 5 milestone 2 implements website persistence only. Submission IDs and normalized request fingerprints provide atomic idempotency; exact retries return the original random reference before checking intake limits. A shared transaction lock serializes durable per-hour limits (five per email, 100 total); local memory counters are not used. Only POST is public; responses exclude contacts and message contents. New rows begin unsorted/unprocessed for manual review. Inbox, simulated channels, routing controls and AI remain later review-gated milestones; model research is deferred until milestone 5.
+
 ## Demo boundaries
 
 The deployment uses a shared synthetic dataset. Reviewers may see each other's demo changes. Fill-missing seeding is implemented; an operator-only full reset remains Day 5 work. This architecture is suitable for a demo and requires further security, privacy, operations, and external-system work before production use.

@@ -21,6 +21,7 @@ export default async function Home() {
           <a className="button small" href="#stays">
             Find your stay
           </a>
+          <a href="/enquire">Make an enquiry</a>
         </nav>
       </header>
       <main id="main">
@@ -108,6 +109,7 @@ export default async function Home() {
               </svg>
               Staff sign in
             </Link>
+            <Link href="/enquire">Make an enquiry</Link>
           </nav>
         </div>
         <details className="demo-notes">

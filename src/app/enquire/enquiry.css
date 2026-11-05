@@ -1,0 +1,106 @@
+.enquiry-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 32px 80px;
+  color: var(--ink);
+}
+.enquiry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.enquiry-header a:last-child {
+  color: var(--ink);
+  text-decoration: underline;
+}
+.enquiry-intro {
+  max-width: 650px;
+  padding: 72px 0 40px;
+}
+.enquiry-intro h1 {
+  margin: 0 0 20px;
+  font: 400 clamp(44px, 7vw, 72px)/1.03 var(--font-display);
+}
+.enquiry-intro p:last-child {
+  max-width: 54ch;
+  font-size: 18px;
+  line-height: 1.6;
+}
+.enquiry-page .eyebrow {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.enquiry-form {
+  display: grid;
+  gap: 24px;
+  max-width: 620px;
+}
+.enquiry-form .enquiry-field {
+  display: grid;
+  gap: 8px;
+  font-size: 15px;
+}
+.enquiry-page .optional,
+.enquiry-page .field-help {
+  color: var(--muted);
+  font-size: 13px;
+}
+.enquiry-form input,
+.enquiry-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 48px;
+  padding: 12px;
+  border: 1px solid var(--muted);
+  border-radius: 2px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+}
+.enquiry-form textarea {
+  resize: vertical;
+}
+.enquiry-form input:focus-visible,
+.enquiry-form textarea:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+.enquiry-form [aria-invalid="true"] {
+  border-color: var(--accent);
+}
+.enquiry-page .field-error,
+.enquiry-page .enquiry-error {
+  color: var(--ink);
+  font-size: 14px;
+}
+.enquiry-success,
+.enquiry-pending {
+  padding: 16px;
+  border: 1px solid var(--rule);
+  background: var(--guest-soft);
+  display: grid;
+  gap: 8px;
+}
+.enquiry-pending button {
+  justify-self: start;
+}
+.enquiry-form-note,
+.enquiry-note {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+@media (max-width: 600px) {
+  .enquiry-page {
+    padding-inline: 20px;
+  }
+  .enquiry-intro {
+    padding-top: 48px;
+  }
+  .enquiry-header {
+    gap: 20px;
+  }
+}
