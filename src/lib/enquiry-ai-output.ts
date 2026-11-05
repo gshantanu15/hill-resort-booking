@@ -67,14 +67,12 @@ export function validateEnquiryAIOutput(
     !parsed.dates.yearMissing
   )
     throw new Error("AI output lost assumed-year provenance.");
-  if (
-    !explicitYears.length &&
-    parsed.dates.yearMissing &&
-    !parsed.uncertainties.some((note) => /assum/i.test(note))
-  )
+  if (!explicitYears.length && parsed.dates.yearMissing)
     parsed.uncertainties = [
       `Staff: year ${currentYear} assumed from the resort calendar.`,
-      ...parsed.uncertainties,
+      ...parsed.uncertainties.filter(
+        (note) => !/assum|year.*omitt|omitt.*year/i.test(note),
+      ),
     ].slice(0, 15);
   if (
     parsed.dates.checkIn &&

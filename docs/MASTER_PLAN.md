@@ -127,7 +127,7 @@ Record important implementation choices and brief rationale in `docs/ARCHITECTUR
 - [x] Add owner-approved Complaint/Unsorted GM-attention safeguards and compact routing correction (milestone 4).
 - [x] Keep model-generated text separate from authoritative price insertion. **Evidence:** price-free drafts and read-only room quoting in milestone 6 local implementation.
 - [x] Add request limits, input-size limits, and bounded AI execution. **Evidence:** 100/$1 daily cap, $5 ledger and provider key cap; owner-approved local implementation.
-- [ ] Evaluate the three supplied enquiries plus complaint, ambiguous, malformed, and adversarial examples.
+- [x] Evaluate the three supplied enquiries plus complaint, ambiguous, malformed, and adversarial examples. **Evidence:** final integrated six-case AI evaluation, transport/domain unit failures and full local regressions; see DAY_4_RELEASE.md.
 
 **Done when:** each intake source appears in one inbox; clear examples receive useful categories, fields, assignments, and drafts; AI failure never loses an enquiry; corrections persist; no draft sends automatically; the API key never reaches browser code, logs, or Git.
 
@@ -181,3 +181,7 @@ Track planned work, completed checkboxes, evidence, blockers, and next actions e
 ## Milestone 6 closeout status
 
 Owner-approved and complete locally, including the revised reply policy. The remaining comprehensive enquiry evaluation checklist above belongs to final Milestone 7 validation; historical evaluation evidence remains recorded. The owner requested stopping before Milestone 7, so final regressions, final local release approval and production rollout have not begun.
+
+## Day 4 final local validation
+
+Feature work and local validation complete: 83 unit, 127 database and 46 desktop/mobile browser checks, plus six integrated live AI cases and a targeted year-provenance fix/recheck. Milestone 7 production migration/deployment and hosted smoke remain pending separate final approval after automatic approval review rejected the migration attempt. See DAY_4_RELEASE.md. Day 4 hosted release remains pending.

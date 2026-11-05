@@ -17,6 +17,23 @@ const base = {
   draft: "Please confirm the dates for your stay.",
 };
 describe("enquiry AI output safety", () => {
+  it("replaces model year assumptions with authoritative resort-year provenance", () => {
+    const result = validateEnquiryAIOutput(
+      {
+        ...base,
+        dates: { ...base.dates, raw: "January", yearMissing: true },
+        uncertainties: [
+          "Year assumed as 2027 because January is next.",
+          "Sales must verify venue suitability.",
+        ],
+      },
+      "Team of 45 wants a January offsite",
+      "2026-11-05",
+    );
+    expect(result.uncertainties.join(" ")).toContain("2026 assumed");
+    expect(result.uncertainties.join(" ")).not.toContain("2027");
+    expect(result.uncertainties.join(" ")).toContain("verify venue");
+  });
   it("accepts the approved live reply samples through application validation", () => {
     for (const sample of candidates.cases) {
       const output = validateEnquiryAIOutput(
