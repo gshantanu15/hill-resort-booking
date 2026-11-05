@@ -1,173 +1,191 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
-import { requestStructuredOutput } from "../src/lib/openrouter";
-const input = {
-  system: "Classify",
-  message: "A wedding",
-  schema: { type: "object" },
+import { OpenRouterError, requestEnquiryOutput } from "../src/lib/openrouter";
+const output = {
+  category: "room",
+  dates: { checkIn: null, checkOut: null, raw: null, yearMissing: false },
+  guests: { adults: null, children: null, min: null, max: null },
+  budget: { min: null, max: null, currency: null, raw: null },
+  uncertainties: [],
+  draft: "Please confirm your dates.",
 };
-afterEach(() => {
-  vi.unstubAllGlobals();
-  vi.unstubAllEnvs();
+beforeEach(() => {
+  vi.stubEnv("AI_INFERENCE_ENABLED", "true");
+  vi.stubEnv("OPENROUTER_API_KEY", "test-key");
 });
-function configure() {
-  vi.stubEnv("OPENROUTER_API_KEY", "test-placeholder");
-  vi.stubEnv("OPENROUTER_MODEL", "google/gemma-4-26b-a4b-it:free");
-  vi.stubEnv("OPENROUTER_FALLBACK_MODEL", "");
-}
-describe("OpenRouter setup transport", () => {
-  it("pins the free model, requires structured output, and returns parsed JSON", async () => {
-    configure();
-    const transport = vi.fn().mockResolvedValue(
+afterEach(() => {
+  vi.unstubAllEnvs();
+  vi.restoreAllMocks();
+});
+describe("OpenRouter enquiry transport", () => {
+  it("does not fetch when inference is disabled", async () => {
+    vi.stubEnv("AI_INFERENCE_ENABLED", "false");
+    const fetch = vi.spyOn(globalThis, "fetch");
+    await expect(
+      requestEnquiryOutput({ message: "room", referenceDate: "2026-11-05" }),
+    ).rejects.toMatchObject({ code: "disabled" });
+    expect(fetch).not.toHaveBeenCalled();
+  });
+  it("requires the pinned model before fetching", async () => {
+    const fetch = vi.spyOn(globalThis, "fetch");
+    vi.stubEnv("OPENROUTER_ENQUIRY_MODEL", "free/model");
+    await expect(
+      requestEnquiryOutput({ message: "room", referenceDate: "2026-11-05" }),
+    ).rejects.toMatchObject({ code: "configuration" });
+    expect(fetch).not.toHaveBeenCalled();
+  });
+  it("sends bounded strict-schema requests", async () => {
+    const fetch = vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(
         JSON.stringify({
+          model: "anthropic/claude-haiku-5.5",
+          provider: "anthropic",
           choices: [
             {
               finish_reason: "stop",
-              message: { content: '{"category":"wedding"}' },
+              message: { content: JSON.stringify(output) },
             },
           ],
         }),
+        { status: 200 },
       ),
     );
-    vi.stubGlobal("fetch", transport);
-    await expect(requestStructuredOutput(input)).resolves.toEqual({
-      data: { category: "wedding" },
-      model: "google/gemma-4-26b-a4b-it:free",
+    await requestEnquiryOutput({
+      message: "room",
+      referenceDate: "2026-11-05",
     });
-    const body = JSON.parse(transport.mock.calls[0][1].body);
-    expect(body.model).toBe("google/gemma-4-26b-a4b-it:free");
-    expect(body.provider).toEqual({
-      require_parameters: true,
-      data_collection: "deny",
-      max_price: { prompt: 0, completion: 0 },
+    const body = JSON.parse(String(fetch.mock.calls[0][1]?.body));
+    expect(body).toMatchObject({
+      model: "anthropic/claude-haiku-5.5",
+      max_tokens: 1500,
+      reasoning: { enabled: false },
+      provider: {
+        require_parameters: true,
+        data_collection: "deny",
+        max_price: { prompt: 0.1, completion: 0.5 },
+      },
+      response_format: { json_schema: { strict: true } },
     });
-    expect(body.models).toBeUndefined();
-    expect(body.response_format).toEqual({ type: "json_object" });
   });
-  it("routes Gemma first and only the approved free fallback second, retaining model attribution", async () => {
-    configure();
-    vi.stubEnv(
-      "OPENROUTER_FALLBACK_MODEL",
-      "dots-studio/dots-3-note-preview:free",
-    );
-    const transport = vi.fn().mockResolvedValue(
+  it("maps provider failures and validates a successful envelope", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(
         JSON.stringify({
-          model: "dots-studio/dots-3-note-preview:free",
+          model: "anthropic/claude-haiku-5.5",
+          provider: "anthropic",
           choices: [
             {
               finish_reason: "stop",
-              message: { content: '{"category":"wedding"}' },
+              message: { content: JSON.stringify(output) },
             },
           ],
+          usage: { cost: 0.01 },
         }),
+        { status: 200 },
       ),
     );
-    vi.stubGlobal("fetch", transport);
-    await expect(requestStructuredOutput(input)).resolves.toMatchObject({
-      model: "dots-studio/dots-3-note-preview:free",
+    await expect(
+      requestEnquiryOutput({ message: "room", referenceDate: "2026-11-05" }),
+    ).resolves.toMatchObject({
+      model: "anthropic/claude-haiku-5.5",
+      costUsd: 0.01,
     });
-    const body = JSON.parse(transport.mock.calls[0][1].body);
-    expect(body.models).toEqual([
-      "google/gemma-4-26b-a4b-it:free",
-      "dots-studio/dots-3-note-preview:free",
-    ]);
-    expect(body.provider.max_price).toEqual({ prompt: 0, completion: 0 });
-  });
-  it("rejects a paid fallback before making a request", async () => {
-    configure();
-    vi.stubEnv("OPENROUTER_FALLBACK_MODEL", "paid/model");
-    const transport = vi.fn();
-    vi.stubGlobal("fetch", transport);
-    await expect(requestStructuredOutput(input)).rejects.toMatchObject({
-      code: "configuration",
-    });
-    expect(transport).not.toHaveBeenCalled();
-  });
-  it("preserves rate-limit retry hints without automatic retries", async () => {
-    configure();
-    const transport = vi
-      .fn()
-      .mockResolvedValue(
-        new Response("", { status: 429, headers: { "Retry-After": "60" } }),
+    for (const status of [401, 403, 402, 429, 503]) {
+      vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+        new Response("", { status }),
       );
-    vi.stubGlobal("fetch", transport);
-    await expect(requestStructuredOutput(input)).rejects.toMatchObject({
-      code: "rate_limit",
-      retryAfter: "60",
-    });
-    expect(transport).toHaveBeenCalledTimes(1);
+      await expect(
+        requestEnquiryOutput({ message: "room", referenceDate: "2026-11-05" }),
+      ).rejects.toBeInstanceOf(OpenRouterError);
+    }
   });
-  it("identifies shared provider-pool throttling without exposing raw provider messages", async () => {
-    configure();
-    const transport = vi.fn().mockResolvedValue(
-      new Response(
-        JSON.stringify({
-          error: {
-            metadata: {
-              limit_source: "upstream_provider_shared_pool",
-              raw: "sensitive upstream detail",
-            },
+  it("maps network and timeout failures without raw errors", async () => {
+    vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("SECRET RAW"));
+    await expect(
+      requestEnquiryOutput({ message: "room", referenceDate: "2026-11-05" }),
+    ).rejects.toMatchObject({ code: "unavailable" });
+    await expect(
+      requestEnquiryOutput({
+        message: "room",
+        referenceDate: "2026-11-05",
+        signal: AbortSignal.abort(new DOMException("deadline", "TimeoutError")),
+      }),
+    ).rejects.toMatchObject({ code: "timeout" });
+  });
+  it.each([
+    ["{bad", "invalid_output"],
+    [
+      {
+        model: "other/model",
+        choices: [
+          {
+            finish_reason: "stop",
+            message: { content: JSON.stringify(output) },
           },
-        }),
-        { status: 429 },
-      ),
+        ],
+      },
+      "configuration",
+    ],
+    [
+      {
+        model: "anthropic/claude-haiku-5.5",
+        choices: [
+          {
+            finish_reason: "length",
+            message: { content: JSON.stringify(output) },
+          },
+        ],
+      },
+      "invalid_output",
+    ],
+    [
+      {
+        model: "anthropic/claude-haiku-5.5",
+        choices: [
+          {
+            finish_reason: "stop",
+            message: { content: JSON.stringify(output) },
+          },
+        ],
+        usage: { cost: -1 },
+      },
+      "invalid_output",
+    ],
+  ] as const)("rejects unsafe provider envelopes", async (body, code) => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(typeof body === "string" ? body : JSON.stringify(body), {
+        status: 200,
+      }),
     );
-    vi.stubGlobal("fetch", transport);
-    await expect(requestStructuredOutput(input)).rejects.toMatchObject({
-      code: "rate_limit",
-      limitSource: "upstream_provider_shared_pool",
-    });
-    expect(transport).toHaveBeenCalledTimes(1);
+    await expect(
+      requestEnquiryOutput({ message: "room", referenceDate: "2026-11-05" }),
+    ).rejects.toMatchObject({ code });
   });
-  it.each(["bad-json", "truncated", "network", "provider-error"])(
-    "handles %s as a safe failure",
-    async (mode) => {
-      configure();
-      vi.stubGlobal(
-        "fetch",
-        mode === "network"
-          ? vi.fn().mockRejectedValue(new Error("sensitive upstream details"))
-          : vi.fn().mockResolvedValue(
-              mode === "provider-error"
-                ? new Response("upstream details", { status: 503 })
-                : new Response(
-                    JSON.stringify({
-                      choices: [
-                        {
-                          finish_reason:
-                            mode === "truncated" ? "length" : "stop",
-                          message: { content: "bad-json" },
-                        },
-                      ],
-                    }),
-                  ),
-            ),
+  it("rejects semantic output errors", async () => {
+    for (const bad of [
+      { ...output, draft: "Your booking is confirmed at INR 5000." },
+      {
+        ...output,
+        dates: { ...output.dates, checkIn: "2027-02-10", yearMissing: true },
+      },
+    ]) {
+      vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            model: "anthropic/claude-haiku-5.5",
+            choices: [
+              {
+                finish_reason: "stop",
+                message: { content: JSON.stringify(bad) },
+              },
+            ],
+          }),
+          { status: 200 },
+        ),
       );
-      await expect(requestStructuredOutput(input)).rejects.toThrow(
-        /Keep the enquiry available for manual review/,
-      );
-    },
-  );
-  it("rejects paid model configuration before making a request", async () => {
-    configure();
-    vi.stubEnv("OPENROUTER_MODEL", "paid/model");
-    const transport = vi.fn();
-    vi.stubGlobal("fetch", transport);
-    await expect(requestStructuredOutput(input)).rejects.toMatchObject({
-      code: "configuration",
-    });
-    expect(transport).not.toHaveBeenCalled();
-  });
-  it("rejects missing credentials without making a request", async () => {
-    configure();
-    vi.stubEnv("OPENROUTER_API_KEY", "");
-    const transport = vi.fn();
-    vi.stubGlobal("fetch", transport);
-    await expect(requestStructuredOutput(input)).rejects.toMatchObject({
-      code: "configuration",
-    });
-    expect(transport).not.toHaveBeenCalled();
+      await expect(
+        requestEnquiryOutput({ message: "room", referenceDate: "2026-11-05" }),
+      ).rejects.toMatchObject({ code: "invalid_output" });
+    }
   });
 });

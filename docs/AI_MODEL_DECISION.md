@@ -1,6 +1,6 @@
 # Milestone 5: Haiku configuration for owner review
 
-November 5, 2026. Status: owner-approved on November 5, 2026. Milestone 6 application integration has not started. The owner selected Haiku 5.5 and approved a $5 trial budget before these calls.
+November 5, 2026. Status: owner-approved on November 5, 2026. This document records the Milestone 5 decision before application integration. Milestone 6 is now owner-approved and complete locally; see [current integration evidence](AI_INTEGRATION_RESULTS.json) and [Day 4 status](DAY_4_EVIDENCE.md). The owner selected Haiku 5.5 and approved a $5 trial budget before these calls.
 
 ## Measured evaluation
 

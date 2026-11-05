@@ -168,6 +168,14 @@ New booking writes require current document acceptance and record versions plus 
 
 Confirmation uses the approved saved-demo framing and email-sent example beside an explicitly unsent preview. The preview uses only persisted public stay/price information and does not fetch the contact email. There is no download control, outbound email integration or real charging.
 
+## Milestone 6 AI and staff quoting — owner-approved locally
+
+Staff-triggered Analyse uses Haiku 5.5 through OpenRouter with the approved controls: 100 requests/$1 daily application allowance, a monotonic $5 trial ledger and conservative $0.05 reservation per call, plus the provider key's $5 lifetime cap. The CLI pause/stop control and provider-console key disable are separate off-switches. Missing or disabled controls fail closed; no automatic retry is used.
+
+AI output is validated, uncertainty is preserved, and drafts remain price-free. Staff routing and draft edits are protected by explicit replacement choices. Event enquiries receive a `[Sales-approved quote]` placeholder. Room quotes use the read-only booking quote engine, retain authoritative tax/price breakdowns, expire after 15 minutes and create no holds or bookings. Migration 0009 is verified on the isolated test branch and applied to normal development. Milestone 6 is owner-approved locally; production is untouched.
+
+The owner-approved reply refinement uses prompt v4 with current database room names/capacities and approved catalogue amenity facts. Omitted years use the current Asia/Kolkata calendar year with recorded provenance, overriding the original no-year-inference policy; vague dates remain raw and past dates require staff attention. Budget and age splits do not block an informative first reply. A pure formatter preserves email structure and keeps a single event quote slot before the closing. Checked accommodation insertion replaces the labelled Reservations slot or inserts before the closing. Existing booking occupancy/date validation and staff-edit revision protection remain intact.
+
 ## Manual enquiry routing and drafts — milestone 4
 
 PATCH /api/staff/enquiries/[id] checks staff authentication, matching Origin and bounded JSON before applying a strict route or draft action. Route changes default Room to Reservations, Wedding/Offsite to Sales, Complaint/Unsorted to GM; explicit owner overrides are permitted. An owner-only save preserves its category. Complaint/Unsorted always have needs-review and GM-attention flags, including after owner overrides. Resolving to Room/Wedding/Offsite clears those flags; this does not mark AI processing complete. Draft updates change only draft text, preserve whitespace and accept an empty draft to clear it. There is no send endpoint or action.

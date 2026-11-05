@@ -101,7 +101,12 @@ export async function updateStaffEnquiry(
     if (alreadySaved && stale) return current;
     const [saved] = await tx
       .update(t)
-      .set(changes)
+      .set({
+        ...changes,
+        ...(input.action === "draft"
+          ? { draftEdited: true, draftRevision: sql`${t.draftRevision} + 1` }
+          : { routeEdited: true, routeRevision: sql`${t.routeRevision} + 1` }),
+      })
       .where(eq(t.id, id))
       .returning({
         category: t.category,
@@ -273,6 +278,14 @@ export async function getStaffEnquiry(db: Database, id: string) {
           processingState: t.processingState,
           draft: t.draft,
           createdAt: t.createdAt,
+          extracted: t.extracted,
+          routeEdited: t.routeEdited,
+          draftEdited: t.draftEdited,
+          analysedAt: t.analysedAt,
+          analysisModel: t.analysisModel,
+          analysisProvider: t.analysisProvider,
+          analysisFailure: t.analysisFailure,
+          pricing: t.pricing,
         })
         .from(t)
         .where(eq(t.id, id));
@@ -282,7 +295,20 @@ export async function getStaffEnquiry(db: Database, id: string) {
           "This enquiry could not be found.",
           404,
         );
-      return { ...row, extracted: null };
+      const { pricing, ...detail } = row;
+      return {
+        ...detail,
+        pricing: pricing
+          ? {
+              totalPaise: pricing.totalPaise,
+              subtotalPaise: pricing.subtotalPaise,
+              taxPaise: pricing.taxPaise,
+              checkedAt: pricing.checkedAt,
+              expiresAt: pricing.expiresAt,
+              selection: pricing.selection,
+            }
+          : null,
+      };
     },
     { accessMode: "read only" },
   );

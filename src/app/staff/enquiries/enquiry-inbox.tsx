@@ -10,6 +10,9 @@ import { Popover } from "react-aria-components/Popover";
 import { Modal, ModalOverlay } from "react-aria-components/Modal";
 import EnquiryIcon from "./enquiry-icon";
 import EnquiryChoice from "./enquiry-choice";
+import EnquiryAssistant from "./enquiry-assistant";
+import EnquiryQuote from "./enquiry-quote";
+import type { EnquiryAIOutput } from "@/lib/enquiry-ai-output";
 import { EnquiryRoutingEditor, EnquiryDraftEditor } from "./enquiry-editors";
 import { simulatedEnquiryInputSchema } from "@/lib/enquiry-validation";
 
@@ -37,7 +40,14 @@ type Detail = {
   processingState: string;
   draft: string | null;
   createdAt: string;
-  extracted: null;
+  extracted: EnquiryAIOutput | null;
+  routeEdited: boolean;
+  draftEdited: boolean;
+  analysisModel: string | null;
+  analysisProvider: string | null;
+  analysisFailure: string | null;
+  analysedAt: string | null;
+  pricing: { totalPaise: number; checkedAt: string; expiresAt: string } | null;
 };
 type SimPayload = {
   submissionId: string;
@@ -168,14 +178,19 @@ export default function EnquiryInbox() {
   const pending = useRef<SimPayload | null>(null);
   const [pendingPayload, setPendingPayload] = useState<SimPayload | null>(null);
   const [intakeOpen, setIntakeOpen] = useState(false);
-  const edits = useRef({
+  const [analysisEpoch, setAnalysisEpoch] = useState(0);
+  const edits = useRef<Record<string, boolean>>({
     routing: false,
     draft: false,
     routingBusy: false,
     draftBusy: false,
   });
   const canLeave = useCallback(() => {
-    if (edits.current.routingBusy || edits.current.draftBusy) {
+    if (
+      edits.current.routingBusy ||
+      edits.current.draftBusy ||
+      edits.current.analysisBusy
+    ) {
       window.alert("Wait for the enquiry save to finish before leaving.");
       return false;
     }
@@ -763,7 +778,7 @@ export default function EnquiryInbox() {
                   </span>
                 </div>
                 <EnquiryRoutingEditor
-                  key={`routing-${detail.id}`}
+                  key={`routing-${detail.id}-${analysisEpoch}`}
                   enquiry={{ ...detail, draft: detail.draft ?? "" }}
                   onDirty={(value) => {
                     edits.current.routing = value;
@@ -782,6 +797,7 @@ export default function EnquiryInbox() {
                             owner,
                             needsReview,
                             gmAttention,
+                            routeEdited: true,
                           }
                         : current,
                     );
@@ -804,7 +820,10 @@ export default function EnquiryInbox() {
                     </Tab>
                     <Tab id="assistant">
                       <EnquiryIcon name="sparkle" />
-                      Assistant<span className="ei-not-run">Not analysed</span>
+                      Assistant
+                      <span className="ei-not-run">
+                        {detail.analysedAt ? "Analysed" : "Not analysed"}
+                      </span>
                     </Tab>
                   </TabList>
                   <TabPanel id="message">
@@ -836,36 +855,37 @@ export default function EnquiryInbox() {
                     </section>
                   </TabPanel>
                   <TabPanel id="assistant" shouldForceMount>
-                    <div className="ei-assistant-heading">
-                      <div>
-                        <h3>Enquiry assistance</h3>
-                        <p>Review extracted details and prepare a reply.</p>
-                      </div>
-                      <Button
-                        className="ei-control"
-                        isDisabled
-                        aria-describedby="enquiry-ai-status"
-                      >
-                        <EnquiryIcon name="sparkle" />
-                        Analyse enquiry
-                      </Button>
-                    </div>
-                    <dl className="ei-extraction">
-                      <div>
-                        <dt>Dates</dt>
-                        <dd>Not analysed</dd>
-                      </div>
-                      <div>
-                        <dt>Guests</dt>
-                        <dd>Not analysed</dd>
-                      </div>
-                      <div>
-                        <dt>Budget</dt>
-                        <dd>Not analysed</dd>
-                      </div>
-                    </dl>
+                    <EnquiryAssistant
+                      enquiry={detail}
+                      canAnalyse={canLeave}
+                      onBusy={(value) => {
+                        edits.current.analysisBusy = value;
+                      }}
+                      onUpdated={(updated) => {
+                        const value = updated as Detail;
+                        if (value.id !== detail.id) return;
+                        edits.current.routing = false;
+                        edits.current.draft = false;
+                        setDetail(value);
+                        setRows((rows) =>
+                          rows.map((row) =>
+                            row.id === value.id
+                              ? {
+                                  ...row,
+                                  category: value.category,
+                                  owner: value.owner,
+                                  needsReview: value.needsReview,
+                                  gmAttention: value.gmAttention,
+                                  processingState: value.processingState,
+                                }
+                              : row,
+                          ),
+                        );
+                        setAnalysisEpoch((epoch) => epoch + 1);
+                      }}
+                    />
                     <EnquiryDraftEditor
-                      key={`draft-${detail.id}`}
+                      key={`draft-${detail.id}-${analysisEpoch}`}
                       enquiry={{ ...detail, draft: detail.draft ?? "" }}
                       onDirty={(value) => {
                         edits.current.draft = value;
@@ -876,14 +896,45 @@ export default function EnquiryInbox() {
                       onSaved={(changes) => {
                         setDetail((current) =>
                           current
-                            ? { ...current, draft: changes.draft }
+                            ? {
+                                ...current,
+                                draft: changes.draft,
+                                draftEdited: true,
+                              }
                             : current,
                         );
                       }}
                     />
-                    <p className="ei-preview-note" id="enquiry-ai-status">
-                      Analysis is not available yet.
-                    </p>
+                    <EnquiryQuote
+                      key={`quote-${detail.id}-${analysisEpoch}`}
+                      enquiry={detail}
+                      canQuote={canLeave}
+                      onBusy={(value) => {
+                        edits.current.analysisBusy = value;
+                      }}
+                      onUpdated={(updated) => {
+                        const value = updated as Detail;
+                        if (value.id !== detail.id) return;
+                        edits.current.routing = false;
+                        edits.current.draft = false;
+                        setDetail(value);
+                        setRows((rows) =>
+                          rows.map((row) =>
+                            row.id === value.id
+                              ? {
+                                  ...row,
+                                  category: value.category,
+                                  owner: value.owner,
+                                  needsReview: value.needsReview,
+                                  gmAttention: value.gmAttention,
+                                  processingState: value.processingState,
+                                }
+                              : row,
+                          ),
+                        );
+                        setAnalysisEpoch((epoch) => epoch + 1);
+                      }}
+                    />
                   </TabPanel>
                 </Tabs>
               </div>

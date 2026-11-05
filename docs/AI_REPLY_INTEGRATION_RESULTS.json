@@ -1,0 +1,48 @@
+{
+  "at": "2026-11-05T15:56:24.621Z",
+  "checks": {
+    "processed": true,
+    "dates": true,
+    "yearProvenance": true,
+    "email": true,
+    "amenities": true,
+    "priceSlot": true,
+    "noAgeQuestion": true,
+    "noYearQuestion": true
+  },
+  "draft": "Subject: Estate Villa Enquiry for 13-17 December\n\nHello,\n\nThank you for your interest in the Estate Villa at Aavana Estate. We would be delighted to host your stay from 13 to 17 December 2026 for three guests.\n\nFor your price, [Reservations: insert checked accommodation total, included GST and validity for Estate Villa, 13-17 Dec 2026, 3 guests]. The Estate Villa includes en-suite bathroom with hot water, Wi-Fi, ceiling fan, tea and coffee station, linen and towels, a separate living space, a sheltered terrace and a dining nook.\n\nPlease let us know if you have any other questions, and we will be happy to help you finalise your booking.\n\nWarm regards,\nReservations Team\nAavana Estate",
+  "extracted": {
+    "dates": {
+      "raw": "13th Dec to 17 Dec, checkout on 17th Dec",
+      "checkIn": "2026-12-13",
+      "checkOut": "2026-12-17",
+      "yearMissing": true
+    },
+    "draft": "Subject: Estate Villa Enquiry for 13-17 December\n\nHello,\n\nThank you for your interest in the Estate Villa at Aavana Estate. We would be delighted to host your stay from 13 to 17 December 2026 for three guests.\n\nFor your price, [Reservations: insert checked accommodation total, included GST and validity for Estate Villa, 13-17 Dec 2026, 3 guests]. The Estate Villa includes en-suite bathroom with hot water, Wi-Fi, ceiling fan, tea and coffee station, linen and towels, a separate living space, a sheltered terrace and a dining nook.\n\nPlease let us know if you have any other questions, and we will be happy to help you finalise your booking.\n\nWarm regards,\nReservations Team\nAavana Estate",
+    "budget": {
+      "max": null,
+      "min": null,
+      "raw": null,
+      "currency": null
+    },
+    "guests": {
+      "max": 3,
+      "min": 3,
+      "adults": null,
+      "children": null
+    },
+    "category": "room",
+    "uncertainties": [
+      "Staff note: year omitted; assumed 2026 from the reference date. Price requested but no live rate was supplied; accommodation total must be inserted from the checked quote."
+    ]
+  },
+  "model": "anthropic/claude-haiku-5.5",
+  "provider": "Google",
+  "usage": [
+    {
+      "outcome": "success",
+      "chargedMicro": 607
+    }
+  ],
+  "scope": "One synthetic enquiry through the integrated saved-enquiry service on the isolated branch. Enquiry removed; usage retained. Existing development drafts and production were untouched."
+}

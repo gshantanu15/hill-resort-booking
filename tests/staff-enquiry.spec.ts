@@ -15,7 +15,7 @@ function database() {
   const host = (value: string) =>
     new URL(value).hostname.replace("-pooler", "");
   expect(host(url)).toBe(
-    "ep-silent-recipe-aoebqnm6.c-2.ap-southeast-1.aws.neon.tech",
+    "ep-small-bar-aopct83h.c-2.ap-southeast-1.aws.neon.tech",
   );
   expect(host(url)).toBe(host(process.env.DATABASE_URL!));
   for (const file of [".env.local", ".env.demo.local"])
@@ -271,6 +271,7 @@ test("authenticated nonstaff cannot read or create staff enquiries", async ({
       ).ok(),
     ).toBe(true);
     expect((await request.get("/api/staff/enquiries")).status()).toBe(403);
+    expect((await request.get("/api/staff/ai")).status()).toBe(403);
     expect(
       (
         await request.patch(`/api/staff/enquiries/${randomUUID()}`, {
@@ -285,6 +286,22 @@ test("authenticated nonstaff cannot read or create staff enquiries", async ({
     expect(
       (
         await request.post("/api/staff/enquiries", {
+          headers: { origin: baseURL! },
+          data: {},
+        })
+      ).status(),
+    ).toBe(403);
+    expect(
+      (
+        await request.post(`/api/staff/enquiries/${randomUUID()}/analyse`, {
+          headers: { origin: baseURL! },
+          data: {},
+        })
+      ).status(),
+    ).toBe(403);
+    expect(
+      (
+        await request.post(`/api/staff/enquiries/${randomUUID()}/quote`, {
           headers: { origin: baseURL! },
           data: {},
         })
@@ -484,6 +501,217 @@ test("staff corrects routing and saves unsent drafts with safe conflict recovery
     ).toBe(true);
     await page.screenshot({
       path: info.outputPath("manual-routing-draft.png"),
+      fullPage: true,
+    });
+  } finally {
+    await db`delete from enquiries where contact_email=${email}`;
+    await db.end();
+  }
+});
+
+test("staff reviews saved AI assistance, protects drafts and inserts an authoritative room quote", async ({
+  page,
+  request,
+  baseURL,
+}, info) => {
+  const db = database();
+  const email = randomUUID() + "@example.test";
+  const name = "Assistance " + randomUUID().slice(0, 8);
+  let analysisCalls = 0;
+  const extracted = {
+    category: "offsite",
+    dates: {
+      checkIn: null,
+      checkOut: null,
+      raw: "mid-December",
+      yearMissing: true,
+    },
+    guests: { adults: null, children: null, min: 35, max: 45 },
+    budget: { min: null, max: null, currency: null, raw: null },
+    uncertainties: ["Confirm the year and exact dates."],
+    draft: "Please confirm the year and event requirements.",
+  };
+  try {
+    const created = await request.post("/api/enquiries", {
+      data: {
+        submissionId: randomUUID(),
+        contact: { name, email },
+        message: "Corporate offsite for 35-45 guests in mid-December.",
+      },
+    });
+    expect(created.status()).toBe(201);
+    const id = (await created.json()).reference;
+    const endpoint = "/api/staff/enquiries/" + id;
+    expect(
+      (await request.post(endpoint + "/analyse", { data: {} })).status(),
+    ).toBe(401);
+    expect(
+      (await request.post(endpoint + "/quote", { data: {} })).status(),
+    ).toBe(401);
+    expect((await request.get("/api/staff/ai")).status()).toBe(401);
+    expect(
+      (
+        await page.request.post("/api/auth/sign-in/email", {
+          headers: { origin: baseURL! },
+          data: { email: DEMO_STAFF_EMAIL, password: DEMO_STAFF_PASSWORD },
+        })
+      ).ok(),
+    ).toBe(true);
+    expect(
+      (
+        await page.request.post(endpoint + "/analyse", {
+          headers: { origin: "https://untrusted.example" },
+          data: {},
+        })
+      ).status(),
+    ).toBe(403);
+    expect(
+      (
+        await page.request.post(endpoint + "/quote", {
+          headers: { origin: "https://untrusted.example" },
+          data: {},
+        })
+      ).status(),
+    ).toBe(403);
+    await page.route("**/api/staff/ai", (route) =>
+      route.fulfill({
+        json: {
+          enabled: true,
+          reason: null,
+          requestsUsed: 0,
+          dailyRequestLimit: 100,
+          dailyReservedUsd: 0,
+          dailyBudgetUsd: 1,
+        },
+      }),
+    );
+    await page.route(
+      "**/api/staff/enquiries/" + id + "/analyse",
+      async (route) => {
+        analysisCalls++;
+        const input = route.request().postDataJSON();
+        const [existing] =
+          await db`select draft,draft_edited from enquiries where id=${id}`;
+        const draft =
+          existing.draft_edited && !input.replaceDraft
+            ? existing.draft
+            : extracted.draft + "\n\n[Sales-approved quote]";
+        await db`update enquiries set extracted=${db.json(extracted)},category='offsite',owner='sales',processing_state='processed',analysis_model='anthropic/claude-haiku-5.5',analysis_provider='synthetic-browser-test',analysed_at=now(),draft=${draft},draft_edited=${existing.draft_edited && !input.replaceDraft},needs_review=true,gm_attention=false where id=${id}`;
+        const saved = await page.request.get(endpoint);
+        await route.fulfill({ json: await saved.json() });
+      },
+    );
+    await page.goto("/staff/enquiries");
+    await page
+      .getByRole("button", { name: "Open enquiry from " + name, exact: true })
+      .click();
+    await page.getByRole("tab", { name: /Assistant/ }).click();
+    const assistant = page.getByRole("region", {
+      name: "AI assistance",
+      exact: true,
+    });
+    const draft = page.getByRole("textbox", {
+      name: "Draft reply",
+      exact: true,
+    });
+    await assistant
+      .getByRole("button", { name: "Analyse enquiry", exact: true })
+      .click();
+    await expect(assistant.getByRole("status")).toContainText("Analysis saved");
+    await expect(assistant).toContainText("35–45 guests");
+    await expect(assistant).toContainText("year omitted by guest");
+    await expect(draft).toContainText("[Sales-approved quote]");
+    await draft.fill(
+      "Sales will prepare a proposal.\n\n[Sales-approved quote]",
+    );
+    await page.getByRole("button", { name: "Save draft", exact: true }).click();
+    await expect(
+      page
+        .getByRole("region", { name: "Draft reply", exact: true })
+        .getByRole("status"),
+    ).toContainText("Draft saved");
+    await expect(
+      assistant.getByRole("checkbox", {
+        name: "Replace saved draft",
+        exact: true,
+      }),
+    ).toBeVisible();
+    await assistant
+      .getByRole("button", { name: "Analyse enquiry", exact: true })
+      .click();
+    await expect(assistant.getByRole("status")).toContainText("Analysis saved");
+    await expect(draft).toHaveValue(
+      "Sales will prepare a proposal.\n\n[Sales-approved quote]",
+    );
+    expect(analysisCalls).toBe(2);
+    await page.locator(".ei-quote > summary").click();
+    const quote = page.locator(".ei-quote");
+    await quote.getByLabel("Check-in", { exact: true }).fill("2026-11-20");
+    await quote.getByLabel("Check-out", { exact: true }).fill("2026-11-22");
+    await quote
+      .getByRole("combobox", { name: "Room type", exact: true })
+      .selectOption("garden-room");
+    await quote.getByLabel("Adults", { exact: true }).fill("2");
+    await quote.getByLabel("Children", { exact: true }).fill("0");
+    const selection = {
+      checkIn: "2026-11-20",
+      checkOut: "2026-11-22",
+      adults: 2,
+      children: 0,
+      items: [
+        { roomTypeId: "garden-room", quantity: 1, adults: 2, children: 0 },
+      ],
+    };
+    const authoritative = await page.request.post("/api/quotes", {
+      headers: { origin: baseURL! },
+      data: selection,
+    });
+    expect(authoritative.status()).toBe(200);
+    const price = (await authoritative.json()).totalPaise;
+    await quote
+      .getByRole("button", { name: "Insert room quote", exact: true })
+      .click();
+    await expect(draft).toContainText("[Accommodation quote]");
+    await expect(draft).toContainText("[Sales-approved quote]");
+    const saved = await page.request.get(endpoint);
+    expect((await saved.json()).enquiry.pricing.totalPaise).toBe(price);
+    await page.reload();
+    await page
+      .getByRole("button", { name: "Open enquiry from " + name, exact: true })
+      .click();
+    await page.getByRole("tab", { name: /Assistant/ }).click();
+    await expect(draft).toContainText("[Accommodation quote]");
+    await expect(draft).toContainText("[Sales-approved quote]");
+    await page.unroute("**/api/staff/enquiries/" + id + "/analyse");
+    await page.route("**/api/staff/enquiries/" + id + "/analyse", (route) =>
+      route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: JSON.stringify({
+          error:
+            "AI assistance could not be completed. Your enquiry and saved edits are safe.",
+        }),
+      }),
+    );
+    await page
+      .getByRole("button", { name: "Analyse enquiry", exact: true })
+      .click();
+    await expect(assistant.getByRole("status")).toContainText(
+      "The enquiry remains available for manual review.",
+    );
+    await expect(
+      assistant.getByRole("button", { name: "Analyse enquiry", exact: true }),
+    ).toBeEnabled();
+    await expect(draft).toContainText("[Accommodation quote]");
+    await expect(draft).toContainText("[Sales-approved quote]");
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.screenshot({
+      path: info.outputPath("assistant-and-room-quote.png"),
       fullPage: true,
     });
   } finally {

@@ -4,6 +4,7 @@ import {
   date,
   foreignKey,
   integer,
+  jsonb,
   index,
   pgTable,
   primaryKey,
@@ -13,6 +14,8 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
+import type { EnquiryAIOutput } from "../lib/enquiry-ai-output";
+import type { BookingSelection } from "../lib/booking-validation";
 export * from "./auth-schema";
 export const enquiries = pgTable(
   "enquiries",
@@ -31,6 +34,28 @@ export const enquiries = pgTable(
     gmAttention: boolean("gm_attention").notNull().default(true),
     processingState: text("processing_state").notNull().default("unprocessed"),
     draft: text("draft").notNull().default(""),
+    routeEdited: boolean("route_edited").notNull().default(false),
+    draftEdited: boolean("draft_edited").notNull().default(false),
+    routeRevision: integer("route_revision").notNull().default(0),
+    draftRevision: integer("draft_revision").notNull().default(0),
+    extracted: jsonb("extracted").$type<EnquiryAIOutput>(),
+    analysisToken: uuid("analysis_token"),
+    analysisStartedAt: timestamp("analysis_started_at", { withTimezone: true }),
+    analysedAt: timestamp("analysed_at", { withTimezone: true }),
+    analysisModel: text("analysis_model"),
+    analysisProvider: text("analysis_provider"),
+    analysisFailure: text("analysis_failure"),
+    pricing: jsonb("pricing").$type<{
+      totalPaise: number;
+      subtotalPaise: number;
+      taxPaise: number;
+      checkedAt: string;
+      expiresAt: string;
+      selection: BookingSelection;
+      fingerprint: string;
+      resultingDraft: string;
+      block: string;
+    }>(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -53,6 +78,39 @@ export const enquiries = pgTable(
     check(
       "enquiry_owner_valid",
       sql`${t.owner} IS NULL OR ${t.owner} IN ('reservations','sales','gm')`,
+    ),
+  ],
+);
+export const aiControls = pgTable("enquiry_ai_controls", {
+  id: text("id").primaryKey(),
+  enabled: boolean("enabled").notNull().default(false),
+  dailyRequestLimit: integer("daily_request_limit").notNull().default(100),
+  dailyBudgetMicro: integer("daily_budget_micro").notNull().default(1000000),
+  lifetimeBudgetMicro: integer("lifetime_budget_micro")
+    .notNull()
+    .default(5000000),
+});
+export const aiUsage = pgTable(
+  "enquiry_ai_usage",
+  {
+    id: uuid("id").primaryKey(),
+    enquiryId: uuid("enquiry_id").references(() => enquiries.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    reservedMicro: integer("reserved_micro").notNull().default(50000),
+    chargedMicro: integer("charged_micro"),
+    outcome: text("outcome").notNull().default("processing"),
+    model: text("model").notNull(),
+    provider: text("provider"),
+  },
+  (t) => [
+    index("enquiry_ai_usage_created_idx").on(t.createdAt),
+    check(
+      "enquiry_ai_usage_nonnegative",
+      sql`${t.reservedMicro} >= 0 AND (${t.chargedMicro} IS NULL OR ${t.chargedMicro} >= 0)`,
     ),
   ],
 );

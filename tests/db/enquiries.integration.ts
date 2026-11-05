@@ -17,8 +17,7 @@ if (!url)
 const parsedUrl = new URL(url);
 if (parsedUrl.hostname.includes("-pooler"))
   throw new Error("TEST_DATABASE_URL must use a direct connection.");
-const allowedHost =
-  "ep-silent-recipe-aoebqnm6.c-2.ap-southeast-1.aws.neon.tech";
+const allowedHost = "ep-small-bar-aopct83h.c-2.ap-southeast-1.aws.neon.tech";
 if (parsedUrl.hostname !== allowedHost)
   throw new Error(
     `This suite requires the isolated enquiry test branch (${allowedHost}).`,

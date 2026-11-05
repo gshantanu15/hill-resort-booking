@@ -1,6 +1,6 @@
 # AI operations and trial control
 
-This guide describes the approved, manually controlled OpenRouter trial for the enquiry demo. It does not activate AI in the application. Day 4 milestone 6 application integration follows the separate configuration gate; the application runtime kill flag and persistent daily budget described below remain proposed future work.
+This guide describes the approved, manually controlled OpenRouter trial and the implemented local Day 4 application controls. Analyse remains staff-triggered and is owner-approved locally; migration 0009 is applied to normal development and isolated tests; production is untouched.
 
 ## Approved trial boundary
 
@@ -21,7 +21,7 @@ npm run ai:trial -- --resume     # explicitly clear the local stop; does not spe
 npm run ai:trial -- --status     # local status only; no provider call
 ```
 
-The local stop affects this standalone trial runner only, on this checkout. It does not pause another host or the future application. The local stop is a convenience control, not a provider-side cancellation mechanism. Disabling a key blocks future calls; it cannot cancel or refund an accepted request.
+The local stop affects this standalone trial runner only, on this checkout. It does not pause another host or the application. The local stop is a convenience control, not a provider-side cancellation mechanism. Disabling a key blocks future calls; it cannot cancel or refund an accepted request.
 
 ## Safe setup
 
@@ -33,7 +33,15 @@ The local stop affects this standalone trial runner only, on this checkout. It d
 
 If a process crashes, its empty `private/ai-trial/running.lock` directory intentionally blocks new batches. Verify the old runner is no longer running before removing only that empty lock. Preserve ledger.json and every unconfirmed reservation. A damaged ledger fails closed.
 
-## External off-switch
+## Application control and external off-switch
+
+```powershell
+$env:ENV_FILE='.env.local'; npm run ai:control -- status
+$env:ENV_FILE='.env.local'; npm run ai:control -- disable
+$env:ENV_FILE='.env.local'; npm run ai:control -- enable
+```
+
+The application requires `AI_INFERENCE_ENABLED=true` after restart. Its database disable flag is checked immediately before reservation/call, fails closed when missing or unavailable, and is intended to take effect within one second.
 
 In the OpenRouter console, update the project key to `disabled: true` using the documented [API-key update operation](https://openrouter.ai/docs/api/api-reference/api-keys/update-an-api-key), or disable it in the console. This is reversible. Delete or rotate the key if it may have been exposed; that requires replacing it in a future deployment. The application must never contain an OpenRouter management key.
 
@@ -51,12 +59,14 @@ The off-switch blocks future calls but does not guarantee cancellation or refund
 | Malformed, truncated or empty output | Stop and preserve the case; do not infer missing details.                                       |
 | Unexpected provider details          | Stop, record only a safe error category, and preserve the enquiry/edits.                        |
 
-No provider error should lose an enquiry or overwrite staff edits. The future application integration must retain the same manual-review boundary.
+No provider error should lose an enquiry or overwrite staff edits. The implemented application retains this manual-review boundary.
 
-Verification: 73 unit tests pass, including 19 trial safety/file-lock/error cases. Dry-run, stop, status, disabled-run and resume were exercised. The initial unfunded preflight stopped before inference. After the owner funded credits, evaluation completed with 25 calls costing $0.0096023. See [results and proposed configuration](AI_MODEL_DECISION.md). A local file-replacement failure was repaired without discarding reservations or introducing provider retries; Windows file replacements now have bounded local-only retries.
+Historical Milestone 5 verification: 73 unit tests passed, including 19 trial safety/file-lock/error cases. Dry-run, stop, status, disabled-run and resume were exercised. The initial unfunded preflight stopped before inference. After the owner funded credits, evaluation completed with 25 calls costing $0.0096023. See [results and proposed configuration](AI_MODEL_DECISION.md). A local file-replacement failure was repaired without discarding reservations or introducing provider retries; Windows file replacements now have bounded local-only retries.
 
-## Future application controls
+## Application controls
 
-Day 4 milestone 6 application integration has not started. A runtime database kill flag defaulting off, fail-closed environment handling, and a persistent daily application budget of $1 or 100 calls are approved at the final configuration gate. They are not implemented by this guide and must be implemented and tested before the staff Analyse action is enabled. Keep the existing $5 lifetime project-key cap unless the owner separately raises it; a daily allowance must not silently replace that total cap. The database kill flag must be read immediately before reserving/calling; a missing flag or unavailable database means no provider call. Provider failures must preserve original enquiries, manual category/owner corrections and saved drafts. Intake success depends only on persistence, never on AI.
+Milestone 6 controls are implemented locally: fail-closed runtime/database gates, a persistent daily allowance of $1 or 100 calls, monotonic $5 ledger, conservative $0.05 reservation and unchanged provider $5 lifetime cap. The database flag is read immediately before reserving/calling; missing or unavailable controls mean no provider call. Provider failures preserve original enquiries, manual category/owner corrections and saved drafts. Intake success depends only on persistence, never on AI. Migration 0009 is applied to normal development and the isolated test branch.
 
 References: [OpenRouter credits](https://openrouter.ai/settings/credits), [API keys](https://openrouter.ai/settings/keys), [create a new key](https://openrouter.ai/docs/api/api-reference/api-keys/create-a-new-api-key), [disable/update a key](https://openrouter.ai/docs/api/api-reference/api-keys/update-an-api-key), [pricing](https://openrouter.ai/pricing), and the verified Haiku 5.5 rate of $0.10/M input and $0.50/M output tokens as of November 5, 2026.
+
+Milestone 6 application status: owner-approved and implemented locally. Analyse remains staff-triggered; the application controls are 100 requests/$1 per day, a monotonic $5 ledger and conservative $0.05 reservation per call, in addition to the provider key's $5 lifetime cap. The CLI pause control and provider-console key disable remain separate. Migration 0009 is applied to normal development and isolated tests; production is untouched.

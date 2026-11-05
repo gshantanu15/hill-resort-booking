@@ -1,0 +1,203 @@
+{
+  "referenceDate": "2026-11-05",
+  "prompt": "candidate-v4",
+  "cases": [
+    {
+      "id": "wedding",
+      "input": "Venue for my sister's wedding in Feb 2027, about 250 guests, 2 nights. What could you offer us?",
+      "output": {
+        "category": "wedding",
+        "dates": {
+          "checkIn": null,
+          "checkOut": null,
+          "raw": "Feb 2027",
+          "yearMissing": false
+        },
+        "guests": {
+          "adults": null,
+          "children": null,
+          "min": 250,
+          "max": 250
+        },
+        "budget": {
+          "min": null,
+          "max": null,
+          "currency": null,
+          "raw": null
+        },
+        "uncertainties": [
+          "STAFF: Wedding enquiry for about 250 guests, 2 nights, Feb 2027; exact dates not given. Confirm lawn suitability and capacity for 250 guests before quoting. Accommodation for 250 guests needs a room plan (rooms hold 2 to 4 guests each). No approved package, catering or event equipment facts supplied."
+        ],
+        "draft": "Subject: Wedding Venue Enquiry at Aavana Estate, February 2027\n\nHello,\n\nThank you for thinking of Aavana Estate for your sister's wedding. We would be delighted to help you plan a celebration in February 2027 for around 250 guests with a two-night stay.\n\nOur coffee estate in Chikkamagaluru offers lawns as an event option, and our accommodation includes estate rooms, garden rooms and estate villas, each with an en-suite bathroom, Wi-Fi, hot water and a tea and coffee station. Here is a proposal we can tailor for you:\n\n- Event venue: [Sales: confirm suitable lawn or venue and capacity for about 250 guests]\n- Accommodation: [Sales: add room plan for the stated stay and group]\n- Inclusions: [Sales: specify catering, setup and any meeting arrangements, and verify requested facilities]\n- Quote: [Sales-approved quote]\n\nIf you can share your preferred dates or a week in February 2027, we will check suitability and send you a detailed proposal.\n\nWarm regards,\nSales Team\nAavana Estate"
+      },
+      "checks": {
+        "category": true,
+        "emailFormat": true,
+        "priceFree": true,
+        "noBudgetQuestion": true,
+        "atMostTwoQuestions": true,
+        "noAgeSplitQuestion": true,
+        "salesScaffold": true,
+        "quoteBeforeSignature": true
+      },
+      "passed": true,
+      "model": "anthropic/claude-haiku-5.5",
+      "provider": "Anthropic",
+      "costUsd": 0.0006663,
+      "latencyMs": 3183
+    },
+    {
+      "id": "amenities",
+      "input": "Does the Estate Villa have Wi-Fi and a terrace? Is breakfast included, and is there a pool?",
+      "output": {
+        "category": "room",
+        "dates": {
+          "checkIn": null,
+          "checkOut": null,
+          "raw": null,
+          "yearMissing": false
+        },
+        "guests": {
+          "adults": null,
+          "children": null,
+          "min": null,
+          "max": null
+        },
+        "budget": {
+          "min": null,
+          "max": null,
+          "currency": null,
+          "raw": null
+        },
+        "uncertainties": [
+          "STAFF: Guest asks about breakfast inclusion and pool; no approved facts supplied for either. Insert verified details in bracketed slots before sending.",
+          "STAFF: Villa Wi-Fi and sheltered terrace confirmed by PROPERTY FACTS."
+        ],
+        "draft": "Subject: Estate Villa Amenities at Aavana Estate\n\nHello,\n\nThank you for your enquiry. Yes, the Estate Villa includes Wi-Fi and a sheltered terrace. It also offers an en-suite bathroom with hot water, a separate living space, a dining nook, a ceiling fan, a tea and coffee station, and linen and towels.\n\nRegarding breakfast and the pool, [Reservations: insert verified breakfast/meal inclusion details here] and [Reservations: insert verified pool availability and details here]. Please let us know if you would like us to check a specific stay for you.\n\nWarm regards,\nReservations Team\nAavana Estate"
+      },
+      "checks": {
+        "category": true,
+        "emailFormat": true,
+        "priceFree": true,
+        "noBudgetQuestion": true,
+        "atMostTwoQuestions": true,
+        "noAgeSplitQuestion": true,
+        "answersKnownFacts": true,
+        "unknownFeaturesNeedStaff": true,
+        "noQuestions": true
+      },
+      "passed": true,
+      "model": "anthropic/claude-haiku-5.5",
+      "provider": "Azure",
+      "costUsd": 0.0005697,
+      "latencyMs": 2660
+    },
+    {
+      "id": "offsite",
+      "input": "We are planning a corporate offsite for 35-45 people in mid-December, one night with an evening event on the first day. Could you share the costs and availability?",
+      "output": {
+        "category": "offsite",
+        "dates": {
+          "checkIn": null,
+          "checkOut": null,
+          "raw": "mid-December, one night",
+          "yearMissing": true
+        },
+        "guests": {
+          "adults": null,
+          "children": null,
+          "min": 35,
+          "max": 45
+        },
+        "budget": {
+          "min": null,
+          "max": null,
+          "currency": null,
+          "raw": null
+        },
+        "uncertainties": [
+          "Year assumed as 2026 from reference date; staff note only.",
+          "Exact check-in/checkout dates not given; mid-December is a vague window, so no ISO dates were set.",
+          "Evening event capacity, suitable lawn/venue and Sales-approved package not verified.",
+          "Accommodation for 35-45 guests needs a room plan from Sales; room capacities are 2 (Estate room), 3 (Garden room), 4 (Estate villa).",
+          "Live availability and checked pricing require exact dates and a Sales/Reservations quote; no prices given in draft."
+        ],
+        "draft": "Subject: Corporate Offsite Enquiry - Mid-December Evening Event\n\nHello,\n\nThank you for considering Aavana Estate for your corporate offsite. Our estate is a coffee-estate resort in Chikkamagaluru with lawns that guests may use for offsites and evening gatherings. Accommodation includes en-suite rooms with hot water, Wi-Fi, tea and coffee stations, and linen and towels, with options ranging from our Estate room to the Estate villa with a sheltered terrace and dining nook.\n\nWe would be glad to put together a proposal for your group of 35-45 people, covering a one-night stay in mid-December with an evening event on the first day:\n\n- Event/venue option: [Sales: confirm suitable lawn or venue and capacity for an evening event of this size]\n- Accommodation: [Sales: add room plan for 35-45 guests across the Estate room, Garden room and Estate villa]\n- Inclusions: [Sales: specify catering, setup and meeting arrangements and verify requested facilities]\n- [Sales-approved quote]\n\nThe event and accommodation arrangements are subject to our Sales Team confirming suitability, capacity and availability for your chosen dates. If you can share a preferred specific date or week in mid-December, we will check and come back to you with the proposal.\n\nWarm regards,\nSales Team\nAavana Estate"
+      },
+      "checks": {
+        "category": true,
+        "emailFormat": true,
+        "priceFree": true,
+        "noBudgetQuestion": true,
+        "atMostTwoQuestions": true,
+        "noAgeSplitQuestion": true,
+        "range": true,
+        "vagueDatesPreserved": true,
+        "salesScaffold": true,
+        "quoteBeforeSignature": true
+      },
+      "passed": true,
+      "model": "anthropic/claude-haiku-5.5",
+      "provider": "Azure",
+      "costUsd": 0.0007557,
+      "latencyMs": 4528
+    },
+    {
+      "id": "jonah-villa",
+      "input": "I am interested in booking the Estate Villa, for 3 persons, for the nights of 13th Dec to 17 Dec, checkout on 17th Dec. What would be the approximate price? What amenities does the stay include? Thanks!",
+      "output": {
+        "category": "room",
+        "dates": {
+          "checkIn": "2026-12-13",
+          "checkOut": "2026-12-17",
+          "raw": "13th Dec to 17 Dec, checkout on 17th Dec",
+          "yearMissing": true
+        },
+        "guests": {
+          "adults": null,
+          "children": null,
+          "min": 3,
+          "max": 3
+        },
+        "budget": {
+          "min": null,
+          "max": null,
+          "currency": null,
+          "raw": null
+        },
+        "uncertainties": [
+          "Staff note: year assumed as 2026 from the reference date since the guest omitted it; no need to ask the guest to reconfirm.",
+          "Staff note: guest asked for an approximate price; insert the checked accommodation total for Estate Villa, 3 guests, 13-17 Dec 2026, including GST and validity."
+        ],
+        "draft": "Subject: Estate Villa Enquiry for 13-17 December\n\nHello,\n\nThank you for your interest in staying with us at Aavana Estate. The Estate Villa is a good fit for a party of three, with a separate living space, a sheltered terrace and a dining nook, and it sleeps up to four.\n\nThe villa includes en-suite bathroom, hot water, Wi-Fi, ceiling fan, tea and coffee station, linen and towels, separate living space, sheltered terrace and dining nook.\n\n[Reservations: insert checked accommodation total, included GST and validity for Estate Villa, 3 guests, check-in 13 Dec 2026, check-out 17 Dec 2026 (4 nights).]\n\nPlease let us know if you would like us to proceed with a reservation for these dates.\n\nWarm regards,\nReservations Team\nAavana Estate"
+      },
+      "checks": {
+        "category": true,
+        "emailFormat": true,
+        "priceFree": true,
+        "noBudgetQuestion": true,
+        "atMostTwoQuestions": true,
+        "noAgeSplitQuestion": true,
+        "currentYear": true,
+        "amenitiesAnswered": true,
+        "noQuestions": true,
+        "priceSlot": true
+      },
+      "passed": true,
+      "model": "anthropic/claude-haiku-5.5",
+      "provider": "Azure",
+      "costUsd": 0.0006433,
+      "latencyMs": 4413
+    }
+  ],
+  "status": "Historical candidate evaluation, subsequently owner-approved and integrated into local Milestone 6. See AI_REPLY_INTEGRATION_RESULTS.json.",
+  "method": "Eight explicit paid calls across four synthetic cases. Focused Jonah repeats removed year-confirmation wording and irrelevant staff notes; the latter came from listing absent amenities in the context. Offsite was repeated after manual review caught implied capacity confirmation. Jonah uses the final positive-only facts block; the other retained outputs precede that last context-only change. No automatic retries or full regression suite.",
+  "paidCalls": 8,
+  "costUsd": 0.0052102,
+  "limitations": [
+    "Small synthetic sample, not a general reliability claim.",
+    "Some model drafts repeat amenity wording or add an unnecessary closing invitation. Staff editing remains necessary; the final Jonah notes no longer ask for unrelated facilities.",
+    "Integration now aligns the date validator with the current-year policy; exact quote/booking validation remains separate.",
+    "Existing quote/booking validation stays separate; no prices, stock holds or bookings were generated."
+  ]
+}

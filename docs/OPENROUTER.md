@@ -1,37 +1,28 @@
-# OpenRouter demo configuration
+# OpenRouter enquiry assistance
 
-Verified November 2, 2026 after all four live sample classifications passed.
+Milestone 5's paid configuration is owner-approved. Milestone 6 implements it locally and is owner-approved; production is unchanged. See [model decision](AI_MODEL_DECISION.md), [evaluation results](AI_EVALUATION_RESULTS.json) and [operator controls](AI_OPERATIONS.md).
 
-November 5 milestone 5: the owner approved milestone 4 (commit `dee1070`) and authorized paid-model research. The running free configuration below is unchanged. See [current research and trial decision](AI_MODEL_RESEARCH.md) and [synthetic evaluation corpus](AI_EVALUATION_CASES.json). System One was clarified as decision models such as Jev; the owner has now selected Haiku 5.5 only with a $5 cumulative trial ceiling. The owner funded $5 and synthetic evaluation completed for $0.0096023. Final integration configuration is owner-approved; see [measured results and decision](AI_MODEL_DECISION.md). See [setup, limits and emergency stop](AI_OPERATIONS.md). Paid inference was restricted to the standalone synthetic evaluator. No hosted configuration change has occurred. `npm run ai:trial` is a separate dry-run-by-default evaluator; explicit `--run` requires funding and a $5-or-lower lifetime key limit. The application transport below remains unchanged.
+## Current application routing
 
-## Model routing
+- The only permitted model is `anthropic/claude-haiku-5.5`, pinned in server code. `OPENROUTER_ENQUIRY_MODEL`, if supplied, must match. Legacy `OPENROUTER_MODEL` and `OPENROUTER_FALLBACK_MODEL` variables are ignored by this path.
+- OpenRouter may route between providers of this same model, with required parameters, `data_collection: deny` and maximum input/output prices of $0.10/$0.50 per million tokens. There is no fallback to another model or a free pool, and no application retry loop.
+- Requests use native strict JSON schema, reasoning disabled, at most 1,500 output tokens, a 30-second deadline and a 20,000-byte serialized request ceiling. Server validation checks output again before saving it.
+- Staff explicitly selects Analyse on a saved enquiry. Original messages persist independently of AI. Omitted years default to the current Asia/Kolkata calendar year with staff provenance; vague dates and unknown adult/child splits remain unfilled. Budget is optional. Verified catalogue amenities and estate facts are supplied so replies answer questions before asking for material clarification. Application rules apply team routing; complaints retain GM attention.
+- Drafts are price-free prose. Email drafts use a subject, greeting, separated paragraphs/proposal bullets and team signature. The application keeps one `[Sales-approved quote]` slot before the event email closing. Reservations quote slots describe the known accommodation request and are replaced by authoritative quote insertion. Accommodation prices come only from the separate staff quote action using current booking rates, tax and inventory. Venue/event pricing and availability remain manual Sales work.
+- Manual routing and drafts require explicit replacement; revision checks protect edits made during inference. Nothing sends automatically.
 
-- Primary: `google/gemma-4-26b-a4b-it:free` (`OPENROUTER_MODEL`).
-- Owner-approved fallback: `dots-studio/dots-3-note-preview:free` (`OPENROUTER_FALLBACK_MODEL`).
-- Both are configured locally and on Vercel production. An empty fallback variable explicitly disables fallback for isolated diagnostics.
-- OpenRouter receives an ordered models array and handles failover within a single HTTP request. Our client does not run retry loops. Responses retain the actual serving model for verification and later staff-facing attribution.
-- Only IDs ending in `:free` are accepted. Zero-price provider routing applies to both. A paid primary or fallback is rejected before any request. A future paid switch requires updating that guard and agreeing a budget.
+## Credentials, privacy and controls
 
-## Root cause and fix
+The inference key stays in ignored environment files and server secrets. Contact columns are excluded from prompts; embedded email and explicit phone patterns are redacted. Redaction does not anonymize all personal information in free text. Use synthetic data for review. No prompt/completion or raw provider-error logging is added. `data_collection: deny` is not a zero-retention guarantee.
 
-Gemma's shared Google AI Studio pool returned HTTP 429 with `limit_source=upstream_provider_shared_pool`. Authentication was valid and the account still had its full daily allowance. This was provider-pool throttling, not an invalid key or exhausted account quota. Another Gemma endpoint also returned pool throttling; some independent free endpoints were blocked by the existing account data policy. Those policies were preserved.
+Both `AI_INFERENCE_ENABLED=true` and the database enable flag are required. Controls fail closed. Durable reservations enforce 100 requests/$1 per UTC day and a monotonic $5 lifetime application ledger. Each call reserves $0.05 before inference; reported successful costs reconcile that amount, while unknown costs retain the reservation. The provider key separately retains its $5 lifetime/no-reset cap. Do not delete ledgers to reset spending.
 
-Dots accepted the existing JSON, privacy and zero-price constraints. First it passed all four classifications in isolation; then the actual Gemma-first/fallback route passed wedding, room, offsite and complaint examples. Each routed response identified Dots as the serving model. The checklist was only checked off after that end-to-end run succeeded.
+Use `npm run ai:control -- status`, `-- disable` or `-- enable` with the intended `ENV_FILE`. Database disable is checked before the call, during execution and before results apply. Disabling the key in OpenRouter is the external stop independent of the app. Accepted requests may still incur charges. Authentication, funding and configuration failures pause the database switch; other failures remain explicit manual-review outcomes. See [operations](AI_OPERATIONS.md) for exact PowerShell commands.
 
-## Access and quotas
+`npm run ai:check` now reports configuration only and never performs inference. The standalone `ai:trial` evaluator is separate, dry-run by default and remains stopped after Milestone 5. Its local stop does not control application inference.
 
-The API key lives in ignored `.env.local` and Vercel production secrets. No key belongs in Git, browser bundles, logs or chat. Calls are server-only; no public AI endpoint is exposed in this increment. Synthetic enquiries only, with no application logging of prompt/completion contents. Routing retains `data_collection: deny`; this is not a claim of zero retention or a change to account-wide logging settings.
+Migration 0009 is applied to isolated tests and normal development. It protects all pre-existing routing/drafts and seeds AI paused. Production migration and deployment remain deferred to the final approved release.
 
-Plan for 50 free requests per UTC day and 20 per minute, shared with other account use. The daily reset is 05:30 IST. Free endpoints can still be unavailable before those limits are reached. Fallback cannot bypass OpenRouter account-wide quotas. If both models fail, return a safe error for later manual review. Retry-After is preserved, and the client timeout is 45 seconds for the entire routed request.
+## Historical free-model investigation
 
-Before exposing AI actions in day four, enforce durable request limits across Vercel instances. A local memory counter is insufficient. Native provider fallback handles upstream errors; invalid JSON, truncated output and failed domain validation remain manual-review failures, not reasons for an application retry loop.
-
-## Output and verification
-
-Gemma supports JSON mode without native JSON-schema enforcement. The request includes the expected schema in the system prompt; the transport parses JSON and returns `{ data, model }`. Callers must validate data against their Zod domain schema. The setup command validates categories. Full extraction, uncertainty and reply drafting remain day-four work.
-
-`npm run ai:check` explicitly checks authentication and four synthetic classifications. It is not part of automated CI and stops on the first failure. Automated tests cover free-only routing, fallback order, model attribution, provider/shared-pool throttling, malformed output, missing credentials and paid-model rejection.
-
-The fallback is a preview: OpenRouter lists its removal date as December 31, 2026. Re-evaluate before extending this demo beyond the six-day build.
-
-References: [Gemma](https://openrouter.ai/google/gemma-4-26b-a4b-it:free), [Dots](https://openrouter.ai/dots-studio/dots-3-note-preview:free), [model fallback routing](https://openrouter.ai/docs/guides/routing/model-fallbacks), [limits](https://openrouter.ai/docs/api/reference/limits).
+The November 2 standalone Gemma-first/Dots-fallback experiment passed four categories after Gemma's shared pool returned upstream 429s. That free-only transport, zero-price guard and 45-second timeout have been replaced locally by the approved paid path above. Hosted legacy environment values have not been changed; they do not authorize a production rollout.
