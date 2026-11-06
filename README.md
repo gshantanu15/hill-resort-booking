@@ -4,7 +4,7 @@ A six-day build of a reviewable resort direct-booking demo. It covers mixed room
 
 ## Current status
 
-**November 6: Day 5 implementation and validation are ready for review on a feature branch; production approval is pending.** Days 1–4 are deployed. Earlier milestone notes below are historical. See [reviewer walkthrough and reset operations](docs/DAY_5_OPERATIONS.md) for the current Day 5 workflow.
+**November 6: Day 5 is complete and deployed.** The approved release passed CI, 32 staged and 32 public production smoke checks; existing business data and AI settings are unchanged. See [release evidence](docs/DAY_5_EVIDENCE.md) and [reviewer walkthrough/reset operations](docs/DAY_5_OPERATIONS.md). Main-branch Git auto-deployment is disabled; production releases use verified staging and explicit CLI promotion. Earlier milestone notes below are historical.
 
 Resort booking demo: https://hill-resort-booking.vercel.app . Neon development/demo branches are configured. GitHub is linked for deployments from main. The local staff inbox now uses owner-approved Haiku 5.5 assistance and has owner approval for Milestone 6; the Day 4 release is live. The owner-approved design system is saved in [DESIGN.md](DESIGN.md) and guides future screens. See [docs/MASTER_PLAN.md](docs/MASTER_PLAN.md) for the acceptance checklist, [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) for the public scope, and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the locked decisions.
 
