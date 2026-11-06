@@ -1,6 +1,6 @@
 # OpenRouter enquiry assistance
 
-Milestone 5's paid configuration is owner-approved. Milestone 6 implements it locally and is owner-approved; production is unchanged. See [model decision](AI_MODEL_DECISION.md), [evaluation results](AI_EVALUATION_RESULTS.json) and [operator controls](AI_OPERATIONS.md).
+Milestone 5's paid configuration is owner-approved. Milestone 6 implements it locally and is owner-approved; production release is verified. See [model decision](AI_MODEL_DECISION.md), [evaluation results](AI_EVALUATION_RESULTS.json) and [operator controls](AI_OPERATIONS.md).
 
 ## Current application routing
 
@@ -21,7 +21,7 @@ Use `npm run ai:control -- status`, `-- disable` or `-- enable` with the intende
 
 `npm run ai:check` now reports configuration only and never performs inference. The standalone `ai:trial` evaluator is separate, dry-run by default and remains stopped after Milestone 5. Its local stop does not control application inference.
 
-Migration 0009 is applied to isolated tests and normal development. It protects all pre-existing routing/drafts and seeds AI paused. Production migration and deployment remain deferred to the final approved release.
+Migration 0009 is applied to isolated tests and normal development. It protects all pre-existing routing/drafts and seeds AI paused. Production migration and deployment are complete after final approval.
 
 ## Historical free-model investigation
 

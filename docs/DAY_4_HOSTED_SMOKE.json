@@ -1,0 +1,67 @@
+{
+  "at": "2026-11-06T02:04:40.385Z",
+  "base": "https://hill-resort-booking.vercel.app",
+  "checks": [
+    "public enquiry page",
+    "anonymous inbox protected",
+    "anonymous AI protected",
+    "public retrieval blocked",
+    "staff login",
+    "website persists",
+    "email persists",
+    "whatsapp persists",
+    "paused analysis fails safely",
+    "paused enquiry retained",
+    "AI gates and limits active",
+    "website analysis succeeds",
+    "category room",
+    "unsent email draft 0",
+    "model attribution 0",
+    "email analysis succeeds",
+    "category wedding",
+    "unsent email draft 1",
+    "model attribution 1",
+    "event quote slot",
+    "whatsapp analysis succeeds",
+    "category complaint",
+    "unsent email draft 2",
+    "model attribution 2",
+    "complaint GM attention",
+    "authoritative quote",
+    "room quote inserted",
+    "staff draft saved",
+    "draft survives refresh",
+    "origin mutation protected",
+    "three sources visible",
+    "no overflow desktop",
+    "no overflow mobile"
+  ],
+  "analyses": [
+    {
+      "source": "website",
+      "category": "room",
+      "owner": "reservations",
+      "model": "anthropic/claude-haiku-5.5",
+      "provider": "Azure"
+    },
+    {
+      "source": "email",
+      "category": "wedding",
+      "owner": "sales",
+      "model": "anthropic/claude-haiku-5.5",
+      "provider": "Google"
+    },
+    {
+      "source": "whatsapp",
+      "category": "complaint",
+      "owner": "gm",
+      "model": "anthropic/claude-haiku-5.5",
+      "provider": "Anthropic"
+    }
+  ],
+  "complete": true,
+  "releaseCommit": "172b57b",
+  "deploymentId": "dpl_FxX1XtiDCuFUuLYn1UYCb4VMhJsG",
+  "bookingWrites": 0,
+  "fixtureCleanup": "Only the three generated enquiry IDs were deleted; durable usage rows retained."
+}

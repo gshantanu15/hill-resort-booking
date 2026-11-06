@@ -1,6 +1,6 @@
 # Day 4 release and reviewer handoff
 
-Status: Day 4 feature work is complete locally. Milestones 1–6 are owner-approved. Milestone 7 local validation is complete; production release is pending the required separate approval. Day 4 hosted release is not complete.
+Status: **Day 4 complete.** Milestones 1–7 are approved and complete, including production migration, deployment and hosted synthetic smoke verification after the owner supplied final production approval.
 
 ## Reviewer workflow
 
@@ -25,7 +25,7 @@ Status: Day 4 feature work is complete locally. Milestones 1–6 are owner-appro
 
 - Migrations `0008_enquiry_intake` and `0009_enquiry_ai_controls` are applied to normal development and the isolated test branch.
 - Migration 0009 verification preserved existing booking, inventory, rate, room, rate-plan and enquiry data; existing enquiries require explicit staff replacement before routing/draft overwrite.
-- Production remains on its prior schema and deployment. Do not run production write smoke tests.
+- Production now includes migrations 0008/0009 and the verified Day 4 code. Hosted smoke uses synthetic enquiry writes only; no booking writes are permitted.
 - Isolated branch `day4-ai-enquiry-tests` expires November 7, 2026 at 23:30 IST. Renew it before further write tests after expiry.
 
 ## Validation record
@@ -37,3 +37,11 @@ Status: Day 4 feature work is complete locally. Milestones 1–6 are owner-appro
 Automatic approval review rejected the production migration because the agreed workflow requires separate final local-release approval. No production migration, deployment or hosted write smoke was performed. Existing production data was read-only hashed for a future integrity comparison (9 bookings, 10 items, 17 booking nights, 540 inventory rows and 540 rate rows). Once release approval is supplied, apply migrations 0008/0009 before dependent code, configure the approved model and fail-closed inference gates, deploy, and smoke-test synthetic enquiries without booking writes. Do not mark the hosted release complete until those steps pass.
 
 See [final live-model evaluation](AI_DAY4_FINAL_EVALUATION.json). The current-year provenance correction has an explicit regression test. No schema or UI layout changed during final validation.
+
+## Completed production release
+
+The owner supplied explicit final production approval after the earlier automatic-review rejection. Migrations 0008/0009 were applied before dependent code. Before/after hashes confirmed all nine existing bookings, ten items, seventeen booking nights, 540 inventory rows, 540 rates, three room types and one rate plan were unchanged. The known inference key was verified to have a $5 lifetime cap with no reset, then securely configured in Vercel without printing or downloading credentials. Haiku 5.5 and the environment gate are configured; the database gate was paused until verified and is now enabled.
+
+Application commit `172b57b` is deployed at https://hill-resort-booking.vercel.app (deployment `dpl_FxX1XtiDCuFUuLYn1UYCb4VMhJsG`). GitHub validation succeeded. All 33 hosted checks passed: all three sources persisted and analysed, category/team routing and complaint GM attention were correct, public access and bad origins were blocked, pause failure retained the enquiry, authoritative room quote insertion and draft persistence worked, and desktop/mobile inbox layouts had no horizontal overflow. Synthetic enquiry fixtures were removed by their generated IDs; usage records remain. No booking or inventory writes occurred. See [hosted smoke evidence](DAY_4_HOSTED_SMOKE.json).
+
+The historical pending-approval paragraph above is superseded by this completed release. Day 4 is complete; Day 5 work has not started.
