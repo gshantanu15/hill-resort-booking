@@ -1,5 +1,13 @@
 # Architecture Decision Record
 
+## Day 5 reviewer readiness — November 6
+
+The operator reset is a separate dry-run-by-default CLI, not a web route or a change to fill-missing seeding. Exact direct endpoint/database confirmation, bounded transactional table locks and approved configuration checks protect the shared synthetic demo. Authentication, migrations and AI spending records survive. Unknown calendars and active AI processing prevent reset; shared-demo execution requires a maintenance window and separate approval. See DAY_5_OPERATIONS.md.
+
+Preview authentication uses VERCEL_URL when VERCEL_ENV is preview and no explicit BETTER_AUTH_URL is configured. Explicit local origins and the production-domain fallback remain unchanged. This prevents isolated review deployments from authenticating against the production origin.
+
+Day 5 retains the working Webpack build. The refreshed dependency audit reports 12 moderate findings and no high/critical findings; proposed fixes include major downgrades, so no forced upgrade is included. No database migration is required by these changes.
+
 ## Status
 
 Approved baseline; implementation in progress.

@@ -1,6 +1,6 @@
 # AI operations and trial control
 
-This guide describes the approved, manually controlled OpenRouter trial and the implemented local Day 4 application controls. Analyse remains staff-triggered and is owner-approved locally; migration 0009 is applied to normal development and isolated tests; production is untouched.
+This guide describes the historical bounded OpenRouter trial and the deployed Day 4 application controls. Analyse remains staff-triggered; migration 0009 and the approved production configuration are verified. Trial measurements below are historical; see Production release state for current operations.
 
 ## Approved trial boundary
 

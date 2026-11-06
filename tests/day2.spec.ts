@@ -65,7 +65,13 @@ test("staff calendar and booking API contracts", async ({
     await page.goto("/staff/login");
     await page.getByLabel("Email").fill(DEMO_STAFF_EMAIL);
     await page.getByLabel("Password").fill(DEMO_STAFF_PASSWORD);
+    const signIn = page.waitForResponse(
+      (response) =>
+        response.url().endsWith("/api/auth/sign-in/email") &&
+        response.request().method() === "POST",
+    );
     await page.getByRole("button", { name: "Sign in" }).click();
+    expect((await signIn).status()).toBe(200);
     await expect(
       page.getByRole("heading", { name: "Rates & availability" }),
     ).toBeVisible();

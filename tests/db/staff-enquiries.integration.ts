@@ -143,9 +143,20 @@ describe("staff enquiry persistence and projections", () => {
     const values = Array.from({ length: 26 }, () => input("email"));
     const unassigned = input("whatsapp");
     try {
-      const saved = [];
-      for (const value of values)
-        saved.push(await saveSimulatedEnquiry(db, value));
+      // Pagination needs 26 rows, not 26 serial intake transactions over the network.
+      const saved = await db
+        .insert(schema.enquiries)
+        .values(
+          values.map((value) => ({
+            submissionId: value.submissionId,
+            requestFingerprint: randomUUID(),
+            source: value.source,
+            contactName: value.contact.name,
+            contactEmail: value.contact.email,
+            message: value.message,
+          })),
+        )
+        .returning({ reference: schema.enquiries.id });
       const unassignedSaved = await saveSimulatedEnquiry(db, unassigned);
       await db
         .update(schema.enquiries)

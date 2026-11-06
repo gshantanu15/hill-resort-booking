@@ -1,5 +1,6 @@
 private/
 test-results/
+test-results-hosted/
 playwright-report/
 coverage/
 .env*

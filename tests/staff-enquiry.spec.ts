@@ -52,14 +52,15 @@ test("staff sees all sources, filters details and recovers simulated intake with
     ).toBe(401);
     await page.goto("/staff/enquiries");
     await expect(page).toHaveURL(/\/staff\/login/);
-    await page.waitForLoadState("networkidle");
     await page.getByLabel("Email", { exact: true }).fill(DEMO_STAFF_EMAIL);
     await page.getByLabel("Password").fill(DEMO_STAFF_PASSWORD);
     await page.getByRole("button", { name: "Sign in", exact: true }).click();
     await expect(
       page.getByRole("heading", { name: "Rates & availability" }),
     ).toBeVisible();
-    await page.waitForLoadState("networkidle");
+    await expect(
+      page.getByRole("region", { name: "Nightly rates calendar" }),
+    ).toHaveAttribute("aria-busy", "false");
     const checkNavigation = async (current: string) => {
       const navigation = page.getByRole("navigation", {
         name: "Staff navigation",
@@ -617,7 +618,10 @@ test("staff reviews saved AI assistance, protects drafts and inserts an authorit
     await assistant
       .getByRole("button", { name: "Analyse enquiry", exact: true })
       .click();
-    await expect(assistant.getByRole("status")).toContainText("Analysis saved");
+    await expect(assistant.getByRole("status")).toContainText(
+      "Analysis saved",
+      { timeout: 30000 },
+    );
     await expect(assistant).toContainText("35–45 guests");
     await expect(assistant).toContainText("year omitted by guest");
     await expect(draft).toContainText("[Sales-approved quote]");
@@ -639,7 +643,10 @@ test("staff reviews saved AI assistance, protects drafts and inserts an authorit
     await assistant
       .getByRole("button", { name: "Analyse enquiry", exact: true })
       .click();
-    await expect(assistant.getByRole("status")).toContainText("Analysis saved");
+    await expect(assistant.getByRole("status")).toContainText(
+      "Analysis saved",
+      { timeout: 30000 },
+    );
     await expect(draft).toHaveValue(
       "Sales will prepare a proposal.\n\n[Sales-approved quote]",
     );

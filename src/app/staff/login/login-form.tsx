@@ -1,9 +1,10 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import { DEMO_STAFF_EMAIL, DEMO_STAFF_PASSWORD } from "@/lib/demo-staff";
 
 export function LoginForm() {
+  const formRef = useRef<HTMLFormElement>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -35,6 +36,7 @@ export function LoginForm() {
   }
   return (
     <form
+      ref={formRef}
       method="post"
       className="staff-form staff-login-form"
       onSubmit={submit}
@@ -68,6 +70,25 @@ export function LoginForm() {
         Shared synthetic demo account: {DEMO_STAFF_EMAIL} /{" "}
         {DEMO_STAFF_PASSWORD}
       </p>
+      <button
+        className="staff-button"
+        type="button"
+        disabled={busy}
+        onClick={() => {
+          const form = formRef.current;
+          if (!form) return;
+          (form.elements.namedItem("email") as HTMLInputElement).value =
+            DEMO_STAFF_EMAIL;
+          (form.elements.namedItem("password") as HTMLInputElement).value =
+            DEMO_STAFF_PASSWORD;
+          setError("");
+          form
+            .querySelector<HTMLButtonElement>('button[type="submit"]')
+            ?.focus();
+        }}
+      >
+        Fill demo credentials
+      </button>
     </form>
   );
 }

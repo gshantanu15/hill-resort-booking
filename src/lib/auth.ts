@@ -3,7 +3,7 @@ import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import * as authSchema from "@/db/auth-schema";
+import * as authSchema from "../db/auth-schema";
 
 // Better Auth's generic return type includes the inferred additional fields;
 // keeping the memoized handle opaque avoids widening it to the base options type.
@@ -56,10 +56,14 @@ function buildAuth() {
 
 let instance: ReturnType<typeof buildAuth> | undefined;
 
-function configuredBaseURL() {
+export function configuredBaseURL() {
   const explicit = process.env.BETTER_AUTH_URL?.trim();
   if (explicit) return explicit.replace(/\/$/, "");
-  const deployment = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
+  const deployment = (
+    process.env.VERCEL_ENV === "preview"
+      ? process.env.VERCEL_URL
+      : process.env.VERCEL_PROJECT_PRODUCTION_URL
+  )?.trim();
   if (deployment)
     return deployment.startsWith("http") ? deployment : `https://${deployment}`;
   return "http://localhost:3000";

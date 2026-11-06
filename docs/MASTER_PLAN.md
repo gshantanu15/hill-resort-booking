@@ -135,15 +135,17 @@ Record important implementation choices and brief rationale in `docs/ARCHITECTUR
 
 **Goal:** reach feature completion and make the demo easy to assess.
 
-- [ ] Run full booking, administration, login, and enquiry journeys against the deployed app.
-- [ ] Resolve integration defects and inconsistent validation.
-- [ ] Review mobile layouts, keyboard navigation, labels, focus states, and error messages.
-- [ ] Optimize large images and inspect behavior under a throttled mobile connection.
-- [ ] Show demo credentials with a “Fill demo credentials” button; retain real sign-in submission.
-- [ ] Add clear simulated-payment/channel labels and synthetic-data guidance.
-- [ ] Provide an operator-only seed/reset command for restoring the shared demo.
-- [ ] Prepare README setup instructions, architecture notes, limitations, and a short reviewer walkthrough.
-- [ ] Freeze feature scope.
+**November 6 workflow:** owner approved one implementation batch followed by release review. Work is on `day5-reviewer-readiness`; production changes require final approval of the tested candidate. See [Day 5 operations](DAY_5_OPERATIONS.md). Earlier Day 4 pending-release notes below are historical and superseded by its completed release.
+
+- [x] Run full booking, administration, login, and enquiry journeys against the deployed app. **Evidence:** 30 desktop/mobile journeys passed against the isolated hosted Day 5 preview; five additional hosted AI-disabled/manual-fallback checks passed. Production promotion remains approval-gated.
+- [x] Resolve integration defects and inconsistent validation. **Evidence:** preview authentication origin fixed; 87 unit, 132 database and 48 local browser checks passed. Hosted test readiness corrected without changing application protections.
+- [x] Review mobile layouts, keyboard navigation, labels, focus states, and error messages. **Evidence:** local desktop/mobile regressions and screenshot review; hosted guest/staff journeys passed.
+- [x] Optimize large images and inspect behavior under a throttled mobile connection. **Evidence:** local and hosted throttled-mobile catalogue checks loaded all images without overflow; approved responsive image sizing retained because no concrete asset defect was demonstrated.
+- [x] Show demo credentials with a “Fill demo credentials” button; retain real sign-in submission. **Evidence:** desktop/mobile checks verify no automatic submission, focus, explicit sign-in failure and refill recovery.
+- [x] Add clear simulated-payment/channel labels and synthetic-data guidance. **Evidence:** existing payment/channel labels and unsent draft guidance reviewed; reviewer/reset guide added without changing approved guest copy.
+- [x] Provide an operator-only seed/reset command for restoring the shared demo. **Evidence:** db:reset-demo, target-validation unit tests and five isolated reset integration cases, including rollback and lock contention. No shared-demo reset executed.
+- [x] Prepare README setup instructions, architecture notes, limitations, and a short reviewer walkthrough. **Evidence:** README/SETUP current-state corrections, DAY_5_OPERATIONS.md and architecture addendum.
+- [x] Freeze feature scope. **Evidence:** Day 5 candidate is ready for owner review; no new integrations or migrations. See DAY_5_EVIDENCE.md. Production release remains pending separate approval.
 
 **Done when:** a reviewer can independently sign in, change rates, make a booking, and inspect AI routing; critical automated journeys pass; shared demo data is recoverable without a public reset; no blocking integration defects remain.
 
@@ -171,7 +173,7 @@ Record important implementation choices and brief rationale in `docs/ARCHITECTUR
 | Day 2 | Units 1–17 complete: 35 unit, 102 database, six desktop/mobile checks; types/lint/format/build and deployed smoke passed. Implementation `bb23d2a`, successful GitHub CI, demo migrated/seeded. See [Day 2 evidence](DAY_2_EVIDENCE.md).                           | Complete |
 | Day 3 | Guest redesign and polish deployed; 46 unit, 105 database and 24 desktop/mobile checks pass. Migration 0007 applied to both environments; live smoke preserved existing data. See [release evidence](GUEST_POLISH_RELEASE.md).                                     | Complete |
 | Day 4 | Date picker and public intake approved/committed. Staff inbox, simulated intake and redesigned workbench approved/committed. Milestone 4 manual routing, unsent drafts and shared navigation owner-approved and complete. See [Day 4 evidence](DAY_4_EVIDENCE.md). | Complete |
-| Day 5 | —                                                                                                                                                                                                                                                                  | Pending  |
+| Day 5 | 87 unit, 132 database, 48 local browser and 30 hosted journeys passed, plus five hosted AI-gate checks and final affected-case rechecks. See [Day 5 evidence](DAY_5_EVIDENCE.md). Production approval pending.                                                     | Review   |
 | Day 6 | —                                                                                                                                                                                                                                                                  | Pending  |
 
 ## Completion standard
