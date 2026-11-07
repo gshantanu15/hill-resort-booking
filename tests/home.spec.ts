@@ -53,23 +53,31 @@ test("normal motion leaves the closing heading sharp and disclosures reversible"
 
 test("guest navigation and page photography stay distinct", async ({
   page,
-}) => {
+}, testInfo) => {
   await page.goto("/");
   await expect(page.locator(".guest-footer-photo")).toHaveAttribute(
     "src",
     /green-hills-road/,
   );
-  await page.getByRole("button", { name: "Open navigation" }).click();
-  await expect(page.getByRole("dialog")).toBeVisible();
-  await page.getByRole("link", { name: "Enquiries", exact: true }).click();
+  const mobile = testInfo.project.name === "mobile";
+  if (mobile)
+    await page.getByRole("button", { name: "Open navigation" }).click();
+  const navigation = mobile
+    ? page.getByRole("dialog")
+    : page.getByRole("navigation", { name: "Main navigation" });
+  await navigation
+    .getByRole("link", { name: "Enquiries", exact: true })
+    .click();
   await expect(page).toHaveURL(/\/enquire$/);
   await expect(page.locator(".enquiry-photo img")).toHaveAttribute(
     "src",
     /shade-coffee/,
   );
-  await page.getByRole("button", { name: "Open navigation" }).click();
-  await page.keyboard.press("Escape");
-  await expect(page.getByRole("dialog")).toBeHidden();
+  if (mobile) {
+    await page.getByRole("button", { name: "Open navigation" }).click();
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("dialog")).toBeHidden();
+  }
 });
 test("footer staff link keeps its complete border at rest and on hover", async ({
   page,
