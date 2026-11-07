@@ -9,6 +9,10 @@ These are licensed reference photographs for the fictional Aavana Estate demo. T
 | canopy-bed-and-wardrobes-in-khan-pool-suite-at-amantaka-luxu-1920.jpg | [Canopy bed and wardrobes, Amantaka](https://commons.wikimedia.org/wiki/File:Canopy_bed_and_wardrobes_in_Khan_Pool_Suite_at_Amantaka_luxury_Resort_%26_Hotel_in_Luang_Prabang_Laos.jpg), Basile Morin | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
 | lobby-lounge-of-amantaka-suite-amantaka-luxury-resort-hotel--1920.jpg | [Lobby lounge, Amantaka Suite](https://commons.wikimedia.org/wiki/File:Lobby_lounge_of_Amantaka_Suite_Amantaka_luxury_Resort_%26_Hotel_Luang_Prabang_Laos.jpg), Basile Morin                          | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
 
+The closing footer uses [Green hills and Winding Road](https://commons.wikimedia.org/wiki/File:Green_hills_and_Winding_Road.jpg) by Deshna Subramanian, [CC0](https://creativecommons.org/publicdomain/zero/1.0/), stored as ../estate/green-hills-road.webp (resized and cropped).
+
+The enquiry uses [Traditional shade coffee plantation, Chikmagalur](https://commons.wikimedia.org/wiki/File:Traditional_shade_coffee_plantation_Chikmagalur_1.jpg) by Anand Osuri, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), stored as ../estate/shade-coffee.webp (resized and cropped).
+
 The guest page exposes these credits under the footer's photography disclosure. Retain attribution and applicable share-alike terms when redistributing or adapting these images.
 
 ## Owner-supplied AI-generated illustrations

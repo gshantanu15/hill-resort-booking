@@ -199,7 +199,7 @@ export default async function Confirmation({
           <a href="https://commons.wikimedia.org/wiki/User:Basile_Morin">
             Basile Morin
           </a>
-          , CC BY-SA 4.0. This photograph does not depict Aavana Estate.
+          , CC BY-SA 4.0.
         </p>
       </footer>
     </main>

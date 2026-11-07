@@ -309,10 +309,10 @@ nav {
   gap: 40px;
   font-size: 14px;
 }
-nav a:not(.button) {
+header nav a:not(.button) {
   border-bottom: 1px solid transparent;
 }
-nav a:not(.button):hover {
+header nav a:not(.button):hover {
   border-bottom-color: var(--ink);
 }
 .button {
@@ -740,5 +740,278 @@ footer > a:last-of-type {
   }
   .site-footer-links a {
     font-size: 13px;
+  }
+}
+
+/* Owner-selected panoramic hero, November 6, 2026. */
+.av-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin: 0 24px;
+  max-width: none;
+  border: 0;
+  border-radius: 0;
+}
+.av-hero .av-copy {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+.av-hero h1 {
+  font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.035em;
+  overflow-wrap: normal;
+  text-wrap: balance;
+}
+.av-hero .av-invitation p {
+  font-size: 17px;
+  line-height: 1.6;
+}
+.av-hero .av-landscape img {
+  object-fit: cover;
+  object-position: center;
+  filter: saturate(1.2);
+}
+.av-hero .av-location {
+  z-index: 1;
+  font-size: 13px;
+}
+.av-hero .button {
+  min-height: 52px;
+  border-radius: 2px;
+  gap: 24px;
+  white-space: normal;
+}
+.av-hero .button svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  stroke-width: 1.3;
+  fill: none;
+  flex: none;
+}
+.av-hero a:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 6px;
+}
+.av-hero {
+  min-height: 600px;
+  display: flex;
+  align-items: flex-end;
+  padding: clamp(28px, 5vw, 72px);
+  color: var(--hero-ink);
+  background: var(--ink);
+}
+.av-hero .av-landscape {
+  position: absolute;
+  inset: 0;
+}
+.av-hero .av-landscape::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    var(--scrim-left),
+    var(--scrim-mid) 72%,
+    var(--scrim-clear)
+  );
+}
+.av-hero h1 {
+  font-size: clamp(52px, 7.4vw, 96px);
+  max-width: 12ch;
+  margin: 0 0 28px;
+  line-height: 1;
+}
+.av-hero .av-copy {
+  width: 100%;
+}
+.av-hero .av-invitation {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  border-top: 1px solid currentColor;
+  padding-top: 24px;
+}
+.av-hero .av-invitation p {
+  max-width: 31ch;
+}
+.av-hero .av-location {
+  position: absolute;
+  top: 28px;
+  left: clamp(28px, 5vw, 72px);
+}
+.av-hero .button {
+  color: var(--hero-ink);
+  border-color: var(--hero-ink);
+}
+.av-hero .button:hover {
+  background: var(--hero-ink);
+  color: var(--ink);
+}
+@media (max-width: 700px) {
+  .av-hero {
+    margin: 0 12px;
+    min-height: 0;
+  }
+  .av-hero h1 {
+    font-size: clamp(44px, 10vw, 64px);
+  }
+  .av-hero {
+    min-height: 620px;
+    padding: 28px 24px;
+  }
+  .av-hero .av-invitation {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  .av-hero .av-invitation p {
+    margin: 0;
+  }
+  .av-hero .av-location {
+    left: 24px;
+    top: 24px;
+  }
+}
+
+/* Owner-selected estate signature footer, November 6, 2026. */
+.av-footer {
+  border-top: 1px solid var(--rule);
+  padding-inline: 5%;
+}
+.av-footer .site-footer-links a {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+}
+.av-footer .site-footer-links a:hover {
+  text-decoration: underline;
+  text-underline-offset: 6px;
+}
+.av-footer .demo-notes summary {
+  min-height: 48px;
+  align-content: center;
+  cursor: pointer;
+}
+.av-footer .demo-notes p {
+  max-width: 72ch;
+}
+.av-footer .site-footer-brand .wordmark {
+  font-size: 64px;
+}
+.av-footer {
+  background: var(--ink);
+  color: var(--paper);
+  padding-block: 56px;
+}
+.av-footer .site-footer-main {
+  align-items: end;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 48px;
+}
+.av-footer .site-footer-brand .wordmark {
+  font-size: 64px;
+  line-height: 1.05;
+  display: inline-block;
+}
+.av-footer .site-footer-brand p {
+  color: var(--paper);
+  max-width: 34ch;
+  margin-top: 24px;
+}
+.av-footer .site-footer-links {
+  color: var(--paper);
+  align-items: start;
+  flex-wrap: wrap;
+}
+.av-footer .demo-notes {
+  color: var(--paper);
+  border-color: var(--muted);
+  margin-top: 40px;
+}
+.av-footer a:focus-visible,
+.av-footer summary:focus-visible {
+  outline-color: var(--paper);
+}
+@media (max-width: 700px) {
+  .av-footer {
+    padding: 32px 24px;
+  }
+  .av-footer .site-footer-main {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    align-items: stretch;
+  }
+  .av-footer .site-footer-brand .wordmark {
+    font-size: clamp(36px, 10vw, 56px);
+  }
+  .av-footer .site-footer-brand {
+    border: 0;
+    padding: 0;
+  }
+  .av-footer .site-footer-links {
+    gap: 8px 24px;
+  }
+}
+
+/* Resolve the mist as the estate section reaches its anchor below the sticky header. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .av-estate {
+      view-timeline-name: --av-mist;
+      view-timeline-axis: block;
+      view-timeline-inset: 88px 0;
+    }
+    .av-estate .estate-heading {
+      animation: av-mist-focus ease-in both;
+      animation-timeline: --av-mist;
+      animation-range: entry 0% exit-crossing 0%;
+      transform-origin: left center;
+    }
+    @keyframes av-mist-focus {
+      from {
+        filter: blur(var(--estate-mist-blur, 1px));
+        opacity: 0.7;
+        transform: scale(1.015);
+      }
+      99%,
+      to {
+        filter: blur(0);
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+  }
+  @media (min-width: 761px) {
+    .av-estate .estate-heading {
+      --estate-mist-blur: 3px;
+    }
+  }
+}
+
+/* Owner-selected hero arrival, November 6, 2026. */
+@media (prefers-reduced-motion: no-preference) {
+  .av-main-motion .av-copy h1 {
+    animation: av-main-arrive 720ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .av-main-motion .av-invitation {
+    animation: av-main-arrive 720ms cubic-bezier(0.16, 1, 0.3, 1) 100ms both;
+  }
+  @keyframes av-main-arrive {
+    from {
+      opacity: 0.7;
+      transform: translateY(12px);
+      clip-path: inset(0 0 8% 0);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+      clip-path: inset(0);
+    }
   }
 }

@@ -12,7 +12,7 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:db": "vitest run --config vitest.db.config.ts",
-    "test:e2e": "playwright test",
+    "test:e2e": "playwright test --config playwright.regression.config.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx scripts/seed.ts",

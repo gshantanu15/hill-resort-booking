@@ -1,5 +1,6 @@
 import Image from "next/image";
-import Link from "next/link";
+import { GuestFooter } from "./guest-footer";
+import { GuestHeader } from "./guest-header";
 import { listRooms } from "@/db/rooms";
 import { GuestCatalogue } from "./guest-catalogue";
 import "./catalogue.css";
@@ -8,38 +9,11 @@ export default async function Home() {
   const { rooms, source } = await listRooms();
   return (
     <>
-      <a className="skip" href="#main">
-        Skip to content
-      </a>
-      <header>
-        <Link className="wordmark" href="/">
-          Aavana <span>Estate</span>
-        </Link>
-        <nav aria-label="Main navigation">
-          <a href="#stays">Our stays</a>
-          <a href="#about">The estate</a>
-          <a className="button small" href="#stays">
-            Find your stay
-          </a>
-          <a href="/enquire">Make an enquiry</a>
-        </nav>
-      </header>
-      <main id="main">
-        <section className="hero">
-          <div className="hero-copy">
-            <h1>
-              Leave the hurry
-              <br />
-              downhill.
-            </h1>
-            <p>
-              Coffee-country mornings. Room to breathe. A quiet place to return.
-            </p>
-            <a className="button" href="#stays">
-              Explore rooms & villas
-            </a>
-          </div>
-          <div className="hero-photo" data-slot="estate-landscape">
+      <GuestHeader />
+
+      <main id="main" className="av-main-motion">
+        <section className="av-hero">
+          <div className="av-landscape">
             <Image
               src="/images/design/blassenstein-erlauftal-mit-nebel-02-panorama-1920.jpg"
               alt="Illustrative morning mist flowing between wooded hills"
@@ -48,7 +22,26 @@ export default async function Home() {
               sizes="(max-width: 1440px) 100vw, 1440px"
             />
           </div>
-          <span className="hero-location">Chikkamagaluru, Karnataka</span>
+          <div className="av-copy">
+            <h1>
+              Leave the hurry
+              <br />
+              downhill.
+            </h1>
+            <div className="av-invitation">
+              <p>
+                Coffee-country mornings. Room to breathe. A quiet place to
+                return.
+              </p>
+              <a className="button" href="#stays">
+                Explore rooms &amp; villas
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="M12 4v16m-6-6 6 6 6-6" />
+                </svg>
+              </a>
+            </div>
+          </div>
+          <span className="av-location">Chikkamagaluru, Karnataka</span>
         </section>
         <section id="stays" className="stays">
           <div className="section-heading">
@@ -59,10 +52,6 @@ export default async function Home() {
                 Illustrative rooms, amenities and rates · availability checked
                 when you choose dates
               </span>
-              <span className="collection-note">
-                Room images are illustrative; some are AI-generated concept
-                images supplied for this preview.
-              </span>
             </div>
             <p>
               Rooms for two. Space for family.
@@ -71,7 +60,7 @@ export default async function Home() {
           </div>
           <GuestCatalogue rooms={rooms} />
         </section>
-        <section id="about" className="estate">
+        <section id="about" className="estate av-estate">
           <div className="estate-heading">
             <h2>
               Less on the agenda.
@@ -88,66 +77,7 @@ export default async function Home() {
           </div>
         </section>
       </main>
-      <footer className="site-footer">
-        <div className="site-footer-main">
-          <div className="site-footer-brand">
-            <Link className="wordmark" href="/">
-              Aavana Estate
-            </Link>
-            <p>
-              Booking demo in development. No real reservations or payments.
-            </p>
-          </div>
-          <nav className="site-footer-links" aria-label="Footer navigation">
-            <a href="https://github.com/gshantanu15/hill-resort-booking">
-              Project source
-            </a>
-            <Link className="site-footer-staff-link" href="/staff/login">
-              <svg aria-hidden="true" viewBox="0 0 24 24">
-                <rect x="5" y="10" width="14" height="11" rx="2" />
-                <path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3" />
-              </svg>
-              Staff sign in
-            </Link>
-            <Link href="/enquire">Make an enquiry</Link>
-          </nav>
-        </div>
-        <details className="demo-notes">
-          <summary>About this demo & photographs</summary>
-          <p>
-            A fictional estate. A working demo in the making. All rooms, rates
-            and photographs are illustrative demo content.
-          </p>
-          <p>
-            {source === "database"
-              ? "Room catalogue connected to PostgreSQL."
-              : "Preview catalogue: sample data. Database connection pending."}{" "}
-            Choose a stay to check dates, see an authoritative total, and
-            complete a clearly labelled test booking.
-          </p>
-          <p data-credits>
-            Photographs:{" "}
-            <a href="https://commons.wikimedia.org/wiki/File:Blassenstein_Erlauftal_mit_Nebel_02_Panorama.JPG">
-              Uoaei1, CC BY-SA 3.0
-            </a>
-            ; room interiors by{" "}
-            <a href="https://commons.wikimedia.org/wiki/File:Canopy_bed_of_Khan_Pool_Suite_in_Amantaka_luxury_Resort_%26_Hotel_in_Luang_Prabang_Laos.jpg">
-              Basile Morin
-            </a>{" "}
-            (
-            <a href="https://commons.wikimedia.org/wiki/File:Canopy_bed_and_wardrobes_in_Khan_Pool_Suite_at_Amantaka_luxury_Resort_%26_Hotel_in_Luang_Prabang_Laos.jpg">
-              bedroom
-            </a>
-            ,{" "}
-            <a href="https://commons.wikimedia.org/wiki/File:Lobby_lounge_of_Amantaka_Suite_Amantaka_luxury_Resort_%26_Hotel_Luang_Prabang_Laos.jpg">
-              lounge
-            </a>
-            ), CC BY-SA 4.0, Wikimedia Commons. Images cropped and colour
-            adjusted for this concept. Additional room detail images were
-            supplied as AI-generated illustrations for this preview.
-          </p>
-        </details>
-      </footer>
+      <GuestFooter source={source} />
     </>
   );
 }
